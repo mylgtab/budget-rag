@@ -1,0 +1,8 @@
+{"question": "HTTP 强缓存命中时会发请求吗？", "answers": ["强缓存命中时浏览器不会发请求，直接读本地副本。"], "doc": "http-cache.md"}
+{"question": "no-store 和 no-cache 有什么区别？", "answers": ["no-cache 是每次使用前都要向服务器确认；no-store 才是完全不存。"], "doc": "http-cache.md"}
+{"question": "ETag 是什么？", "answers": ["ETag 是内容指纹，内容变了 ETag 就变。"], "doc": "http-cache.md"}
+{"question": "B+ 树为什么范围查询快？", "answers": ["B+ 树的叶子之间用链表相连，所以范围查询很快。"], "doc": "db-index.md"}
+{"question": "最左前缀原则是什么？", "answers": ["联合索引 (a, b, c) 只有在查询条件从 a 开始时才能用上。"], "doc": "db-index.md"}
+{"question": "索引越多越好吗？", "answers": ["索引不是越多越好：每个索引都增加写入成本和存储占用，写多读少的表要克制。"], "doc": "db-index.md"}
+{"question": "RAG 的分块大小一般怎么定？", "answers": ["常见做法是 300 到 500 字，相邻块保留一部分重叠，避免答案被切断。"], "doc": "rag-basics.md"}
+{"question": "BM25 和向量检索各自擅长什么？", "answers": ["向量检索擅长语义相近但用词不同的情况，关键词检索（BM25）擅长专有名词和数字。"], "doc": "rag-basics.md"}
