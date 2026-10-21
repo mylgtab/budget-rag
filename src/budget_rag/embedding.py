@@ -46,3 +46,42 @@ class HashEmbedder:
 
 def cosine(a: list[float], b: list[float]) -> float:
     return sum(x * y for x, y in zip(a, b))
+
+class OpenAIEmbedder:
+    """任何 OpenAI 兼容的 /embeddings 接口（SiliconFlow、通义、本地 vLLM 等）。"""
+
+    def __init__(self, base: str, model: str, key: str, dim: int = 1024, timeout: int = 60) -> None:
+        self.base = base.rstrip("/")
+        self.model = model
+        self.key = key
+        self.dim = dim
+        self.timeout = timeout
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        import json
+        import urllib.request
+
+        body = json.dumps({"model": self.model, "input": texts}).encode()
+        req = urllib.request.Request(
+            f"{self.base}/embeddings",
+            data=body,
+            headers={"Authorization": f"Bearer {self.key}", "Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        vecs = [item["embedding"] for item in data["data"]]
+        out = []
+        for v in vecs:
+            norm = math.sqrt(sum(x * x for x in v)) or 1.0
+            out.append([x / norm for x in v])
+        return out
+
+
+def build_embedder(settings) -> "Embedder":
+    """有 key 用真实模型，没有就退回离线哈希，保证永远能跑。"""
+    base = getattr(settings, "embed_base", "")
+    key = getattr(settings, "embed_key", "")
+    if base and key:
+        return OpenAIEmbedder(base, getattr(settings, "embed_model", "BAAI/bge-m3"), key,
+                              getattr(settings, "embed_dim", 1024))
+    return HashEmbedder(getattr(settings, "embed_dim", 256))

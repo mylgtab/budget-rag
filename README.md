@@ -51,6 +51,19 @@ export DEEPSEEK_API_KEY=sk-xxx       # Linux/macOS
 python scripts/eval.py --set data/eval_set.jsonl --llm
 ```
 
+## 接真实 embedding
+
+默认的 `HashEmbedder` 是**离线占位**（零依赖，保证克隆下来就能跑）。换成真实模型只要三个环境变量：
+
+```bash
+export RAG_EMBED_BASE=https://api.siliconflow.cn/v1
+export RAG_EMBED_MODEL=BAAI/bge-m3
+export RAG_EMBED_KEY=sk-xxx
+```
+
+任何 OpenAI 兼容的 `/embeddings` 接口都能接（SiliconFlow、通义、本地 vLLM 都行）。
+没配 key 时自动退回哈希实现，不会报错。
+
 ## 数据
 
 - `data/sample_docs/`：3 篇示例文档，拿来跑通流程

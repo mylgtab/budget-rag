@@ -29,6 +29,11 @@ class Settings:
     llm_base: str = "https://api.deepseek.com/v1"
     api_key: str = field(default_factory=lambda: os.getenv("DEEPSEEK_API_KEY", ""))
 
+    # embedding（留空则用离线哈希）
+    embed_base: str = field(default_factory=lambda: os.getenv("RAG_EMBED_BASE", ""))
+    embed_model: str = field(default_factory=lambda: os.getenv("RAG_EMBED_MODEL", "BAAI/bge-m3"))
+    embed_key: str = field(default_factory=lambda: os.getenv("RAG_EMBED_KEY", ""))
+
     @classmethod
     def from_env(cls) -> "Settings":
         s = cls()

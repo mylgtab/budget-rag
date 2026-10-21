@@ -6,7 +6,7 @@ import time
 from dataclasses import dataclass, field
 
 from .config import Settings
-from .embedding import HashEmbedder
+from .embedding import build_embedder
 from .llm import OfflineAnswerer
 from .router import decide
 from .store import Store
@@ -38,7 +38,8 @@ class Trace:
 class RAG:
     def __init__(self, settings: Settings | None = None, answerer=None) -> None:
         self.s = settings or Settings.from_env()
-        self.store = Store(HashEmbedder(self.s.embed_dim), self.s.chunk_size, self.s.chunk_overlap)
+        self.embedder = build_embedder(self.s)
+        self.store = Store(self.embedder, self.s.chunk_size, self.s.chunk_overlap)
         self.answerer = answerer or OfflineAnswerer()
 
     def ingest(self, docs: dict[str, str]) -> int:
