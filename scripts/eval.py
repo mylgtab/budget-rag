@@ -5,10 +5,15 @@ python scripts/eval.py --set data/eval_set.jsonl --k 3 [--llm] [--out results]
 
 from __future__ import annotations
 
+
 import argparse
 import json
 import re
 import sys
+import io
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
