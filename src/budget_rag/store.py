@@ -63,6 +63,19 @@ class Store:
         fused.sort(key=lambda x: x[1], reverse=True)
         return fused[:k]
 
+    def search_to_budget(self, query: str, max_tokens: int, hybrid: bool = False) -> list[tuple[Chunk, float]]:
+        """按分数顺序取块，直到累计 token 达到预算；至少取一块。"""
+        ranked = (self.search_hybrid(query, len(self.chunks)) if hybrid
+                  else self.search_bm25(query, len(self.chunks)))
+        picked: list[tuple[Chunk, float]] = []
+        used = 0
+        for chunk, score in ranked:
+            picked.append((chunk, score))
+            used += max(1, int(len(chunk.text) / 1.5))
+            if used >= max_tokens:
+                break
+        return picked
+
     # ---- 持久化 ----
     def save(self, path: str | Path) -> None:
         payload = [

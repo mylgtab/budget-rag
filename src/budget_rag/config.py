@@ -12,7 +12,11 @@ class Settings:
     top_k: int = 3
     chunk_size: int = 320
     chunk_overlap: int = 60
-    chunk_mode: str = field(default_factory=lambda: os.getenv("RAG_CHUNK_MODE", "fixed"))  # fixed | sentence
+    chunk_mode: str = field(default_factory=lambda: os.getenv("RAG_CHUNK_MODE", "auto"))  # fixed | sentence | auto
+
+    # auto 模式：上下文预算 ≤ 阈值用句级切块，超过用固定块
+    ctx_tokens: int = field(default_factory=lambda: int(os.getenv("RAG_CTX_TOKENS", "300")))
+    auto_threshold: int = field(default_factory=lambda: int(os.getenv("RAG_AUTO_THRESHOLD", "500")))
     embed_dim: int = 256
 
     # 路由器

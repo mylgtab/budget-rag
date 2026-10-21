@@ -81,8 +81,8 @@ def main() -> int:
         golds = item["answers"]
         hit = 0.0
         if rag.store.chunks:
-            ctx = "".join(rag.store.chunks[i].text for i, c in enumerate(rag.store.chunks)
-                          if f"{c.doc}#{c.idx}" in tr["docs"])
+            st = rag.stores.get(tr.get("store", ""), rag.store)
+            ctx = "".join(c.text for c in st.chunks if f"{c.doc}#{c.idx}" in tr["docs"])
             hit = float(any(norm(g) in norm(ctx) for g in golds))
         rows.append({
             "question": item["question"],

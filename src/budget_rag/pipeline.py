@@ -1,4 +1,4 @@
-"""RAG 主链路：路由 → 检索 → 生成 → 记账。"""
+"""RAG 主链路：预算选索引 → 检索到预算 → 生成 → 记账。"""
 
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ class Trace:
     path: str
     reason: str
     k: int
+    store: str = "fixed"          # 这次用了哪个索引
     docs: list[str] = field(default_factory=list)
     context_tokens: int = 0
     prompt_tokens: int = 0
@@ -32,7 +33,7 @@ class Trace:
 
     def as_dict(self) -> dict:
         return {
-            "path": self.path, "reason": self.reason, "k": self.k,
+            "path": self.path, "reason": self.reason, "k": self.k, "store": self.store,
             "docs": self.docs, "context_tokens": self.context_tokens,
             "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
             "billed": self.billed,
@@ -44,29 +45,48 @@ class RAG:
     def __init__(self, settings: Settings | None = None, answerer=None) -> None:
         self.s = settings or Settings.from_env()
         self.embedder = build_embedder(self.s)
-        self.store = Store(self.embedder, self.s.chunk_size, self.s.chunk_overlap, self.s.chunk_mode)
         self.answerer = answerer or OfflineAnswerer()
 
-    def ingest(self, docs: dict[str, str]) -> int:
-        return sum(self.store.add_document(name, text) for name, text in docs.items())
+        mode = self.s.chunk_mode
+        if mode == "auto":                       # 双索引：句级 + 固定块
+            self.stores = {
+                "sentence": Store(self.embedder, self.s.chunk_size, self.s.chunk_overlap, "sentence"),
+                "fixed": Store(self.embedder, self.s.chunk_size, self.s.chunk_overlap, "fixed"),
+            }
+        else:
+            self.stores = {mode: Store(self.embedder, self.s.chunk_size, self.s.chunk_overlap, mode)}
+        self.store = next(iter(self.stores.values()))     # 兼容旧接口
 
-    def query(self, question: str, budget: float | None = None) -> dict:
+    # ---- 建索引 ----
+    def ingest(self, docs: dict[str, str]) -> int:
+        total = 0
+        for store in self.stores.values():
+            for name, text in docs.items():
+                total = max(total, store.add_document(name, text))
+        return total
+
+    def _pick_store(self, ctx_tokens: int) -> tuple[str, Store]:
+        if len(self.stores) == 1:
+            name, store = next(iter(self.stores.items()))
+            return name, store
+        name = "sentence" if ctx_tokens <= self.s.auto_threshold else "fixed"
+        return name, self.stores[name]
+
+    def query(self, question: str, budget: float | None = None, ctx_tokens: int | None = None) -> dict:
         t0 = time.perf_counter()
         route = decide(
             question,
             budget if budget is not None else self.s.budget_rmb,
             self.s.top_k, self.s.cheap_max_chars, self.s.strong_min_chars,
         )
+        want_tokens = ctx_tokens or self.s.ctx_tokens
+        store_name, store = self._pick_store(want_tokens)
 
-        if route.hybrid:
-            hits = self.store.search_hybrid(question, route.k)
-            fallback_price = self.s.price_strong
-        else:
-            hits = self.store.search_bm25(question, route.k)
-            fallback_price = self.s.price_cheap
+        hits = store.search_to_budget(question, want_tokens, hybrid=route.hybrid)
+        fallback_price = self.s.price_strong if route.hybrid else self.s.price_cheap
 
         contexts = [c.text for c, _ in hits]
-        ctx_tokens = sum(_tokens(c) for c in contexts)
+        ctx_tokens_used = sum(_tokens(c) for c in contexts)
 
         usage = None
         if contexts and hasattr(self.answerer, "answer_with_usage"):
@@ -82,15 +102,15 @@ class RAG:
             cost = prompt_tokens / 1_000_000 * self.s.price_in \
                 + completion_tokens / 1_000_000 * self.s.price_out
         else:           # 离线抽取没有账单，退回估算
-            prompt_tokens, completion_tokens = ctx_tokens, _tokens(answer)
+            prompt_tokens, completion_tokens = ctx_tokens_used, _tokens(answer)
             cost = (prompt_tokens + completion_tokens) / 1000 * fallback_price
 
         return {
             "answer": answer,
             "trace": Trace(
-                path=route.path, reason=route.reason, k=route.k,
+                path=route.path, reason=route.reason, k=len(hits), store=store_name,
                 docs=[f"{c.doc}#{c.idx}" for c, _ in hits],
-                context_tokens=ctx_tokens,
+                context_tokens=ctx_tokens_used,
                 prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
                 billed=billed, cost_rmb=cost,
                 latency_ms=(time.perf_counter() - t0) * 1000,

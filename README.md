@@ -84,6 +84,18 @@ python scripts/eval.py --set data/eval_set.jsonl --llm
 预算 ≤500 token 时句级切块更好，且预算压得住（要 80 只花 90，固定块会花到 192）。
 超过 800 后固定块反超。
 
+### 双索引自动选择（默认）
+
+`chunk_mode=auto` 时同时建两套索引，按上下文预算自动选：
+
+| 上下文预算 | 用的索引 | Recall | cost/query |
+|---|---|---|---|
+| 100 tok | sentence | 0.850 | 0.00025 元 |
+| 300 tok | sentence | 0.900 | 0.00065 元 |
+| 800 tok | fixed | 0.944 | 0.00181 元 |
+
+调预算：`RAG_CTX_TOKENS=300`；调切换点：`RAG_AUTO_THRESHOLD=500`。
+
 ## 接真实 embedding
 
 默认的 `HashEmbedder` 是**离线占位**（零依赖，保证克隆下来就能跑）。换成真实模型只要三个环境变量：
