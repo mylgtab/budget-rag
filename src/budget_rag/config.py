@@ -12,6 +12,7 @@ class Settings:
     top_k: int = 3
     chunk_size: int = 320
     chunk_overlap: int = 60
+    chunk_mode: str = field(default_factory=lambda: os.getenv("RAG_CHUNK_MODE", "fixed"))  # fixed | sentence
     embed_dim: int = 256
 
     # 路由器

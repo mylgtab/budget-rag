@@ -44,7 +44,7 @@ class RAG:
     def __init__(self, settings: Settings | None = None, answerer=None) -> None:
         self.s = settings or Settings.from_env()
         self.embedder = build_embedder(self.s)
-        self.store = Store(self.embedder, self.s.chunk_size, self.s.chunk_overlap)
+        self.store = Store(self.embedder, self.s.chunk_size, self.s.chunk_overlap, self.s.chunk_mode)
         self.answerer = answerer or OfflineAnswerer()
 
     def ingest(self, docs: dict[str, str]) -> int:

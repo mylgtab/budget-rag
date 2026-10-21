@@ -88,7 +88,41 @@ class LLMAnswerer:
         # 兜底清洗：模型偶尔还是会带前缀或引号
         text = re.sub(r"^根据(上述)?资料\s*\[\d+\]\s*[，,：:]\s*", "", text)
         text = re.sub(r"^资料\s*\[\d+\]\s*[，,：:]\s*", "", text)
-        return text.strip().strip("“”\"'").strip()
+        text = text.strip().strip("“”\"'").strip()
+
+        # 二次兜底：模型拒答时，逼它从资料里挑最接近的一句
+        if text in ("不知道", "不知道。", "") or "不知道" == text.strip("。"):
+            text = self._force_quote(contexts, question) or text
+        return text
+
+    def _force_quote(self, contexts: list[str], question: str) -> str:
+        prompt = (
+            "下面资料里一定有一句能部分回答问题。请从资料中挑**最接近**的一句，逐字照抄，"
+            "不要解释，不要回答「不知道」，不要加引号。\n\n"
+            + "\n".join(f"- {c}" for c in contexts)
+            + f"\n\n问题：{question}\n最接近的句子："
+        )
+        body = json.dumps({
+            "model": self.s.llm_model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.0,
+            "max_tokens": 120,
+        }).encode()
+        req = urllib.request.Request(
+            f"{self.s.llm_base}/chat/completions",
+            data=body,
+            headers={"Authorization": f"Bearer {self.s.api_key}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            return ""
+        usage = data.get("usage") or {}
+        if self.last_usage:                    # 把兜底这一跳的 token 也记进账单
+            self.last_usage["prompt_tokens"] += int(usage.get("prompt_tokens", 0))
+            self.last_usage["completion_tokens"] += int(usage.get("completion_tokens", 0))
+        return data["choices"][0]["message"]["content"].strip().strip("“”\"'")
 
     def answer_with_usage(self, question: str, contexts: list[str]) -> tuple[str, dict | None]:
         """返回 (答案, 真实 usage)。没有 usage 时返回 None，由调用方回退到估算。"""

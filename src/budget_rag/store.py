@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .bm25 import BM25
-from .chunking import chunk_text
+from .chunking import chunk_text, split_sentences
 from .embedding import Embedder, cosine
 
 
@@ -20,14 +20,18 @@ class Chunk:
 
 
 class Store:
-    def __init__(self, embedder: Embedder, size: int = 320, overlap: int = 60) -> None:
+    def __init__(self, embedder: Embedder, size: int = 320, overlap: int = 60, mode: str = "fixed") -> None:
         self.embedder = embedder
         self.size, self.overlap = size, overlap
+        self.mode = mode
         self.chunks: list[Chunk] = []
         self._bm25: BM25 | None = None
 
     def add_document(self, name: str, text: str) -> int:
-        parts = chunk_text(text, self.size, self.overlap)
+        if self.mode == "sentence":          # 每条事实单独一块，块更小更准
+            parts = [s for s in split_sentences(text) if len(s) >= 4]
+        else:
+            parts = chunk_text(text, self.size, self.overlap)
         vecs = self.embedder.embed(parts)
         for i, (part, vec) in enumerate(zip(parts, vecs)):
             self.chunks.append(Chunk(doc=name, idx=i, text=part, vec=vec))
