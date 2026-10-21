@@ -51,6 +51,23 @@ export DEEPSEEK_API_KEY=sk-xxx       # Linux/macOS
 python scripts/eval.py --set data/eval_set.jsonl --llm
 ```
 
+## 策略对比
+
+![bench](docs/figures/bench.svg)
+
+改写问句集（200 条，问句不照抄原文用词）上的表现：
+
+| 策略 | Recall@3 (95% CI) | cost/query |
+|---|---|---|
+| `naive-bm25-k3` | 0.965 [0.935, 0.990] | 0.000295 元 |
+| `fixed-hybrid-k5` | 0.975 [0.955, 0.995] | 0.001942 元 |
+| `cascade-conf` | 0.970 [0.945, 0.990] | 0.000917 元 |
+
+级联策略用 **47% 的成本**拿到深检索 99.5% 的召回。完整实验见 [docs/report.md](docs/report.md)，
+其中也写了一个负结果：合成集上各策略差异落在置信区间内，必须换真实数据集才能下结论。
+
+复现：`python scripts/bench.py --set data/eval_hard.jsonl`
+
 ## 接真实 embedding
 
 默认的 `HashEmbedder` 是**离线占位**（零依赖，保证克隆下来就能跑）。换成真实模型只要三个环境变量：

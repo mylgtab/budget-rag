@@ -1,0 +1,200 @@
+{"question": "哪种合并方式会保留两条分支的历史并产生一个合并提交？", "answers": ["merge 保留两条分支的历史，产生一个合并提交。"], "doc": "git-basics.md"}
+{"question": "用假对象替换外部依赖时，替换太多会有什么坏处？", "answers": ["mock 用来替代外部依赖，过度 mock 会让测试和实现绑死。"], "doc": "testing-basics.md"}
+{"question": "同一个程序里的多个执行流，哪些东西是共用的，哪些是各自私有的？", "answers": ["同一进程内的线程共享地址空间和文件描述符，但每个线程有独立的栈和寄存器。"], "doc": "os-basics.md"}
+{"question": "打日志时要注意哪些内容该写、哪些不该写？", "answers": ["日志要带上下文，但不要打印敏感信息。"], "doc": "testing-basics.md"}
+{"question": "出现互相卡住的情况，需要同时满足哪几个条件？", "answers": ["死锁的四个必要条件是互斥、占有并等待、不可抢占、循环等待。"], "doc": "os-basics.md"}
+{"question": "想绕开那个全局锁做并行计算，一般用什么办法？", "answers": ["多进程绕开 GIL，每个进程有独立的解释器和内存。"], "doc": "python-basics.md"}
+{"question": "给一堆有先后依赖的任务排顺序，能用什么方法，前提是什么？", "answers": ["拓扑排序只适用于有向无环图，可用于任务依赖排序。"], "doc": "algo-basics.md"}
+{"question": "哪种排序方法既不会打乱相同元素的先后次序，速度又一直很稳定，但要多花一份内存？", "answers": ["归并排序稳定，时间复杂度稳定在 O(nlogn)，但需要 O(n) 额外空间。"], "doc": "algo-basics.md"}
+{"question": "为什么创建分支的代价很小？", "answers": ["分支只是指向提交的可移动指针，创建分支几乎没有成本。"], "doc": "git-basics.md"}
+{"question": "构建脚本里指令的先后顺序怎么排才能少重复干活？", "answers": ["把变化频率低的指令放在前面，能复用构建缓存。"], "doc": "docker-basics.md"}
+{"question": "为什么用可变对象当参数默认值会出问题？", "answers": ["可变默认参数在函数定义时只创建一次，会导致共享状态。"], "doc": "python-basics.md"}
+{"question": "快速补发丢失数据之后发送窗口怎么调整？", "answers": ["快恢复在快重传后把窗口减半而不是回到一个报文。"], "doc": "tcp-basics.md"}
+{"question": "哪种函数可以一次次吐出值来省内存？", "answers": ["生成器用 yield 逐次产出值，节省内存。"], "doc": "python-basics.md"}
+{"question": "pull 和 pull --rebase 分别等价于什么？", "answers": ["pull 等于 fetch 加 merge，pull --rebase 等于 fetch 加 rebase。"], "doc": "git-basics.md"}
+{"question": "测试题目如果太单一会有什么后果？", "answers": ["评测集要覆盖不同难度，否则指标会被简单问题拉高。"], "doc": "rag-basics.md"}
+{"question": "刚开始传输时发送速率是怎么变化的？", "answers": ["慢启动阶段拥塞窗口按指数增长，每轮翻倍。"], "doc": "tcp-basics.md"}
+{"question": "怎么做到先拿大环境编译、最后只留下精简的成品？", "answers": ["多阶段构建用一个大镜像编译、再把产物拷到小镜像里，显著减小体积。"], "doc": "docker-basics.md"}
+{"question": "用 with 语句管理资源时，背后靠哪两个方法完成进出？", "answers": ["上下文管理器通过 __enter__ 和 __exit__ 管理资源释放。"], "doc": "python-basics.md"}
+{"question": "像性别这种取值种类很少的字段，建索引效果怎么样？", "answers": ["区分度低的列建索引收益很小，比如性别字段。"], "doc": "db-index.md"}
+{"question": "哪种排序方法不用额外开空间、速度也稳定，但会打乱相同元素的先后次序？", "answers": ["堆排序原地进行，时间复杂度 O(nlogn)，但不稳定。"], "doc": "algo-basics.md"}
+{"question": "做对比实验时为什么要一次只改一处？", "answers": ["每次改动只动一个变量，结果才可解释。"], "doc": "rag-basics.md"}
+{"question": "求连通所有点且总代价最小的方案，常用的两种方法共同的思想是什么？", "answers": ["最小生成树常用 Prim 和 Kruskal，两者都基于贪心。"], "doc": "algo-basics.md"}
+{"question": "容器跑起来之后，最上面那层可以写东西的层是怎么来的？", "answers": ["镜像层是只读的，容器启动时在最上面加一个可写层。"], "doc": "docker-basics.md"}
+{"question": "怎么把一个协程立刻安排上调度但先不拿结果？", "answers": ["asyncio.create_task 把协程包装成任务，立刻调度但不等结果。"], "doc": "python-basics.md"}
+{"question": "怎么处理时间、随机数和网络这些不稳定因素，让测试可靠？", "answers": ["把时间、随机数、网络请求抽象成可注入的依赖，测试才稳定。"], "doc": "testing-basics.md"}
+{"question": "为什么断开连接需要来回四次而不是两次？", "answers": ["四次挥手断开连接，因为 TCP 是全双工的，两个方向要分别关闭。"], "doc": "tcp-basics.md"}
+{"question": "开发时想让容器直接读写本机某个文件夹，用哪种方式？", "answers": ["绑定挂载把宿主机目录直接映射进容器，适合开发调试。"], "doc": "docker-basics.md"}
+{"question": "哪种锁在抢不到时会主动让线程睡一觉，适合什么情况？", "answers": ["互斥锁在拿不到锁时会让线程睡眠，适合临界区较长的场景。"], "doc": "os-basics.md"}
+{"question": "只靠两两比较来排序的方法，理论上最快能到多快？", "answers": ["比较排序的下界是 O(nlogn)，由决策树模型证明。"], "doc": "algo-basics.md"}
+{"question": "什么样的日志格式更方便搜索和汇总？", "answers": ["结构化日志便于检索和聚合，比拼接字符串好。"], "doc": "testing-basics.md"}
+{"question": "带唯一性约束的索引在写入时额外做了什么检查？", "answers": ["唯一索引在插入时承担唯一性校验，代价是额外的检查。"], "doc": "db-index.md"}
+{"question": "那种单线程的异步机制是怎么在等待时切换工作的？", "answers": ["asyncio 是单线程事件循环，靠协程在 IO 等待时切换任务。"], "doc": "python-basics.md"}
+{"question": "用来处理连通关系、能合并集合也能查询是否连通的结构，优化后有多快？", "answers": ["并查集支持合并与查询连通性，路径压缩后接近常数时间。"], "doc": "algo-basics.md"}
+{"question": "为什么有时候明明有索引，系统却还是选择整表扫描？", "answers": ["回表次数多时，优化器可能干脆选择全表扫描。"], "doc": "db-index.md"}
+{"question": "F1 是怎么算出来的？", "answers": ["F1 按词级重合计算精确率和召回率的调和平均。"], "doc": "rag-basics.md"}
+{"question": "想把某一个提交单独摘到当前分支用什么？", "answers": ["cherry-pick 把某个提交单独摘到当前分支。"], "doc": "git-basics.md"}
+{"question": "日常操作涉及的三个核心区域分别是什么？", "answers": ["工作区、暂存区、版本库是三个核心区域。"], "doc": "git-basics.md"}
+{"question": "看趋势和看异常分别对应什么手段，指标要统一吗？", "answers": ["监控看趋势，告警看异常，两者指标口径要一致。"], "doc": "testing-basics.md"}
+{"question": "在索引字段上做计算或者类型对不上时会发生什么？", "answers": ["索引列上使用函数或隐式类型转换会导致索引失效。"], "doc": "db-index.md"}
+{"question": "两种发送端的优化机制同时打开时可能出现什么问题？", "answers": ["延迟确认会推迟发送 ACK，和 Nagle 同时开启时可能互相等待。"], "doc": "tcp-basics.md"}
+{"question": "为什么有些实时应用要关掉把小数据攒起来一起发的机制？", "answers": ["Nagle 算法把小包合并发送，会引入延迟，实时场景常关闭。"], "doc": "tcp-basics.md"}
+{"question": "每个克隆下来的代码库都包含什么？", "answers": ["Git 是分布式版本控制，每个克隆都有完整历史。"], "doc": "git-basics.md"}
+{"question": "当哈希表里装的东西太多时会怎样，之后要做什么操作？", "answers": ["哈希表的负载因子过高会触发扩容，扩容需要重新散列。"], "doc": "algo-basics.md"}
+{"question": "相邻的块之间为什么要留一部分重复内容？", "answers": ["重叠能避免答案被切断在块边界。"], "doc": "rag-basics.md"}
+{"question": "两台机器建立连接前为什么要先来回确认几次？", "answers": ["TCP 三次握手建立连接，目的是确认双方的收发能力并同步序列号。"], "doc": "tcp-basics.md"}
+{"question": "固定入口和默认参数这两个指令怎么分工配合？", "answers": ["ENTRYPOINT 定义固定入口，CMD 提供默认参数，两者配合使用。"], "doc": "docker-basics.md"}
+{"question": "想同时跑好几个协程并等它们全部结束，用哪个函数？", "answers": ["asyncio.gather 并发执行多个协程并等待全部完成。"], "doc": "python-basics.md"}
+{"question": "哪种淘汰策略是挑最久没碰过的页扔掉，它有什么缺点？", "answers": ["LRU 置换策略淘汰最久未使用的页，但实现成本高，实际常用近似算法。"], "doc": "os-basics.md"}
+{"question": "临时切换任务时怎么保存还没提交的改动？", "answers": ["stash 把未提交的改动暂存起来，用于切换任务。"], "doc": "git-basics.md"}
+{"question": "哪种方法靠提前判断安全性来防止卡死，但要求事先知道什么？", "answers": ["银行家算法通过预判安全性避免死锁，但需要提前知道最大需求。"], "doc": "os-basics.md"}
+{"question": "访问的数据不在内存里时会发生什么，谁来处理？", "answers": ["缺页中断发生在访问的页不在物理内存时，由操作系统换入。"], "doc": "os-basics.md"}
+{"question": "声明缓存要按哪些请求头来区分副本的字段是什么？", "answers": ["Vary 声明缓存按哪些请求头区分副本，常用于 Accept-Encoding。"], "doc": "http-cache.md"}
+{"question": "为什么每个程序都感觉自己独占了一整块连续的内存？", "answers": ["虚拟内存让每个进程以为自己独占连续的地址空间。"], "doc": "os-basics.md"}
+{"question": "哪种检索方式更适合意思相近但说法不一样的场景？", "answers": ["向量检索擅长语义相近但用词不同的情况。"], "doc": "rag-basics.md"}
+{"question": "为什么写构建脚本时总爱把好几条命令串成一行？", "answers": ["Dockerfile 里每条 RUN 都会产生新的一层，所以常把多条命令用 && 合并。"], "doc": "docker-basics.md"}
+{"question": "哪种排序方法在平均情况下速度最快，但碰到已经排好序的数据反而会变得很慢？", "answers": ["快速排序平均时间复杂度是 O(nlogn)，最坏在已排序数组上退化为 O(n²)。"], "doc": "algo-basics.md"}
+{"question": "建立连接时第一个发出去的包叫什么？", "answers": ["三次握手的第一个包是 SYN，第二个是 SYN+ACK，第三个是 ACK。"], "doc": "tcp-basics.md"}
+{"question": "先写一个跑不通的测试再写代码，有什么好处？", "answers": ["TDD 先写失败测试再实现，能迫使接口先被设计。"], "doc": "testing-basics.md"}
+{"question": "什么样的问题适合把大问题拆成小问题、并且小问题会被反复用到？", "answers": ["动态规划要求最优子结构，且子问题有重叠。"], "doc": "algo-basics.md"}
+{"question": "网页加载时怎么减少重复向服务器要东西、让打开更快？", "answers": ["HTTP 缓存用来减少重复请求，缩短加载时间。"], "doc": "http-cache.md"}
+{"question": "为什么切换不同程序比切换同一程序里的多个执行流更费劲？", "answers": ["进程切换需要切换页表，代价比线程切换高。"], "doc": "os-basics.md"}
+{"question": "多个字段联合建索引时，字段的先后顺序应该怎么安排？", "answers": ["复合索引的列顺序要按区分度和查询条件设计。"], "doc": "db-index.md"}
+{"question": "检索要挖多深，应该依据什么来定？", "answers": ["所以检索深度应该按问题难度动态决定。"], "doc": "rag-basics.md"}
+{"question": "哪种新协议在 UDP 之上做到了可靠传输，还能在换网络时保持连接？", "answers": ["QUIC 基于 UDP 实现可靠传输，握手更快且支持连接迁移。"], "doc": "tcp-basics.md"}
+{"question": "判断两个变量是不是同一个对象、以及值是否相等，分别用什么？", "answers": ["is 比较对象身份，== 比较值相等。"], "doc": "python-basics.md"}
+{"question": "忽略规则对已经跟踪的文件有效吗？", "answers": [".gitignore 只对未跟踪文件生效，已跟踪的文件要 git rm --cached。"], "doc": "git-basics.md"}
+{"question": "哪种调度会根据任务表现动态调优先级，让需要交互的任务先跑？", "answers": ["多级反馈队列根据进程行为动态调整优先级，交互型进程优先。"], "doc": "os-basics.md"}
+{"question": "数据库索引常用的那种多叉树结构，是怎么减少读磁盘次数的？", "answers": ["B 树降低树高以减少磁盘 IO，B+ 树把数据都放在叶子并串成链表。"], "doc": "algo-basics.md"}
+{"question": "求单源最短路径的经典方法遇到负权边会失效，那负权边该换什么方法？", "answers": ["Dijkstra 不能处理负权边，负权要用 Bellman-Ford。"], "doc": "algo-basics.md"}
+{"question": "哪个版本的网页协议默认保持连接不每次重开？", "answers": ["HTTP/1.1 默认长连接，HTTP/2 多路复用同一连接上的多个请求。"], "doc": "tcp-basics.md"}
+{"question": "想找专有名词或者具体数字，用哪种检索方式更靠谱？", "answers": ["关键词检索擅长专有名词和数字，BM25 是常用实现。"], "doc": "rag-basics.md"}
+{"question": "把图片视频等文件放到离用户更近的地方有什么好处？", "answers": ["CDN 把静态资源缓存到离用户更近的节点，减少回源和延迟。"], "doc": "tcp-basics.md"}
+{"question": "HEAD 指向的是什么？", "answers": ["HEAD 指向当前分支的最新提交。"], "doc": "git-basics.md"}
+{"question": "浏览器想跟服务器确认缓存还能不能用时会带上什么？", "answers": ["协商缓存会带上 If-None-Match 或 If-Modified-Since 向服务器确认。"], "doc": "http-cache.md"}
+{"question": "发送方在没收到对方确认之前最多能发多少数据由什么决定？", "answers": ["滑动窗口控制发送方在未收到确认前能发多少数据。"], "doc": "tcp-basics.md"}
+{"question": "容器被删掉以后，里面新写的数据为什么没了？", "answers": ["容器删除后可写层的数据就丢了，需要挂载卷持久化。"], "doc": "docker-basics.md"}
+{"question": "地址转换靠什么完成，最近用过的转换结果又存在哪里？", "answers": ["页表把虚拟地址映射到物理地址，TLB 缓存最近的映射结果。"], "doc": "os-basics.md"}
+{"question": "冲突一般在什么情况下发生？", "answers": ["冲突发生在同一文件的同一区域被两条分支修改时。"], "doc": "git-basics.md"}
+{"question": "同一套编排里的服务之间靠什么名字找到对方？", "answers": ["容器之间通过服务名互相访问，compose 内置了 DNS。"], "doc": "docker-basics.md"}
+{"question": "某个依赖一直失败时，怎么快速返回避免拖垮整个系统？", "answers": ["熔断在依赖持续失败时快速返回，避免雪崩。"], "doc": "testing-basics.md"}
+{"question": "服务器回复哪个状态码代表内容没改、可以接着用本地缓存？", "answers": ["服务器返回 304 表示内容没变，可以继续用缓存。"], "doc": "http-cache.md"}
+{"question": "怎样让读写文件像读写内存一样，省掉中间的拷贝？", "answers": ["内存映射文件把文件直接映射到地址空间，读写不经过缓冲区拷贝。"], "doc": "os-basics.md"}
+{"question": "哪种锁适合保护特别短的代码段，为什么？", "answers": ["自旋锁适合临界区极短的场景，因为不会让出 CPU。"], "doc": "os-basics.md"}
+{"question": "现在字典的键值顺序还有保证吗？", "answers": ["Python 的字典在 3.7 之后保证插入顺序。"], "doc": "python-basics.md"}
+{"question": "切出来的块如果太大，会有什么问题？", "answers": ["分块太大噪声多，分块太小语义不完整。"], "doc": "rag-basics.md"}
+{"question": "模糊查询以通配符打头时还能用上索引吗？", "answers": ["like 以通配符开头无法使用普通索引。"], "doc": "db-index.md"}
+{"question": "在组合、排列这类问题里，靠提前排除不可能的分支来少走弯路的方法叫什么？", "answers": ["回溯通过剪枝减少搜索空间，常用于组合与排列问题。"], "doc": "algo-basics.md"}
+{"question": "把资料拆成小块再转成数字表示、找出相关片段交给模型作答，这套流程叫什么？", "answers": ["RAG 先把文档切块并转成向量，检索出相关片段再交给模型回答。"], "doc": "rag-basics.md"}
+{"question": "协程之间的切换为什么比线程切换便宜？", "answers": ["协程切换不经过操作系统，开销比线程切换小得多。"], "doc": "python-basics.md"}
+{"question": "哪种传输方式不建立连接也不保证到达顺序，适合直播和域名查询？", "answers": ["UDP 无连接、不保证顺序，适合实时音视频和 DNS 查询。"], "doc": "tcp-basics.md"}
+{"question": "想看工作区和暂存区之间的差异用哪个命令？", "answers": ["git diff 对比工作区和暂存区，git diff --cached 对比暂存区和版本库。"], "doc": "git-basics.md"}
+{"question": "什么时候打开网页完全不找服务器要东西？", "answers": ["强缓存命中时浏览器不会发请求，直接读本地副本。"], "doc": "http-cache.md"}
+{"question": "把两种检索的分数合在一起用，效果怎么样？", "answers": ["把 BM25 与向量分数归一化后加权融合，通常比单用一种更稳。"], "doc": "rag-basics.md"}
+{"question": "操作系统里谁负责分配资源，谁负责安排CPU干活？", "answers": ["进程是资源分配的基本单位，线程是 CPU 调度的基本单位。"], "doc": "os-basics.md"}
+{"question": "一味追求多召回片段会带来什么副作用？", "answers": ["只提高召回的检索会让上下文变长，反而推高成本。"], "doc": "rag-basics.md"}
+{"question": "已经推送出去的内容想安全撤销该用什么？", "answers": ["revert 生成一个反向提交，安全地撤销已推送的内容。"], "doc": "git-basics.md"}
+{"question": "用大于小于这类条件查询时，对后面字段的索引有什么影响？", "answers": ["范围查询会中断后续列的索引使用。"], "doc": "db-index.md"}
+{"question": "写检查条件时要注意什么，出错了才容易找到原因？", "answers": ["断言要具体，一个测试只验证一个行为，失败时才好定位。"], "doc": "testing-basics.md"}
+{"question": "要避免大家围成一圈互相等，最常用的做法是什么？", "answers": ["破坏循环等待最常用的办法是按固定顺序加锁。"], "doc": "os-basics.md"}
+{"question": "为什么服务在容器里监听了本地回环地址，外面就连不上？", "answers": ["容器内进程要监听 0.0.0.0 才能被外部访问，监听 127.0.0.1 只能在容器内访问。"], "doc": "docker-basics.md"}
+{"question": "怎么让接收方知道每条消息到哪里结束？", "answers": ["解决黏包可以在消息前加长度字段，或使用固定分隔符。"], "doc": "tcp-basics.md"}
+{"question": "两个值相等的元素在排序后还能保持原来的先后顺序，这叫什么性质？", "answers": ["稳定排序保证相等元素的相对顺序不变。"], "doc": "algo-basics.md"}
+{"question": "经常写入但很少查询的表，索引数量应该怎么控制？", "answers": ["写多读少的表要克制索引数量。"], "doc": "db-index.md"}
+{"question": "各类测试的数量应该怎么分配才合理？", "answers": ["测试金字塔建议单元测试最多，端到端测试最少。"], "doc": "testing-basics.md"}
+{"question": "想让旧缓存失效通常有哪些常见做法？", "answers": ["缓存失效的常见做法是改文件名或加版本查询参数。"], "doc": "http-cache.md"}
+{"question": "静态资源怎么做才能实现长期甚至永久的缓存？", "answers": ["静态资源常用文件名带哈希配合长期 max-age 做永久缓存。"], "doc": "http-cache.md"}
+{"question": "怎么在包装函数时保留被包装函数的原始信息？", "answers": ["装饰器本质是把函数作为参数返回新函数，functools.wraps 保留原信息。"], "doc": "python-basics.md"}
+{"question": "那个等待关键字只能写在什么样的函数里？", "answers": ["await 只能出现在 async 函数里，它把控制权交回事件循环。"], "doc": "python-basics.md"}
+{"question": "怎么让同一个请求重复发送也不会出问题，通常靠什么实现？", "answers": ["幂等设计让请求可以安全重试，常用唯一请求号实现。"], "doc": "testing-basics.md"}
+{"question": "为什么用一行表达式建列表比循环里一个个添加更快？", "answers": ["列表推导式比 for 循环 append 更快，因为省去方法查找。"], "doc": "python-basics.md"}
+{"question": "哪个版本的网页协议避开了传输层排队堵塞的问题？", "answers": ["HTTP/3 基于 QUIC，避免了 TCP 层的队头阻塞。"], "doc": "tcp-basics.md"}
+{"question": "为什么 Python 里开多个线程做纯计算并不能真正同时跑？", "answers": ["GIL 让 CPU 密集型多线程无法真正并行，但 IO 阻塞时会释放。"], "doc": "python-basics.md"}
+{"question": "排序字段上有索引时对排序过程有什么好处？", "answers": ["order by 的列有索引时可能省去排序步骤。"], "doc": "db-index.md"}
+{"question": "数据库这种要长期保存数据的情况，用哪种存储更合适？", "answers": ["命名卷由 Docker 管理，适合数据库这类需要持久化的场景。"], "doc": "docker-basics.md"}
+{"question": "收到重复的确认时怎么快速补发丢失的数据？", "answers": ["快重传在收到三个重复 ACK 时立即重传丢失的报文。"], "doc": "tcp-basics.md"}
+{"question": "多线程更适合处理哪类任务，不适合哪类？", "answers": ["GIL 的存在让多线程适合 IO 密集，不适合纯计算。"], "doc": "python-basics.md"}
+{"question": "对初步筛出的片段再排一次序有什么利弊？", "answers": ["重排模型对候选片段再打一次分，能提升精度但增加成本。"], "doc": "rag-basics.md"}
+{"question": "完全复制和只复制一层有什么区别？", "answers": ["深拷贝递归复制所有嵌套对象，浅拷贝只复制最外层。"], "doc": "python-basics.md"}
+{"question": "在异步代码里直接调用会阻塞的函数会出什么问题？", "answers": ["同步阻塞调用会卡死事件循环，需要放进线程池执行。"], "doc": "python-basics.md"}
+{"question": "为什么这种树形结构查找时磁盘读取次数比较少？", "answers": ["B+ 树的非叶子节点只存键，因此一次磁盘 IO 能读入更多键，树高更低。"], "doc": "db-index.md"}
+{"question": "哪个响应头决定资源怎么被缓存？", "answers": ["响应头 Cache-Control 控制缓存行为。"], "doc": "http-cache.md"}
+{"question": "哪种标签带作者和说明、信息更全？", "answers": ["tag 用来标记版本，附注 tag 带作者和说明，比轻量 tag 信息更全。"], "doc": "git-basics.md"}
+{"question": "解决键值冲突时，一种是把元素挪到后面第一个空位，另一种是在同一位置挂一串，这两种做法分别叫什么？", "answers": ["开放寻址法把冲突元素放到下一个空槽，链表法则在同一槽挂链。"], "doc": "algo-basics.md"}
+{"question": "响应头里那个表示资源能缓存多少秒的字段是什么含义？", "answers": ["max-age 表示资源可以缓存多少秒。"], "doc": "http-cache.md"}
+{"question": "服务器上出现大量处于关闭等待的连接会有什么问题，怎么缓解？", "answers": ["大量 TIME_WAIT 会占用端口，可通过开启 tcp_tw_reuse 缓解。"], "doc": "tcp-basics.md"}
+{"question": "内存不够导致频繁换进换出，性能急剧下滑，这种现象叫什么？", "answers": ["缺页率过高会触发频繁换页，形成抖动，吞吐急剧下降。"], "doc": "os-basics.md"}
+{"question": "那个名字听起来像不缓存、其实每次用之前都要问服务器的指令是什么意思？", "answers": ["no-cache 不是不缓存，它的意思是每次使用前都要向服务器确认。"], "doc": "http-cache.md"}
+{"question": "为什么不能对大家共用的已推送分支做变基？", "answers": ["不要对已经推送的公共分支做 rebase，会影响其他人。"], "doc": "git-basics.md"}
+{"question": "有没有办法用一个配置文件描述好几个服务以及它们的先后依赖？", "answers": ["docker compose 用一个 yaml 描述多容器服务及其依赖。"], "doc": "docker-basics.md"}
+{"question": "哪个指令才是真正一点都不存、适合敏感内容？", "answers": ["no-store 才是完全不存，适合含敏感信息的响应。"], "doc": "http-cache.md"}
+{"question": "专门给共享缓存用、而且比普通过期时间优先级更高的字段是哪个？", "answers": ["s-maxage 专门针对共享缓存，优先级高于 max-age。"], "doc": "http-cache.md"}
+{"question": "镜像本身是由什么组成的？", "answers": ["镜像是由多层只读层叠加而成的文件系统快照。"], "doc": "docker-basics.md"}
+{"question": "缓存过期后必须回去找源服务器验证的指令是什么？", "answers": ["must-revalidate 要求缓存过期后必须回源验证。"], "doc": "http-cache.md"}
+{"question": "低优先级的任务拿着锁不放，导致高优先级任务干等，这叫什么现象？", "answers": ["优先级反转指低优先级进程持有锁导致高优先级进程等待。"], "doc": "os-basics.md"}
+{"question": "新版本上线时怎么先小范围试水再全面推开？", "answers": ["灰度发布先让小部分流量验证，再全量。"], "doc": "testing-basics.md"}
+{"question": "先判断问题难不难、再决定走哪条检索路线，这种做法叫什么？", "answers": ["路由是先用启发式特征判断问题难度，再选择检索路径。"], "doc": "rag-basics.md"}
+{"question": "多个字段一起建的索引，查询条件必须从哪一列开始才能生效？", "answers": ["最左前缀原则指联合索引只有在查询条件从最左列开始时才能用上。"], "doc": "db-index.md"}
+{"question": "什么样的测试跑得最快、又能准确指出问题出在哪个小地方？", "answers": ["单元测试验证单个函数或类的行为，运行快、定位准。"], "doc": "testing-basics.md"}
+{"question": "BM25 是按什么来打分的？", "answers": ["BM25 依据词频和逆文档频率打分，并对文档长度做归一化。"], "doc": "rag-basics.md"}
+{"question": "怎么快速找出是哪次提交引入了 bug？", "answers": ["git bisect 用二分查找定位引入 bug 的提交。"], "doc": "git-basics.md"}
+{"question": "哪种重启设置能让容器崩了以后自动再起来？", "answers": ["重启策略 unless-stopped 会在异常退出后自动拉起容器。"], "doc": "docker-basics.md"}
+{"question": "要求输出和标准答案一字不差的指标是哪个？", "answers": ["EM 是精确匹配，要求答案与标注完全一致。"], "doc": "rag-basics.md"}
+{"question": "每一步都选眼前最好的，什么条件下这样能得到整体最优？", "answers": ["贪心算法要求每一步的局部最优能推出全局最优。"], "doc": "algo-basics.md"}
+{"question": "容器默认是怎么跟外面的机器通信的？", "answers": ["容器的网络默认通过 bridge 网络与宿主机通信。"], "doc": "docker-basics.md"}
+{"question": "允许任何缓存节点都保存响应的指令是哪个？", "answers": ["public 表示响应可以被任何缓存保存。"], "doc": "http-cache.md"}
+{"question": "本地的远程分支副本要怎么更新？", "answers": ["远程分支是只读的本地副本，需要 fetch 更新。"], "doc": "git-basics.md"}
+{"question": "这种问答方式最大的好处是什么？", "answers": ["RAG 的好处是答案有出处，不用把整篇文档塞进上下文。"], "doc": "rag-basics.md"}
+{"question": "为什么按范围查找一批数据时速度会比较快？", "answers": ["B+ 树的叶子之间用链表相连，所以范围查询很快。"], "doc": "db-index.md"}
+{"question": "什么样的响应头设置会让缓存几乎没法正常工作？", "answers": ["带 Vary: * 的响应几乎无法被有效缓存。"], "doc": "http-cache.md"}
+{"question": "只取字符串前面几个字符来建索引有什么优缺点？", "answers": ["前缀索引只索引字符串的前若干个字符，节省空间但降低区分度。"], "doc": "db-index.md"}
+{"question": "内存回收主要靠什么机制，循环引用又怎么处理？", "answers": ["垃圾回收用引用计数为主，循环引用交给分代回收处理。"], "doc": "python-basics.md"}
+{"question": "有什么办法能减轻上面那种高低优先级颠倒的问题？", "answers": ["优先级继承可以缓解优先级反转，持锁者临时提升到等待者的优先级。"], "doc": "os-basics.md"}
+{"question": "那种用很少空间就能判断某元素在不在集合里的结构，会不会误判？", "answers": ["布隆过滤器判断元素是否存在，有假阳性但没有假阴性。"], "doc": "algo-basics.md"}
+{"question": "哪种操作能让历史变成一条直线但会改写提交号？", "answers": ["rebase 把提交搬到新基底上，历史是一条直线但会改写提交号。"], "doc": "git-basics.md"}
+{"question": "为什么内容变化特别频繁时用最后修改时间判断不太靠谱？", "answers": ["内容在一秒内多次变化时，Last-Modified 不太可靠。"], "doc": "http-cache.md"}
+{"question": "只让浏览器自己存、不让中间共享节点存的指令是哪个？", "answers": ["private 表示只允许浏览器缓存，不允许 CDN 等共享缓存。"], "doc": "http-cache.md"}
+{"question": "什么情况下查询不需要再回到原表取数据？", "answers": ["覆盖索引指查询需要的列都在索引里，可以避免回表。"], "doc": "db-index.md"}
+{"question": "哪个指令告诉浏览器在有效期内不用再验证？", "answers": ["immutable 告诉浏览器在有效期内不必再验证。"], "doc": "http-cache.md"}
+{"question": "哪种测试最像真实用户操作，但跑起来最慢？", "answers": ["端到端测试从用户视角跑完整链路，最接近真实但最慢。"], "doc": "testing-basics.md"}
+{"question": "哪种找 bug 的办法投入产出比最高？", "answers": ["手工构造边界值，是发现 bug 性价比最高的方式。"], "doc": "testing-basics.md"}
+{"question": "那个跟着内容变化而变化的指纹标识是什么？", "answers": ["ETag 是内容指纹，内容变了 ETag 就变。"], "doc": "http-cache.md"}
+{"question": "想检查几个部分配合起来有没有问题，该用哪种测试？", "answers": ["集成测试验证多个模块协作，能发现接口约定问题。"], "doc": "testing-basics.md"}
+{"question": "数据在叶子节点里是按什么方式排列的？", "answers": ["B+ 树索引把数据按顺序组织在叶子节点。"], "doc": "db-index.md"}
+{"question": "过了起步阶段之后发送速率增长方式有什么变化？", "answers": ["拥塞避免阶段窗口按线性增长，每轮加一。"], "doc": "tcp-basics.md"}
+{"question": "记录文件最后改动时间的字段精度有多高？", "answers": ["Last-Modified 是最后修改时间，精度只到秒。"], "doc": "http-cache.md"}
+{"question": "测试之间能不能互相依赖、共用外部环境？", "answers": ["测试应该独立，不依赖执行顺序和外部状态。"], "doc": "testing-basics.md"}
+{"question": "为什么说一个容器其实就是一个被隔离起来的进程？", "answers": ["容器是镜像的运行实例，本质是被命名空间隔离的进程。"], "doc": "docker-basics.md"}
+{"question": "那种平均最快的排序方法额外占用的内存大概是什么量级？", "answers": ["快速排序的平均空间复杂度是 O(logn)，来自递归栈。"], "doc": "algo-basics.md"}
+{"question": "哪种重置会连工作区和暂存区的改动一起丢掉？", "answers": ["reset --hard 会丢弃工作区和暂存区的改动，慎用。"], "doc": "git-basics.md"}
+{"question": "用什么指标判断答案所在的片段有没有被找出来？", "answers": ["召回率衡量答案所在片段是否进入候选集。"], "doc": "rag-basics.md"}
+{"question": "让所有准备好的任务挨个轮流跑一小段时间，这是什么调度方式？", "answers": ["时间片轮转调度让每个就绪进程轮流运行一个时间片。"], "doc": "os-basics.md"}
+{"question": "为什么建议别用最高权限账号跑容器里的程序？", "answers": ["容器以非 root 用户运行能降低被提权的风险。"], "doc": "docker-basics.md"}
+{"question": "创建子进程后，父子俩一开始是真的各占一份内存吗？", "answers": ["写时复制让 fork 之后父子进程先共享物理页，写入时才真正复制。"], "doc": "os-basics.md"}
+{"question": "怎么防止已经修好的毛病又冒出来？", "answers": ["回归测试用来防止已修复的问题再次出现。"], "doc": "testing-basics.md"}
+{"question": "谁负责根据网络情况调整一次能发多少数据？", "answers": ["拥塞窗口由发送方维护，根据网络状况动态调整。"], "doc": "tcp-basics.md"}
+{"question": "映射端口时只写容器那边会怎样？", "answers": ["端口发布用 -p 宿主机端口:容器端口，只写容器端口会随机分配。"], "doc": "docker-basics.md"}
+{"question": "每块一般取多大篇幅比较合适？", "answers": ["常见做法是每块 300 到 500 字，相邻块保留一部分重叠。"], "doc": "rag-basics.md"}
+{"question": "失败后重新尝试要注意什么，不然反而更糟？", "answers": ["重试要加退避和次数上限，否则会放大故障。"], "doc": "testing-basics.md"}
+{"question": "整体开销该怎么计算？", "answers": ["成本要单独统计，等于检索与生成的 token 数乘以单价。"], "doc": "rag-basics.md"}
+{"question": "要让自己写的对象能被 for 循环遍历，需要实现哪两个方法？", "answers": ["迭代器协议要求实现 __iter__ 和 __next__。"], "doc": "python-basics.md"}
+{"question": "用精简版基础镜像时要注意什么兼容问题？", "answers": ["镜像瘦身可以用 alpine 基础镜像，但要注意 glibc 与 musl 的差异。"], "doc": "docker-basics.md"}
+{"question": "怎么防止打包时把一堆没用的东西也塞进去？", "answers": [".dockerignore 能避免把大文件和无用目录打进构建上下文。"], "doc": "docker-basics.md"}
+{"question": "普通辅助索引的叶子节点里放的是什么？查别的字段为什么要再查一次？", "answers": ["二级索引的叶子存主键，查其他列要回表。"], "doc": "db-index.md"}
+{"question": "在什么样的数据上做折半查找才有效，速度如何？", "answers": ["二分查找要求序列有序，时间复杂度 O(logn)。"], "doc": "algo-basics.md"}
+{"question": "那种靠键值直接定位的数据结构，正常情况下找东西有多快？", "answers": ["哈希表平均查找 O(1)，冲突严重时退化。"], "doc": "algo-basics.md"}
+{"question": "程序怎么从普通模式进入特权模式，这个过程有代价吗？", "answers": ["用户态和内核态通过系统调用切换，一次切换有固定开销。"], "doc": "os-basics.md"}
+{"question": "前几个结果里正好包含答案片段的比例叫什么？", "answers": ["Recall@k 是前 k 个结果里命中答案片段的比例。"], "doc": "rag-basics.md"}
+{"question": "哪种索引的叶子节点直接保存了整行记录，而且每张表只能建一个？", "answers": ["聚簇索引的叶子节点直接存整行数据，一张表只能有一个。"], "doc": "db-index.md"}
+{"question": "同一时刻能有几个线程在执行字节码？", "answers": ["CPython 有全局解释器锁，同一时刻只有一个线程执行字节码。"], "doc": "python-basics.md"}
+{"question": "为什么应用层会看到好几条消息连在一起分不开？", "answers": ["黏包是应用层看到多条消息粘在一起，根源是 TCP 是字节流没有边界。"], "doc": "tcp-basics.md"}
+{"question": "三个字段联合建的索引，单独用中间或最后那个字段查能用上吗？", "answers": ["联合索引 (a, b, c) 中，只查 b 或 c 用不上这个索引。"], "doc": "db-index.md"}
+{"question": "代码被执行的比例很高，是不是就说明测试很靠谱？", "answers": ["覆盖率衡量被执行到的代码比例，高覆盖率不代表测试有效。"], "doc": "testing-basics.md"}
+{"question": "用什么命令可以看一条查询有没有用到索引？", "answers": ["explain 可以查看查询是否走了索引。"], "doc": "db-index.md"}
+{"question": "怎么让编排根据服务是否真的就绪来决定启动顺序？", "answers": ["健康检查通过 HEALTHCHECK 指令声明，compose 可以依赖健康状态启动顺序。"], "doc": "docker-basics.md"}
+{"question": "把改动放进暂存区用哪个命令？", "answers": ["git add 把改动放进暂存区，git commit 把暂存区写成一次提交。"], "doc": "git-basics.md"}
+{"question": "哪种重置只移动 HEAD 而不动工作区和暂存区？", "answers": ["reset --soft 只移动 HEAD，不改工作区和暂存区。"], "doc": "git-basics.md"}
+{"question": "哪种覆盖率统计方式比按行统计更严？", "answers": ["分支覆盖率比行覆盖率更严格。"], "doc": "testing-basics.md"}
+{"question": "如果待排序的都是范围不大的整数，用哪种方法又快又合适？", "answers": ["计数排序适合取值范围小的整数，时间复杂度 O(n+k)。"], "doc": "algo-basics.md"}
+{"question": "是不是给表建的索引越多越好？", "answers": ["索引不是越多越好，每个索引都增加写入成本和存储占用。"], "doc": "db-index.md"}
+{"question": "连接关闭后那个等待状态要停留多久？", "answers": ["TIME_WAIT 状态持续 2MSL，用来保证最后一个 ACK 能被对方收到。"], "doc": "tcp-basics.md"}

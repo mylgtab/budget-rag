@@ -3,13 +3,13 @@
 用法：
     set DEEPSEEK_API_KEY=sk-xxx
     python scripts/gen_eval.py --docs data/sample_docs --n 20 --out data/eval_set.jsonl
+    python scripts/gen_eval.py --hard --out data/eval_hard.jsonl
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
 import random
 import sys
 import urllib.request
@@ -33,12 +33,18 @@ PROMPT = """从下面的文档里提取 {n} 组问答对，用于检索评测。
 {text}
 """
 
+HARD_HINT = """额外要求（重要）：question 里**不要出现原文的专有名词和关键术语**，
+用同义改写或口语化描述来提问；答案仍然必须逐字照抄原文中的完整句子。
+例如原文讲「强缓存命中时浏览器不会发请求」，问句写成「什么时候打开网页完全不找服务器要东西」。
+
+"""
+
 
 def call_llm(settings: Settings, prompt: str) -> str:
     body = json.dumps({
         "model": settings.llm_model,
         "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.3,
+        "temperature": 0.4,
         "max_tokens": 3000,
     }).encode()
     req = urllib.request.Request(
@@ -71,6 +77,7 @@ def main() -> int:
     ap.add_argument("--n", type=int, default=20, help="每篇文档生成多少条")
     ap.add_argument("--out", default="data/eval_set.jsonl")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--hard", action="store_true", help="改写题：问句不照抄原文用词")
     args = ap.parse_args()
 
     settings = Settings.from_env()
@@ -82,8 +89,11 @@ def main() -> int:
     for doc in sorted(Path(args.docs).glob("*.md")):
         text = doc.read_text(encoding="utf-8")
         print(f"生成中: {doc.name}", end="", flush=True)
+        prompt = PROMPT.format(n=args.n, name=doc.name, text=text)
+        if args.hard:
+            prompt = HARD_HINT + prompt
         try:
-            raw = call_llm(settings, PROMPT.format(n=args.n, name=doc.name, text=text))
+            raw = call_llm(settings, prompt)
             pairs = parse_pairs(raw)
         except Exception as exc:                       # 网络/解析失败不中断
             print(f"  失败: {exc}")
