@@ -68,6 +68,22 @@ python scripts/eval.py --set data/eval_set.jsonl --llm
 
 复现：`python scripts/bench.py --set data/eval_hard.jsonl`
 
+## 分块粒度（同预算对比）
+
+![chunk](docs/figures/chunk_budget.svg)
+
+固定 320 字块 vs 每句一块，在**相同 token 预算**下比较（`python scripts/chunk_budget.py`）：
+
+| 预算 | fixed | sentence |
+|---|---|---|
+| 80 tok | 0.800 | **0.850** |
+| 200 tok | 0.836 | **0.892** |
+| 300 tok | 0.894 | **0.912** |
+| 800 tok | **0.954** | 0.938 |
+
+预算 ≤500 token 时句级切块更好，且预算压得住（要 80 只花 90，固定块会花到 192）。
+超过 800 后固定块反超。
+
 ## 接真实 embedding
 
 默认的 `HashEmbedder` 是**离线占位**（零依赖，保证克隆下来就能跑）。换成真实模型只要三个环境变量：
