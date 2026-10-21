@@ -52,7 +52,7 @@ class RAG:
             self.s.top_k, self.s.cheap_max_chars, self.s.strong_min_chars,
         )
 
-        if route.path == "strong":
+        if route.hybrid:
             hits = self.store.search_hybrid(question, route.k)
             price = self.s.price_strong
         else:

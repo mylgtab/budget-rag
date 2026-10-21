@@ -1,4 +1,4 @@
-"""路由器：按问题特征和预算决定走便宜还是强路径。"""
+"""路由器：预算决定检索深度，问题特征决定要不要加码。"""
 
 from __future__ import annotations
 
@@ -7,15 +7,26 @@ from dataclasses import dataclass
 
 _ENTITY = re.compile(r"[A-Z]{2,}|\d+年|\d+%|《.+?》")
 
+# 预算三档：钱越少，检索越浅
+TIER_TIGHT = 0.002
+TIER_NORMAL = 0.01
+
 
 @dataclass
 class Route:
     path: str          # "cheap" | "strong"
     reason: str
     k: int
+    hybrid: bool = False
 
 
-def decide(question: str, budget: float, top_k: int = 3, cheap_max: int = 24, strong_min: int = 60) -> Route:
+def decide(
+    question: str,
+    budget: float,
+    top_k: int = 3,
+    cheap_max: int = 24,
+    strong_min: int = 60,
+) -> Route:
     q = question.strip()
     reasons: list[str] = []
 
@@ -25,15 +36,26 @@ def decide(question: str, budget: float, top_k: int = 3, cheap_max: int = 24, st
         reasons.append("长问题")
     if len(_ENTITY.findall(q)) >= 2:
         reasons.append("多实体")
-    if "为什么" in q or "比较" in q or "分析" in q:
+    if any(w in q for w in ("为什么", "比较", "分析", "区别")):
         reasons.append("需要推理")
 
-    strong = bool({"长问题", "多实体", "需要推理"} & set(reasons))
-    path = "strong" if strong else "cheap"
+    hard = bool({"长问题", "多实体", "需要推理"} & set(reasons))
 
-    # 预算收口：钱不够就退回便宜路径
-    if path == "strong" and budget < 0.005:
-        path, reasons = "cheap", reasons + ["预算不足降级"]
+    # 预算决定检索深度
+    if budget < TIER_TIGHT:
+        k, hybrid, tier = 1, False, "紧预算"
+    elif budget < TIER_NORMAL:
+        k, hybrid, tier = max(1, top_k - 1), False, "常规"
+    else:
+        k, hybrid, tier = top_k + 2, True, "宽裕"
+    reasons.append(tier)
 
-    k = top_k + 2 if path == "strong" else max(1, top_k - 1)
-    return Route(path=path, reason="、".join(reasons) or "默认", k=k)
+    if hybrid and hard:          # 宽裕档里，难题再多给一点
+        k += 1
+
+    return Route(
+        path="strong" if (hybrid and hard) else "cheap",
+        reason="、".join(reasons),
+        k=k,
+        hybrid=hybrid,
+    )

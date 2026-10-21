@@ -66,6 +66,21 @@ python scripts/eval.py --set data/eval_set.jsonl --llm
 | cost/q | 每 query 估算成本（元） |
 | p95 latency | 95 分位延迟（ms） |
 
+## 预算–效果权衡
+
+![tradeoff](docs/figures/tradeoff.svg)
+
+| 档位 | budget | Recall@3 | cost/query |
+|---|---|---|---|
+| 紧预算（k=1, BM25） | 0.0005 – 0.001 | 0.9109 | 0.000105 元 |
+| 常规（k=2, BM25） | 0.002 – 0.005 | 0.9604 | 0.000196 元 |
+| 宽裕（k=5, 混合检索） | 0.010 – 0.050 | 0.9802 | 0.001976 元 |
+
+从中间档升到宽裕档，Recall 只涨 **2 个百分点**，成本却涨 **10 倍**——
+所以默认预算放在常规档，难题再单独加码。
+
+复现：`python scripts/sweep.py --set data/eval_set.jsonl`
+
 ## 目录
 
 ```
