@@ -53,6 +53,7 @@ def main() -> int:
     ap.add_argument("--index", default="index.json")
     ap.add_argument("--k", type=int, default=3)
     ap.add_argument("--llm", action="store_true", help="用真实模型（需 DEEPSEEK_API_KEY）")
+    ap.add_argument("--limit", type=int, default=0, help="只跑前 N 条，试水用")
     ap.add_argument("--out", default="results")
     args = ap.parse_args()
 
@@ -68,7 +69,10 @@ def main() -> int:
         rag.ingest({p.name: p.read_text(encoding="utf-8") for p in sorted(docs.glob("*.md"))})
 
     rows = []
-    for line in Path(args.set).read_text(encoding="utf-8").splitlines():
+    lines = [l for l in Path(args.set).read_text(encoding="utf-8").splitlines() if l.strip()]
+    if args.limit:
+        lines = lines[: args.limit]
+    for line in lines:
         if not line.strip():
             continue
         item = json.loads(line)
@@ -86,6 +90,9 @@ def main() -> int:
             "gold": golds[0],
             "recall@k": hit,
             "em": float(any(norm(out["answer"]) == norm(g) for g in golds)),
+            "contain": float(any(
+                norm(out["answer"]) and (norm(out["answer"]) in norm(g) or norm(g) in norm(out["answer"]))
+                for g in golds)),
             "f1": max(f1(out["answer"], g) for g in golds),
             **tr,
         })
@@ -95,8 +102,12 @@ def main() -> int:
         "n": len(rows),
         f"recall@{args.k}": round(sum(r["recall@k"] for r in rows) / n, 4),
         "em": round(sum(r["em"] for r in rows) / n, 4),
+        "contain": round(sum(r["contain"] for r in rows) / n, 4),
         "f1": round(sum(r["f1"] for r in rows) / n, 4),
         "cost_rmb": round(sum(r["cost_rmb"] for r in rows) / n, 6),
+        "prompt_tokens": round(sum(r.get("prompt_tokens", 0) for r in rows) / n, 1),
+        "completion_tokens": round(sum(r.get("completion_tokens", 0) for r in rows) / n, 1),
+        "billed_pct": round(sum(1 for r in rows if r.get("billed")) / n, 3),
         "p95_latency_ms": round(sorted(r["latency_ms"] for r in rows)[max(0, int(n * 0.95) - 1)], 1),
         "path_mix": {p: sum(1 for r in rows if r["path"] == p) for p in ("cheap", "strong")},
     }

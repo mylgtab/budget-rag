@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import urllib.request
 
 from .chunking import split_sentences
@@ -22,8 +23,10 @@ class OfflineAnswerer:
     """从召回块里挑与问题重合度最高的句子，零成本，用来跑通链路与做基线。"""
 
     name = "offline"
+    last_usage: dict | None = None
 
     def answer(self, question: str, contexts: list[str]) -> str:
+        self.last_usage = None
         best, best_score = "", -1.0
         for ctx in contexts:
             for sent in split_sentences(ctx):
@@ -42,12 +45,17 @@ class LLMAnswerer:
         if not settings.api_key:
             raise ValueError("缺少 DEEPSEEK_API_KEY")
         self.s = settings
+        self.last_usage: dict | None = None
 
     def answer(self, question: str, contexts: list[str]) -> str:
         prompt = (
-            "只根据下面的资料回答，答不出就说不知道，不要编。\n\n"
+            "只根据下面的资料回答问题。\n\n"
+            "输出要求（重要）：\n"
+            "1. 只输出答案本身，不要加「根据资料」「资料[1]」这类前缀，不要解释。\n"
+            "2. 如果资料里有一句话正好能回答，就**逐字照抄那一句**，不要改写。\n"
+            "3. 资料里没有答案就只回四个字：不知道。\n\n"
             + "\n\n".join(f"[{i+1}] {c}" for i, c in enumerate(contexts))
-            + f"\n\n问题：{question}"
+            + f"\n\n问题：{question}\n答案："
         )
         body = json.dumps({
             "model": self.s.llm_model,
@@ -60,6 +68,29 @@ class LLMAnswerer:
             data=body,
             headers={"Authorization": f"Bearer {self.s.api_key}", "Content-Type": "application/json"},
         )
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        return data["choices"][0]["message"]["content"].strip()
+        last_err: Exception | None = None
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                break
+            except Exception as exc:            # 网络抖动重试，长跑不能一次就崩
+                last_err = exc
+                time.sleep(1.5 * (attempt + 1))
+        else:
+            raise RuntimeError(f"调用模型失败（已重试 3 次）: {last_err}") from last_err
+        usage = data.get("usage") or {}
+        self.last_usage = {
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "completion_tokens": int(usage.get("completion_tokens", 0)),
+        }
+        text = data["choices"][0]["message"]["content"].strip()
+        # 兜底清洗：模型偶尔还是会带前缀或引号
+        text = re.sub(r"^根据(上述)?资料\s*\[\d+\]\s*[，,：:]\s*", "", text)
+        text = re.sub(r"^资料\s*\[\d+\]\s*[，,：:]\s*", "", text)
+        return text.strip().strip("“”\"'").strip()
+
+    def answer_with_usage(self, question: str, contexts: list[str]) -> tuple[str, dict | None]:
+        """返回 (答案, 真实 usage)。没有 usage 时返回 None，由调用方回退到估算。"""
+        text = self.answer(question, contexts)
+        return text, self.last_usage

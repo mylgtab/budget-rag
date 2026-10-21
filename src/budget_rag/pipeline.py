@@ -24,6 +24,9 @@ class Trace:
     k: int
     docs: list[str] = field(default_factory=list)
     context_tokens: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    billed: bool = False          # True 表示 token 数来自 API 账单，不是估算
     cost_rmb: float = 0.0
     latency_ms: float = 0.0
 
@@ -31,6 +34,8 @@ class Trace:
         return {
             "path": self.path, "reason": self.reason, "k": self.k,
             "docs": self.docs, "context_tokens": self.context_tokens,
+            "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
+            "billed": self.billed,
             "cost_rmb": round(self.cost_rmb, 6), "latency_ms": round(self.latency_ms, 1),
         }
 
@@ -55,22 +60,39 @@ class RAG:
 
         if route.hybrid:
             hits = self.store.search_hybrid(question, route.k)
-            price = self.s.price_strong
+            fallback_price = self.s.price_strong
         else:
             hits = self.store.search_bm25(question, route.k)
-            price = self.s.price_cheap
+            fallback_price = self.s.price_cheap
 
         contexts = [c.text for c, _ in hits]
         ctx_tokens = sum(_tokens(c) for c in contexts)
-        answer = self.answerer.answer(question, contexts) if contexts else "（没有检索到内容）"
-        cost = (ctx_tokens + _tokens(answer)) / 1000 * price
+
+        usage = None
+        if contexts and hasattr(self.answerer, "answer_with_usage"):
+            answer, usage = self.answerer.answer_with_usage(question, contexts)
+        else:
+            answer = self.answerer.answer(question, contexts) if contexts else "（没有检索到内容）"
+
+        prompt_tokens = int((usage or {}).get("prompt_tokens", 0))
+        completion_tokens = int((usage or {}).get("completion_tokens", 0))
+        billed = bool(prompt_tokens or completion_tokens)
+
+        if billed:      # 有账单就用账单，单价按 100 万 token
+            cost = prompt_tokens / 1_000_000 * self.s.price_in \
+                + completion_tokens / 1_000_000 * self.s.price_out
+        else:           # 离线抽取没有账单，退回估算
+            prompt_tokens, completion_tokens = ctx_tokens, _tokens(answer)
+            cost = (prompt_tokens + completion_tokens) / 1000 * fallback_price
 
         return {
             "answer": answer,
             "trace": Trace(
                 path=route.path, reason=route.reason, k=route.k,
                 docs=[f"{c.doc}#{c.idx}" for c, _ in hits],
-                context_tokens=ctx_tokens, cost_rmb=cost,
+                context_tokens=ctx_tokens,
+                prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
+                billed=billed, cost_rmb=cost,
                 latency_ms=(time.perf_counter() - t0) * 1000,
             ).as_dict(),
         }
