@@ -82,7 +82,13 @@ class RAG:
         want_tokens = ctx_tokens or self.s.ctx_tokens
         store_name, store = self._pick_store(want_tokens)
 
-        hits = store.search_to_budget(question, want_tokens, hybrid=route.hybrid)
+        search_query, rewritten = question, ""
+        if self.s.rewrite_query and hasattr(self.answerer, "rewrite_query"):
+            rewritten = self.answerer.rewrite_query(question) or ""
+            if rewritten:
+                search_query = f"{question} {rewritten}"      # 原始 + 改写，扩查询
+
+        hits = store.search_to_budget(search_query, want_tokens, hybrid=route.hybrid)
         fallback_price = self.s.price_strong if route.hybrid else self.s.price_cheap
 
         contexts = [c.text for c, _ in hits]
@@ -94,8 +100,9 @@ class RAG:
         else:
             answer = self.answerer.answer(question, contexts) if contexts else "（没有检索到内容）"
 
-        prompt_tokens = int((usage or {}).get("prompt_tokens", 0))
-        completion_tokens = int((usage or {}).get("completion_tokens", 0))
+        rw = getattr(self.answerer, "last_rewrite_usage", None) or {}
+        prompt_tokens = int((usage or {}).get("prompt_tokens", 0)) + int(rw.get("prompt_tokens", 0))
+        completion_tokens = int((usage or {}).get("completion_tokens", 0)) + int(rw.get("completion_tokens", 0))
         billed = bool(prompt_tokens or completion_tokens)
 
         if billed:      # 有账单就用账单，单价按 100 万 token

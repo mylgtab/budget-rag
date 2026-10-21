@@ -46,6 +46,7 @@ class LLMAnswerer:
             raise ValueError("缺少 DEEPSEEK_API_KEY")
         self.s = settings
         self.last_usage: dict | None = None
+        self.last_rewrite_usage: dict | None = None
 
     def answer(self, question: str, contexts: list[str]) -> str:
         prompt = (
@@ -123,6 +124,39 @@ class LLMAnswerer:
             self.last_usage["prompt_tokens"] += int(usage.get("prompt_tokens", 0))
             self.last_usage["completion_tokens"] += int(usage.get("completion_tokens", 0))
         return data["choices"][0]["message"]["content"].strip().strip("“”\"'")
+
+    def rewrite_query(self, question: str) -> str:
+        """把口语化问题改写成适合关键词检索的查询词，用于提升召回。"""
+        prompt = (
+            "把下面的问题改写成适合关键词检索的查询词。\n"
+            "输出 5-10 个词或短语，用空格分隔；保留关键概念，补充同义词；"
+            "不要解释，不要标点。\n\n"
+            f"问题：{question}\n改写："
+        )
+        body = json.dumps({
+            "model": self.s.llm_model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.0,
+            "max_tokens": 80,
+        }).encode()
+        req = urllib.request.Request(
+            f"{self.s.llm_base}/chat/completions",
+            data=body,
+            headers={"Authorization": f"Bearer {self.s.api_key}", "Content-Type": "application/json"},
+        )
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                u = data.get("usage") or {}
+                self.last_rewrite_usage = {
+                    "prompt_tokens": int(u.get("prompt_tokens", 0)),
+                    "completion_tokens": int(u.get("completion_tokens", 0)),
+                }
+                return data["choices"][0]["message"]["content"].strip()
+            except Exception:
+                time.sleep(1.5 * (attempt + 1))
+        return ""
 
     def answer_with_usage(self, question: str, contexts: list[str]) -> tuple[str, dict | None]:
         """返回 (答案, 真实 usage)。没有 usage 时返回 None，由调用方回退到估算。"""

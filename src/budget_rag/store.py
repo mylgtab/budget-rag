@@ -63,6 +63,29 @@ class Store:
         fused.sort(key=lambda x: x[1], reverse=True)
         return fused[:k]
 
+    def search_bm25_prf(self, query: str, k: int, fb_docs: int = 5, fb_terms: int = 8) -> list[tuple[Chunk, float]]:
+        """伪相关反馈：先用原始查询粗召回，再从结果里挑高权重词扩查询，二次检索。
+
+        纯词法操作，不调用模型，零成本。
+        """
+        from .embedding import tokenize
+
+        first = self.search_bm25(query, fb_docs)
+        if not first:
+            return []
+        q_terms = set(tokenize(query))
+        weights: dict[str, float] = {}
+        for chunk, _score in first:
+            for term in tokenize(chunk.text):
+                if len(term) < 2 or term in q_terms:
+                    continue
+                weights[term] = weights.get(term, 0.0) + self.bm25.idf.get(term, 0.0)
+        extra = sorted(weights, key=weights.get, reverse=True)[:fb_terms]
+        if not extra:
+            return first[:k]
+        expanded = f"{query} {' '.join(extra)}"
+        return self.search_bm25(expanded, k)
+
     def search_to_budget(self, query: str, max_tokens: int, hybrid: bool = False) -> list[tuple[Chunk, float]]:
         """按分数顺序取块，直到累计 token 达到预算；至少取一块。"""
         ranked = (self.search_hybrid(query, len(self.chunks)) if hybrid

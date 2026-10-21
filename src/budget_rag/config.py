@@ -17,6 +17,9 @@ class Settings:
     # auto 模式：上下文预算 ≤ 阈值用句级切块，超过用固定块
     ctx_tokens: int = field(default_factory=lambda: int(os.getenv("RAG_CTX_TOKENS", "300")))
     auto_threshold: int = field(default_factory=lambda: int(os.getenv("RAG_AUTO_THRESHOLD", "500")))
+
+    # 是否用模型改写查询（需要 API key，会增加一次小调用）
+    rewrite_query: bool = field(default_factory=lambda: os.getenv("RAG_REWRITE", "0") == "1")
     embed_dim: int = 256
 
     # 路由器
