@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from budget_rag.config import Settings          # noqa: E402
-from budget_rag.llm import OfflineAnswerer      # noqa: E402
+from budget_rag.llm import LLMAnswerer, OfflineAnswerer  # noqa: E402
 from budget_rag.pipeline import RAG             # noqa: E402
 
 GUIDE = """# 标注说明（给标注员看）
@@ -61,15 +61,16 @@ GUIDE = """# 标注说明（给标注员看）
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--set", default="data/eval_hard.jsonl")
+    ap.add_argument("--set", default="data/eval_500.jsonl")
     ap.add_argument("--docs", default="data/sample_docs")
     ap.add_argument("--n", type=int, default=100)
     ap.add_argument("--seed", type=int, default=2026)
     ap.add_argument("--out", default="results/annotation_sheet.csv")
+    ap.add_argument("--llm", action="store_true", help="用真实模型作答（需 API key）")
     args = ap.parse_args()
 
     settings = Settings.from_env()
-    rag = RAG(settings, OfflineAnswerer())
+    rag = RAG(settings, LLMAnswerer(settings) if args.llm else OfflineAnswerer())
     rag.ingest({p.name: p.read_text(encoding="utf-8") for p in sorted(Path(args.docs).glob("*.md"))})
 
     items = [line for line in Path(args.set).read_text(encoding="utf-8").splitlines() if line.strip()]
