@@ -69,6 +69,21 @@ def take_chunks(hits, budget: int, max_chunks: int = 24) -> list:
     return picked
 
 
+_ENTITY = re.compile(r"\b[A-Z][a-zA-Z]{2,}(?:\s+[A-Z][a-zA-Z]{2,}){0,3}\b")
+
+
+def entities_from(ctx: str, question: str, top: int = 3) -> list[str]:
+    """从第一跳上下文里抽专有名词，作为第二跳查询（不依赖模型自由发挥）。"""
+    q = question.lower()
+    counts: dict[str, int] = {}
+    for m in _ENTITY.finditer(ctx):
+        name = m.group(0).strip()
+        if name.lower() in q or len(name) < 3:
+            continue
+        counts[name] = counts.get(name, 0) + 1
+    return [k for k, _ in sorted(counts.items(), key=lambda kv: -kv[1])[:top]]
+
+
 def ask(settings: Settings, prompt: str, max_tokens: int = 80) -> tuple[str, int]:
     body = json.dumps({
         "model": settings.llm_model,
@@ -130,6 +145,21 @@ def main() -> int:
             tokens = 0
             if mode == "single":
                 ctx = ctx1
+            elif mode == "entity":
+                ents = entities_from(ctx1, q)
+                q2 = f"{q} {' '.join(ents)}" if ents else q
+                qv2 = emb.embed([q2])[0]
+                hits2 = store.search_hybrid_precomputed(q2, qv2, len(store.chunks), alpha=0.2)
+                chunks2 = take_chunks(hits2, args.tokens)
+                seen, merged = set(), []
+                for c in chunks1 + chunks2:
+                    key = (c.doc, c.idx)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    merged.append(c)
+                ctx = "\n".join(c.text for c in merged)
+                row["entities"] = ents
             else:
                 sub, t1 = ask(s, BRIDGE_PROMPT.format(q=q, ctx=ctx1[:1500]), max_tokens=40)
                 tokens += t1
