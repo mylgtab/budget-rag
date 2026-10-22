@@ -11,3 +11,5 @@ results/
 
 data/longbench/
 !data/longbench_sample/
+
+*.egg-info/
