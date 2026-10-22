@@ -113,9 +113,12 @@ class CachedEmbedder:
         cached = self.cache.get_many(model, texts)
         miss_idx = [i for i, v in enumerate(cached) if v is None]
         if miss_idx:
-            fresh = self.inner.embed([texts[i] for i in miss_idx])
-            self.embed_tokens += int((getattr(self.inner, "last_usage", {}) or {}).get("prompt_tokens", 0))
-            self.cache.put_many(model, [texts[i] for i in miss_idx], fresh)
+            fresh: list[list[float]] = []
+            miss_texts = [texts[i] for i in miss_idx]
+            for start in range(0, len(miss_texts), 32):        # 分批，避免单次请求过大超时
+                fresh.extend(self.inner.embed(miss_texts[start:start + 32]))
+                self.embed_tokens += int((getattr(self.inner, "last_usage", {}) or {}).get("prompt_tokens", 0))
+            self.cache.put_many(model, miss_texts, fresh)
             for j, i in enumerate(miss_idx):
                 cached[i] = fresh[j]
         if cached and cached[0]:
