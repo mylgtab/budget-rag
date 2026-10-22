@@ -49,3 +49,33 @@ class TestTakeBudget(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestTakeBudgetScalesWithBudget(unittest.TestCase):
+    """回归测试：取块上限不能先于预算卡死（曾导致 800 token 只用 500）。"""
+
+    def setUp(self):
+        from budget_rag.embedding import HashEmbedder
+        from budget_rag.store import Store
+        from longbench_qa import take_budget as qa_take
+
+        self.qa_take = qa_take
+        self.store = Store(HashEmbedder(16), 100, 20, "sentence")
+        body = "".join(f"第{i}句讲的是主题{i}，内容足够长以便计数。" for i in range(120))
+        self.store.add_document("doc", body)
+
+    def test_large_budget_uses_large_context(self):
+        from budget_rag.tokens import count_tokens
+
+        hits = self.store.search_bm25("主题", len(self.store.chunks))
+        for budget in (300, 800):
+            ctx = self.qa_take(hits, budget)
+            used = count_tokens(ctx)
+            self.assertGreaterEqual(used, budget * 0.8,
+                                    f"budget={budget} 实际只用了 {used} token，上限又卡死了")
+
+    def test_small_budget_still_bounded(self):
+        from budget_rag.tokens import count_tokens
+
+        hits = self.store.search_bm25("主题", len(self.store.chunks))
+        ctx = self.qa_take(hits, 60)
+        self.assertLessEqual(count_tokens(ctx), 200)

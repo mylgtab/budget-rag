@@ -53,7 +53,9 @@ def parse_passages(context: str) -> dict[str, str]:
     return out
 
 
-def take_budget(hits, budget: int, max_chunks: int = 24) -> str:
+def take_budget(hits, budget: int, max_chunks: int | None = None) -> str:
+    if max_chunks is None:
+        max_chunks = max(8, budget // 15)
     ctx, used = [], 0
     for chunk, _ in hits:
         ctx.append(chunk.text)
