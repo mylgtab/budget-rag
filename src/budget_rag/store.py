@@ -39,6 +39,28 @@ class Store:
         self._bm25 = None
         return len(parts)
 
+    def add_documents(self, docs: dict[str, str]) -> int:
+        """批量建索引：所有块一次性 embed，减少 API 调用与 400 风险。"""
+        pending: list[tuple[str, str]] = []
+        for name, text in docs.items():
+            if self.mode == "sentence":
+                parts = [p for p in split_sentences(text) if p.strip() and len(p) >= 4]
+            else:
+                parts = chunk_text(text, self.size, self.overlap)
+            for p in parts:
+                if p.strip():
+                    pending.append((name, p.strip()))
+        if not pending:
+            return 0
+        vecs = self.embedder.embed([p for _, p in pending])
+        counters: dict[str, int] = {}
+        for (name, text), vec in zip(pending, vecs):
+            idx = counters.get(name, 0)
+            counters[name] = idx + 1
+            self.chunks.append(Chunk(doc=name, idx=idx, text=text, vec=vec))
+        self._bm25 = None
+        return len(pending)
+
     @property
     def bm25(self) -> BM25:
         if self._bm25 is None:
