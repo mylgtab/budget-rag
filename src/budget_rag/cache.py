@@ -13,6 +13,9 @@ import sqlite3
 import struct
 from pathlib import Path
 
+# 改动缓存结构或 prompt 时把它 +1，旧条目自然失效
+CACHE_VERSION = "v1"
+
 
 class DiskCache:
     """键值缓存，值是字符串（答案、改写结果）。"""
@@ -40,7 +43,7 @@ class DiskCache:
 
     @staticmethod
     def key(*parts: str) -> str:
-        return hashlib.sha256("\x00".join(parts).encode("utf-8")).hexdigest()[:32]
+        return hashlib.sha256(("\x00".join((CACHE_VERSION,) + parts)).encode("utf-8")).hexdigest()[:32]
 
     def get(self, key: str) -> str | None:
         if not self.enabled:
@@ -107,7 +110,7 @@ class EmbedCache:
 
     @staticmethod
     def key(model: str, text: str) -> str:
-        return hashlib.sha256((model + "\x00" + text).encode("utf-8")).hexdigest()
+        return hashlib.sha256((CACHE_VERSION + "\x00" + model + "\x00" + text).encode("utf-8")).hexdigest()
 
     def get_many(self, model: str, texts: list[str]) -> list[list[float] | None]:
         if not self.enabled or not texts:

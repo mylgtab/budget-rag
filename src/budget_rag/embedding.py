@@ -69,6 +69,7 @@ class OpenAIEmbedder:
         )
         import time as _time
 
+        self.last_usage = {"prompt_tokens": 0}
         data = None
         for attempt in range(3):
             try:
@@ -79,6 +80,7 @@ class OpenAIEmbedder:
                 if attempt == 2:
                     raise
                 _time.sleep(1.5 * (attempt + 1))
+        self.last_usage = {"prompt_tokens": int((data.get("usage") or {}).get("prompt_tokens", 0))}
         vecs = [item["embedding"] for item in data["data"]]
         if vecs:
             self.dim = len(vecs[0])          # 用真实维度覆盖默认值
@@ -102,6 +104,7 @@ class CachedEmbedder:
         self.dim = getattr(inner, "dim", 0)
         self.model = getattr(inner, "model", getattr(inner, "dim", "hash"))
         self.cache = cache or EmbedCache()
+        self.embed_tokens = 0          # 真实消耗（仅统计 miss 的那部分）
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         if not texts:
@@ -111,6 +114,7 @@ class CachedEmbedder:
         miss_idx = [i for i, v in enumerate(cached) if v is None]
         if miss_idx:
             fresh = self.inner.embed([texts[i] for i in miss_idx])
+            self.embed_tokens += int((getattr(self.inner, "last_usage", {}) or {}).get("prompt_tokens", 0))
             self.cache.put_many(model, [texts[i] for i in miss_idx], fresh)
             for j, i in enumerate(miss_idx):
                 cached[i] = fresh[j]

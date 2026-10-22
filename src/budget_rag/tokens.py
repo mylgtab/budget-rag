@@ -9,6 +9,16 @@ _ENC = "unset"
 _CACHE: dict[str, int] = {}
 
 
+def _factor() -> float:
+    """估算校准系数：tiktoken 对中文偏高，DeepSeek 实测约 0.54。默认不校准。"""
+    import os
+
+    try:
+        return float(os.getenv("RAG_TOKEN_FACTOR", "1.0"))
+    except ValueError:
+        return 1.0
+
+
 def _encoder():
     global _ENC
     if _ENC != "unset":
@@ -38,6 +48,8 @@ def count_tokens(text: str) -> int:
         n = max(1, int(len(text) / 1.5))
     if len(_CACHE) < 50000:
         _CACHE[text] = n
+    if n > 0:
+        n = max(1, int(round(n * _factor())))
     return n
 
 

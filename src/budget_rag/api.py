@@ -11,13 +11,15 @@ import time
 from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import Settings
 from .llm import OfflineAnswerer
 from .pipeline import RAG
 
-app = FastAPI(title="budget-rag", version="0.6.0")
+app = FastAPI(title="budget-rag", version="0.7.0")
 _settings = Settings.from_env()
 _rag: RAG | None = None
 
@@ -69,6 +71,16 @@ class QueryIn(BaseModel):
     question: str
     budget: float | None = None
     ctx_tokens: int | None = None
+
+
+_static = Path(__file__).parent / "static"
+if _static.exists():
+    app.mount("/ui", StaticFiles(directory=str(_static), html=True), name="ui")
+
+
+@app.get("/")
+def home():
+    return RedirectResponse(url="/ui/")
 
 
 @app.get("/health")

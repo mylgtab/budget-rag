@@ -21,7 +21,7 @@ from budget_rag.embedding import HashEmbedder, build_embedder  # noqa: E402
 from budget_rag.store import Store                      # noqa: E402
 from budget_rag.tokens import count_tokens               # noqa: E402
 
-_SPLIT = re.compile(r"段落\s*(\d+)\s*[:：]")
+_SPLIT = re.compile(r"(段落|Paragraph)\s*(\d+)\s*[:：]", re.IGNORECASE)
 
 
 def parse_passages(context: str) -> dict[str, str]:
@@ -31,7 +31,8 @@ def parse_passages(context: str) -> dict[str, str]:
     for i, m in enumerate(marks):
         start = m.end()
         end = marks[i + 1].start() if i + 1 < len(marks) else len(context)
-        out[f"段落{int(m.group(1))}"] = context[start:end].strip()
+        kind = m.group(1).strip()
+        out[f"{kind}{int(m.group(2))}"] = context[start:end].strip()
     return out
 
 
@@ -77,7 +78,8 @@ def main() -> int:
         store.add_documents(passages)
 
         picked = take_budget(store.search_to_budget(q, args.tokens, hybrid=False), args.tokens)
-        hit_bm25 += int(any(c.doc == gold for c in picked))
+        from budget_rag.metrics import norm as _norm
+        hit_bm25 += int(any(_norm(c.doc) == _norm(gold) for c in picked))
 
         if args.embed == "real":
             qv = emb.embed([q])[0]
@@ -85,7 +87,7 @@ def main() -> int:
         else:
             ranked = store.search_hybrid_precomputed(q, emb.embed([q])[0], len(store.chunks), alpha=0.2)
         picked_v = take_budget(ranked, args.tokens)
-        hit_vec += int(any(c.doc == gold for c in picked_v))
+        hit_vec += int(any(_norm(c.doc) == _norm(gold) for c in picked_v))
 
         if i % 20 == 0:
             print(f"  {i}/{len(items)}")

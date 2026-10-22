@@ -36,6 +36,7 @@ class Settings:
     # 真实计费（元 / 100 万 tokens），按服务商当前价格改
     price_in: float = field(default_factory=lambda: float(os.getenv("RAG_PRICE_IN", "2.0")))
     price_out: float = field(default_factory=lambda: float(os.getenv("RAG_PRICE_OUT", "8.0")))
+    price_embed_api: float = field(default_factory=lambda: float(os.getenv("RAG_PRICE_EMBED", "0.7")))
 
     # 模型
     llm_model: str = "deepseek-chat"

@@ -2,6 +2,17 @@
 
 所有值得一提的改动都记在这里。版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.7.0 — 2026-10-22
+
+**评估补全与可用性**
+
+- 忠实度评估：100 条中 supported 94% / unsupported 3%（新增 `scripts/faithfulness.py`）
+- LongBench 英文子集：BM25 与向量均 1.000（记录天花板效应）
+- 成本模型纳入 embedding 真实用量（`RAG_PRICE_EMBED`），trace 增加 `embed_tokens`
+- token 估算校准系数 `RAG_TOKEN_FACTOR`（DeepSeek 实测约 0.54，默认关闭）
+- 演示页面：`/ui/` 单页界面，显示路径、成本、上下文与耗时
+- 缓存版本化：`CACHE_VERSION` 进 key，改结构后旧条目自动失效
+
 ## v0.6.0 — 2026-10-22
 
 **可用性与可信度**

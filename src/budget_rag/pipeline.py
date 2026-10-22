@@ -36,6 +36,7 @@ class Trace:
     context_tokens: int = 0
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    embed_tokens: int = 0
     billed: bool = False          # True 表示 token 数来自 API 账单，不是估算
     cost_rmb: float = 0.0
     latency_ms: float = 0.0
@@ -45,6 +46,7 @@ class Trace:
             "path": self.path, "reason": self.reason, "k": self.k, "store": self.store,
             "docs": self.docs, "context_tokens": self.context_tokens,
             "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
+            "embed_tokens": self.embed_tokens,
             "billed": self.billed,
             "cost_rmb": round(self.cost_rmb, 6), "latency_ms": round(self.latency_ms, 1),
         }
@@ -90,6 +92,7 @@ class RAG:
         )
         want_tokens = ctx_tokens or self.s.ctx_tokens
         store_name, store = self._pick_store(want_tokens)
+        embed_before = int(getattr(self.embedder, "embed_tokens", 0))
 
         search_query, rewritten = question, ""
         mode = self.s.rewrite_mode
@@ -118,12 +121,14 @@ class RAG:
 
         rw = getattr(self.answerer, "last_rewrite_usage", None) or {}
         prompt_tokens = int((usage or {}).get("prompt_tokens", 0)) + int(rw.get("prompt_tokens", 0))
+        embed_tokens = int(getattr(self.embedder, "embed_tokens", 0)) - embed_before
         completion_tokens = int((usage or {}).get("completion_tokens", 0)) + int(rw.get("completion_tokens", 0))
         billed = bool(prompt_tokens or completion_tokens)
 
+        embed_cost = max(0, embed_tokens) / 1_000_000 * self.s.price_embed_api
         if billed:      # 有账单就用账单，单价按 100 万 token
             cost = prompt_tokens / 1_000_000 * self.s.price_in \
-                + completion_tokens / 1_000_000 * self.s.price_out
+                + completion_tokens / 1_000_000 * self.s.price_out + embed_cost
         else:           # 离线抽取没有账单，退回估算
             prompt_tokens, completion_tokens = ctx_tokens_used, _tokens(answer)
             cost = (prompt_tokens + completion_tokens) / 1000 * fallback_price
@@ -135,6 +140,7 @@ class RAG:
                 docs=[f"{c.doc}#{c.idx}" for c, _ in hits],
                 context_tokens=ctx_tokens_used,
                 prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
+            embed_tokens=embed_tokens,
                 billed=billed, cost_rmb=cost,
                 latency_ms=(time.perf_counter() - t0) * 1000,
             ).as_dict(),
