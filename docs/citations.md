@@ -41,9 +41,21 @@
 16. Nemhauser G. L., Wolsey L. A., Fisher M. L. An Analysis of Approximations for Maximizing Submodular Set Functions—I. Mathematical Programming, 14(1): 265–294, 1978.
 17. Khuller S., Moss A., Naor J. The Budgeted Maximum Coverage Problem. Information Processing Letters, 70(1): 39–45, 1999.
 
+## 相关工作补充条目（第 2 节 v0.2 新增）
+
+18. Carbonell J., Goldstein J. The Use of MMR, Diversity-Based Reranking for Reordering Documents and Producing Summaries. SIGIR 1998, pp. 335–336.
+19. ⚠️ Lin H., Bilmes J. A Class of Submodular Functions for Document Summarization. ACL-HLT 2011, pp. 510–520.
+20. Nogueira R., Jiang Z., Pradeep R., Lin J. Document Ranking with a Pretrained Sequence-to-Sequence Model. Findings of EMNLP 2020. arXiv:2003.06713
+21. Sun W., Yan L., Ma X., et al. Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agents. EMNLP 2023. arXiv:2304.09542
+22. Ma X., Gong Y., He P., Zhao H., Duan N. Query Rewriting for Retrieval-Augmented Large Language Models. EMNLP 2023. arXiv:2305.14283
+23. Press O., Zhang M., Min S., Schmidt L., Smith N. A., Lewis M. Measuring and Narrowing the Compositionality Gap in Language Models. Findings of EMNLP 2023. arXiv:2210.03350
+24. Trivedi H., Balasubramanian N., Khot T., Sabharwal A. Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions. ACL 2023. arXiv:2212.10509
+25. ⚠️ Wang Y., Li P., Sun M., Liu Y. Self-Knowledge Guided Retrieval Augmentation for Large Language Models. Findings of EMNLP 2023. arXiv:2310.05002
+
 ## 核对项
 
 - [ ] CRAG 是否已有正式发表版本（若已进会议/期刊，替换 8）
 - [ ] Cost-Aware RAG 的作者、标题与卷期（9）
 - [ ] NAACL 页码、TACL 卷期按最新版核对（4、7）
+- [ ] 19、22、24、25 的作者全名与页码按出版版核对
 - [ ] 统一为数字引用后，重排正文中的括号引用

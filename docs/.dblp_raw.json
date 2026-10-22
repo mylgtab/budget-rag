@@ -1,0 +1,127 @@
+[
+ {
+  "q": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ },
+ {
+  "q": "The Probabilistic Relevance Framework BM25 and Beyond",
+  "hits": [],
+  "error": "<HTTPError 500: 'Internal Server Error'>"
+ },
+ {
+  "q": "Dense Passage Retrieval for Open-Domain Question Answering",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ },
+ {
+  "q": "Lost in the Middle How Language Models Use Long Contexts",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Active Retrieval Augmented Generation",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Self-RAG Learning to Retrieve Generate and Critique",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Adaptive-RAG Learning to Adapt Retrieval-Augmented Large Language Models",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Corrective Retrieval Augmented Generation",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "LLMLingua Compressing Prompts for Accelerated Inference",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "LongLLMLingua Accelerating and Enhancing LLMs in Long Context",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "RECOMP Improving Retrieval-Augmented LMs with Compression",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Precise Zero-Shot Dense Retrieval without Relevance Labels",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ },
+ {
+  "q": "FrugalGPT How to Use Large Language Models While Reducing Cost",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ },
+ {
+  "q": "An analysis of approximations for maximizing submodular set functions",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ },
+ {
+  "q": "The budgeted maximum coverage problem",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Self-Knowledge Guided Retrieval Augmentation",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Measuring and Narrowing the Compositionality Gap in Language Models",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Interleaving Retrieval with Chain-of-Thought Reasoning",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Document Ranking with a Pretrained Sequence-to-Sequence Model",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Is ChatGPT Good at Search",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "Rewrite-Retrieve-Read Query Rewriting for Retrieval-Augmented",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "The Use of MMR Diversity-Based Reranking for Reordering Documents",
+  "hits": [],
+  "error": "<HTTPError 429: 'Too Many Requests'>"
+ },
+ {
+  "q": "A Class of Submodular Functions for Document Summarization",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ },
+ {
+  "q": "Sequential Analysis Wald",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ },
+ {
+  "q": "Cost-Aware Retrieval-Augmented Generation",
+  "hits": [],
+  "error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+ }
+]
