@@ -114,6 +114,23 @@ export RAG_EMBED_KEY=sk-xxx
 任何 OpenAI 兼容的 `/embeddings` 接口都能接（SiliconFlow、通义、本地 vLLM 都行）。
 没配 key 时自动退回哈希实现，不会报错。
 
+**已实测（500 条，300 token 预算）：**
+
+| 检索方式 | Recall |
+|---|---|
+| BM25 | 0.892 |
+| 哈希向量 | 0.884 |
+| **bge-m3 纯向量** | **0.938** |
+| 混合（alpha=0.1，调优后） | **0.946** |
+
+混合权重默认 `alpha=0.1` 是扫出来的（0.5 只有 0.924）。
+注意：该值只在本语料验证过，换数据集要重扫。
+
+```bash
+python scripts/embed_compare.py   # 哈希 vs 真向量
+python scripts/tune_alpha.py      # 扫混合权重
+```
+
 ## 数据
 
 - `data/sample_docs/`：3 篇示例文档，拿来跑通流程
@@ -156,11 +173,21 @@ docs/              架构与实验记录
 
 ## 路线图
 
-- [ ] 混合检索（BM25 + 向量）与重排预算
-- [ ] 真实 embedding 接入（OpenAI 兼容）
-- [ ] 评测集扩到 200 条
-- [ ] 成本-召回曲线图（matplotlib）
-- [ ] Docker 一键起
+已完成：
+
+- [x] 双索引（句级 / 固定块）+ token 预算取块
+- [x] 混合检索（BM25 + 向量），权重扫描（alpha=0.1）
+- [x] 真实 embedding 接入（bge-m3，已验证）
+- [x] 评测集扩到 500 条（含改写题）
+- [x] 查询改写 + 置信度门控
+- [x] 人工标注校准 + 双人 kappa
+- [x] Docker 一键起、CI、27 个测试
+
+下一步：
+
+- [ ] 换公开数据集（LongBench / NQ）验证外部效度
+- [ ] 多 seed 方差报告
+- [ ] API 鉴权与限流
 
 ## License
 
