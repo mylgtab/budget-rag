@@ -63,16 +63,17 @@ def take_budget(hits, budget: int, max_chunks: int = 24) -> str:
     return "\n".join(ctx)
 
 
-def ask(settings: Settings, prompt: str, max_tokens: int = 80) -> tuple[str, int]:
+def ask(settings: Settings, prompt: str, max_tokens: int = 80,
+        model: str | None = None, base: str | None = None, key: str | None = None) -> tuple[str, int]:
     body = json.dumps({
-        "model": settings.llm_model,
+        "model": model or settings.llm_model,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.0,
         "max_tokens": max_tokens,
     }).encode()
     req = urllib.request.Request(
-        f"{settings.llm_base}/chat/completions", data=body,
-        headers={"Authorization": f"Bearer {settings.api_key}", "Content-Type": "application/json"})
+        f"{base or settings.llm_base}/chat/completions", data=body,
+        headers={"Authorization": f"Bearer {key or settings.api_key}", "Content-Type": "application/json"})
     for attempt in range(3):
         try:
             with urllib.request.urlopen(req, timeout=90) as resp:
@@ -92,6 +93,9 @@ def main() -> int:
     ap.add_argument("--modes", nargs="+", default=["rag", "none"])
     ap.add_argument("--embed", default="real", choices=["hash", "real"])
     ap.add_argument("--out", default="results/longbench_qa.json")
+    ap.add_argument("--model", default="")
+    ap.add_argument("--base", default="")
+    ap.add_argument("--key", default="")
     args = ap.parse_args()
 
     s = Settings.from_env()
@@ -120,11 +124,13 @@ def main() -> int:
                 hits = store.search_hybrid_precomputed(q, emb.embed([q])[0], len(store.chunks), alpha=0.2)
                 ctx = take_budget(hits, args.tokens)
                 span_hit = int(any(g.lower() in ctx.lower() for g in golds))
-                answer, tokens = ask(s, RAG_PROMPT.format(ctx=ctx[:6000], q=q))
+                answer, tokens = ask(s, RAG_PROMPT.format(ctx=ctx[:2500], q=q),
+                                 model=args.model or None, base=args.base or None, key=args.key or None)
                 stats[mode]["hit"] += span_hit
                 row["span_recall"] = span_hit
             else:
-                answer, tokens = ask(s, NONE_PROMPT.format(q=q))
+                answer, tokens = ask(s, NONE_PROMPT.format(q=q),
+                                 model=args.model or None, base=args.base or None, key=args.key or None)
 
             stats[mode]["c"] += max(contain(answer, g) for g in golds)
             stats[mode]["e"] += max(em(answer, g) for g in golds)

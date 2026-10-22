@@ -2,6 +2,17 @@
 
 所有值得一提的改动都记在这里。版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.12.0 — 2026-10-22
+
+**投稿级实验**
+
+- `scripts/baselines.py`：5 个基线（BM25 / 纯向量 / 混合 / Adaptive 近似 / CRAG 近似）
+- `scripts/significance.py`：配对 bootstrap + McNemar
+- `scripts/threshold_sensitivity.py`：P3 成本敏感性
+- 结果：本文 0.960 vs CRAG 0.925 / dense 0.910 / BM25 0.825，全部显著
+- 阈值敏感性：λ≥2 时最优阈值降为 0，验证 P3
+- `docs/fcs-checklist.md`：投稿清单与做不到的事项
+
 ## v0.11.0 — 2026-10-22
 
 **形式化：预算约束下的检索策略**
