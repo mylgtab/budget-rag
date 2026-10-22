@@ -9,7 +9,7 @@
 
 ```powershell
 cd C:\Users\32997\Documents\deepseek-harness\default-workspace\budget-rag
-D:\Python310\python.exe -m unittest discover -s tests        # 42 个测试，应全绿
+D:\Python310\python.exe -m unittest discover -s tests        # 61 个测试，应全绿
 D:\Python310\python.exe scripts\seed_stability.py             # 零成本，验证主结果稳健
 ```
 

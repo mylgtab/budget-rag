@@ -24,3 +24,21 @@ jobs:
         run: python scripts/ingest.py --docs data/sample_docs
       - name: eval (offline)
         run: python scripts/eval.py --set data/eval_set.jsonl --k 3
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: install
+        run: |
+          python -m pip install -q -r requirements.txt
+          python -m pip install -q coverage
+      - name: measure
+        run: |
+          python -m coverage run --source=src/budget_rag -m unittest discover -s tests
+          python -m coverage report -m
+      - name: gate (>= 80%)
+        run: python -m coverage report --fail-under=80

@@ -28,7 +28,7 @@ python -m pip install -r requirements.lock
 make check
 ```
 
-预期：44 个测试全绿，随后跑 50 条离线评测，最后一行类似
+预期：61 个测试全绿（覆盖率 89%），随后跑 50 条离线评测，最后一行类似
 
 ```
 【offline】n=50 recall@3=0.9xx em=0.xx f1=0.xx cost=0.000xxx

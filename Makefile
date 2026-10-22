@@ -1,11 +1,12 @@
 PY ?= python
 
-.PHONY: help install test check ingest eval sweep bench api docker clean all
+.PHONY: help install test check coverage ingest eval sweep bench api docker clean all
 
 help:
 	@echo "make install  - install dependencies"
 	@echo "make test     - run unit tests"
 	@echo "make check    - tests + quick eval (fast sanity)"
+	@echo "make coverage - coverage report (gate 80%)"
 	@echo "make ingest   - build index"
 	@echo "make eval     - run evaluation (500 items)"
 	@echo "make sweep    - budget sweep + SVG curve"
@@ -19,6 +20,11 @@ install:
 
 test:
 	$(PY) -m unittest discover -s tests -v
+
+coverage:
+	$(PY) -m coverage run --source=src/budget_rag -m unittest discover -s tests
+	$(PY) -m coverage report -m
+	$(PY) -m coverage report --fail-under=80
 
 check: test
 	$(PY) scripts/eval.py --set data/eval_500.jsonl --limit 50
