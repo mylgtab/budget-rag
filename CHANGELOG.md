@@ -2,6 +2,18 @@
 
 所有值得一提的改动都记在这里。版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.6.0 — 2026-10-22
+
+**可用性与可信度**
+
+- API 加 Bearer 鉴权与每 IP 令牌桶限流（`RAG_API_TOKEN` / `RAG_RATE_LIMIT`）
+- 多 seed 自助重采样：Recall 0.8580 ± 0.0148（修正「只打乱顺序没有方差」的错误）
+- token 校准：tiktoken 对中文高估约 84%，账单改用 API `usage`
+- 接 LongBench `passage_retrieval_zh`：向量 0.995 vs BM25 0.955（跨语料验证）
+- 向量缓存 SQLite 化：冷 46.6s → 热 4.6s
+- 测试 27 → 42 个（API 鉴权/限流、LongBench 解析、缓存往返）
+- 借鉴 Ponytail 的懒惰阶梯做「第 0 级不检索」实验（负结果，记录在案）
+
 ## v0.5.0 — 2026-10-22
 
 **检索质量与可信度**
