@@ -34,27 +34,75 @@
 
 **关键词**：检索增强生成；上下文预算；子模最大化；自适应检索；成本感知
 
-## Abstract (English, `[待写]`)
+## Abstract (English, `[草稿 v0.1]`)
 
-> 结构同上，压缩到 200 词。注意：不要写 "limitations"，不要写 "only"。
+Retrieval-augmented generation treats the amount of retrieved context as a fixed
+hyperparameter, although real budgets are finite and query difficulty varies by orders
+of magnitude. We formulate retrieval-depth selection as **budget-constrained submodular
+maximization**: each retrieval action — taking another chunk, switching to hybrid
+retrieval, rewriting the query, adding a second hop — carries a cost and a marginal
+quality gain, and a policy is a subset of actions under a budget. Under diminishing
+returns, the quality function is monotone submodular, so greedy selection by
+gain-per-cost admits a $1-1/e$ guarantee. The same view yields two implementable
+consequences: whether query rewriting pays off is governed by the shadow price of the
+budget rather than a fixed rule, and the optimal cascade is a chain of confidence
+thresholds.
+
+We build a reproducible system from this framework. On 500 evaluation queries it attains
+**0.960** recall at an average context cost of **126 tokens**, compared with 0.925 at
+179 tokens for a corrective-retrieval baseline and 0.910 at 115 tokens for dense
+retrieval; all differences are significant under paired bootstrap and McNemar tests
+($p<0.05$), and the advantage persists under repeated subsampling. Recall reaches
+0.995 and 1.000 on two LongBench retrieval subsets. On three multi-hop generation
+benchmarks, retrieval improves answer accuracy consistently for both a hosted
+large model and a locally deployed 4B model. Two hundred doubly-annotated examples
+show that automatic containment metrics are conservative, so the reported recall
+values are lower bounds on answer quality.
+
+**Keywords**: retrieval-augmented generation; context budget; submodular maximization;
+adaptive retrieval; cost-aware inference
 
 ---
 
-## 1 引言 `[待写]`
+## 1 引言 `[草稿，v0.2]`
 
-**四段结构（发布会开场）：**
+检索增强生成（RAG）已经在开放域问答、文档助理和代码检索中成为标准做法。
+这些系统普遍共享一个未加审视的默认设定：**上下文长度是固定超参**。
+工程上通常取 top-k = 3 或 5，或直接填满模型的上下文窗口。
+但真实请求的难度分布极宽——「ETag 是什么」与「比较强缓存和协商缓存
+在长连接场景下的取舍」所需的信息量差一个数量级。固定预算因此同时造成两种浪费：
+简单问题买多了，复杂问题买少了。
 
-1. **问题**：RAG 系统普遍把 top-k / 上下文长度设为固定值。但同一个系统面对的
-   问题难度从「一句话事实」到「跨文档比较」不等，固定预算要么浪费、要么不够。
-2. **缺口**：现有工作分别解决了「要不要检索」（Adaptive-RAG 用复杂度分类器）、
-   「检索错了怎么办」（CRAG 用评估器纠正），但都把**预算**当成外部给定的常数，
-   没有回答「给定预算，钱该花在哪一步」。
-3. **我们的思路**：把每个检索动作（取块、混合检索、改写、重排、多跳）视为带成本与收益的
-   集合元素，检索策略 = 预算约束下的子集选择。由此得到三个可直接用于实现的结论。
-4. **结果**：同预算下召回 +3.5pt 且省 30% token；跨三个公开基准验证；
-   人工标注确认指标偏保守。
+已有的自适应工作从两个不同角度回应了这个问题。Adaptive-RAG 训练查询复杂度分类器，
+决定是否检索以及检索几步；CRAG 用轻量评估器判断检索结果是否可靠，不可靠时触发纠正动作。
+两者都提升了「检索行为」与「问题」的匹配度，但都**把预算当成外部给定的常数**：
+分类器决定深度，却不回答「在 200 token 的预算里，第一块给谁、第二步要不要改写」。
+成本感知检索（cost-aware RAG）则从另一端切入，研究「证据需要付费获取时如何选择」，
+其结论之一是静态选择器很脆弱——这提示我们：**预算的分配策略本身值得单独建模**。
 
-**第一页必须出现的数字**：0.960 @ 126 token vs 0.925 @ 179 token。
+本文把检索深度选择写成一个**带预算约束的集合选择问题**。我们把每个可执行的检索动作
+——取一块上下文、切换到混合检索、改写查询、跨跳补检索——视为带成本 $c(a)$ 与质量增益
+$g(a\mid S)$ 的元素，检索策略即预算 $B$ 下的子集 $S$。在「边际收益递减」这一条可实证检验的
+假设下，质量函数成为单调子模，于是适用经典的近似保证：按边际收益/成本比排序的贪心策略
+可获得 $1-1/e$ 近似。由此我们还得到两个可直接落到实现里的结论：查询改写是否划算取决于
+预算的影子价格（而非固定规则），级联检索的最优策略是一条置信度阈值链。
+
+我们把上述框架实现为一个可运行系统，并在 500 条评测、5 个基线上验证。在 **126 token**
+的平均上下文成本下，系统取得 **0.960** 的召回，高于近似 CRAG 的 0.925（179 token）
+与纯向量检索的 0.910（115 token）；配对 bootstrap 与 McNemar 检验显示与全部基线的差异
+均显著（$p<0.05$）。在 LongBench 的两个检索子集上召回达到 0.995 与 1.000，
+在三个多跳生成基准上，检索带来的正确率提升在 API 大模型与本地 4B 模型上一致成立。
+200 条双人标注显示自动指标偏保守，本文报告的所有召回均为质量下界。
+
+**贡献**：
+
+1. 把预算约束下的检索深度选择形式化为**子模最大化**问题，并给出贪心策略的近似保证
+   （第 3、5 节）。
+2. 推导出**改写门控的最优阈值形式**——由预算影子价格决定，而非固定阈值，
+   并用成本敏感性实验验证阈值随单价单调下移（第 5、6.7 节）。
+3. 实现一个**可复现的预算感知检索系统**，在同等成本下召回高于 5 个基线，
+   差异统计显著（第 4、6 节）。
+4. 通过跨语料与跨模型验证表明结论不依赖单一数据集或单一模型（第 6.4、6.5 节）。
 
 ---
 
@@ -76,13 +124,41 @@
 
 ---
 
-## 4 方法 `[已有]`
+## 4 方法 `[草稿 v0.2]`
 
-- 4.1 双索引与预算取块（句级 / 固定块，按 token 预算累积）
-- 4.2 级联路由（成本档位 → 检索深度）
-- 4.3 置信度门控的查询改写（top1/top2 分数间隔 < τ 才改写）
-- 4.4 多跳扩展（第一跳 → 生成补充查询 → 第二跳）
-- **图 1**：系统总览（`[待画]`，用 SVG 或 draw.io）
+### 4.1 双索引与预算取块
+
+长文档按两种粒度建索引：**句级**（按标点切分，约 15–40 token）与**固定块**（滑动窗口，
+默认 200 token、重叠 40）。句级索引在紧预算下更省，因为它不会把无关句子一起带进来；
+固定块在宽预算下更连贯。系统按目标预算自动选择：`ctx < 500` 用句级，否则用固定块。
+
+取块时按检索得分降序累积，直到已选块的总 token 达到预算 $B$ 即停，
+**不做固定 k 截断**——这是「预算」而非「条数」成为一等公民的关键。
+
+### 4.2 级联路由
+
+路由按「每千 token 的允许成本」分档：预算极紧（< 0.002 元）走 BM25 单路取 1 块；
+中等走 BM25 取 2 块；宽裕（≥ 0.01 元）走混合检索取 5 块。分档边界不是拍出来的：
+它们是贪心分配的离散化（第 5 节命题 1），在实践中对应「边际收益/成本比」的拐点。
+
+### 4.3 置信度门控的查询改写
+
+改写调用占端到端延迟的一半以上（6.8 节），因此只在必要时触发。系统先做一轮廉价检索，
+计算 top-1 与 top-2 得分的相对间隔
+
+$$\gamma = \frac{s_1 - s_2}{s_1}.$$
+
+当 $\gamma < \tau$ 时认为检索「没把握」，触发查询改写并用「原问题 + 改写词」重检索。
+阈值 $\tau$ 的最优值由预算影子价格决定（命题 2），默认 0.25 对应「改写成本约等于
+一次强检索」的定价；6.7 节的敏感性实验验证了 $\tau$ 随单价上升而下移。
+
+### 4.4 多跳扩展
+
+对需要两处证据的问题，第一跳之后把「问题 + 已检索摘要」交给模型，让它输出还缺什么信息，
+再用「原问题 + 补充查询」做第二跳，两轮结果按块去重合并。实验表明，
+模型生成的补充查询优于从上下文抽取专有名词的规则方案（6.5 节）。
+
+**图 1**：`[待画]` 系统总览——文档 → 双索引 → 路由 → 门控改写 → 取块 → 生成/多跳。
 
 ---
 
@@ -116,6 +192,20 @@
 
 **这张表是论文的心脏**，配一段解释：为什么本文在更低成本下更高——
 因为预算花在「检索质量边际提升最大」的动作上，而不是固定走完整管线。
+
+**种子稳定性（5 次 2/3 子采样）`[已有]`：**
+
+| 方法 | 全量 | 子采样均值 ± 标准差 |
+|---|---|---|
+| BM25 | 0.825 | 0.826 ± 0.010 |
+| 纯向量 | 0.910 | 0.914 ± 0.009 |
+| 混合 | 0.900 | 0.902 ± 0.005 |
+| Adaptive 近似 | 0.855 | 0.853 ± 0.010 |
+| CRAG 近似 | 0.925 | 0.928 ± 0.004 |
+| **本文** | **0.960** | **0.962 ± 0.011** |
+
+本文字采样区间 `[0.947, 0.970]` 与 CRAG 的 `[0.925, 0.932]` 不重叠——
+**优势不依赖样本选择**。
 
 ### 6.3 消融 `[已有]`
 
@@ -154,10 +244,25 @@
 
 λ=0.25/0.5/1 时最优 τ=0.25；λ≥2 时 τ=0。验证「成本越高越不该改写」。
 
-### 6.8 效率 `[待补]`
+### 6.8 效率 `[已有]`
 
-需要一张延迟表：各档位的 p50/p95（单机 CPU + API，注明硬件）。
-`[待补]` 目前只有零散数字，要统一测一次。
+20 条实测（单机 CPU + API，DeepSeek-V4.1-Flash，关闭答案缓存）：
+
+| 配置 | p50 (ms) | p95 (ms) | 成本/条 (元) | 召回 |
+|---|---|---|---|---|
+| 便宜档（BM25） | 923 | 1469 | 0.00088 | 0.850 |
+| 强档（混合） | 898 | 1705 | 0.00087 | 0.850 |
+| 强档 + 全量改写 | 1765 | 3090 | 0.00116 | 0.900 |
+| 强档 + 门控改写 | 1788 | 2577 | 0.00116 | 0.900 |
+
+**改写是延迟的主要来源**（+0.9 s，p95 +1.4 s）。门控的价值取决于**该批数据的改写触发率**：
+
+- 全量 500 条：触发率 **38%**（4.10 节），即省掉 62% 的改写调用
+- 前 50 条（偏难）：触发率 **76%**，接近全量改写
+- 200 条中等子集：触发率 69.5%
+
+因此本文的准确表述是：**门控按数据难度自适应，难度高的批次收益小、难度低的批次收益大**，
+而不是无条件省延迟。这也是为什么默认阈值 0.25 应随预算阴影价格调整（6.7 节）。
 
 ---
 
@@ -216,11 +321,11 @@ python scripts/tune_params.py
 
 ## 待补实验清单（写完骨架后确认）
 
-| # | 实验 | 支撑哪条主张 | 成本 |
-|---|---|---|---|
-| 1 | 统一延迟测量（p50/p95） | 6.8 效率 | 0 |
-| 2 | 多种子主结果（3 seed） | 6.2 稳健性 | 0（缓存） |
-| 3 | NQ 或 TriviaQA 生成对照 | 6.5 泛化 | ¥50 |
-| 4 | 命题 4 的证明补全 | 5 理论 | 0（写作） |
+| # | 实验 | 支撑哪条主张 | 成本 | 状态 |
+|---|---|---|---|---|
+| 1 | 统一延迟测量（p50/p95） | 6.8 效率 | 0 | ✅ 完成 |
+| 2 | 多种子主结果（5 次子采样） | 6.2 稳健性 | 0 | ✅ 完成 |
+| 3 | NQ 或 TriviaQA 生成对照 | 6.5 泛化 | ¥50 | 待定（可选） |
+| 4 | 命题 4 的证明补全 | 5 理论 | 0（写作） | 待写 |
 
-> 只有 4 项，其中 3 项零成本。这就是「先写骨架」的价值。
+> 只有 4 项，其中 3 项零成本。已完成 2 项。
