@@ -12,6 +12,15 @@ from .router import decide
 from .store import Store
 
 
+def _confidence(hits) -> float:
+    """检索置信度：top1 与 top2 的相对差距，越小越没把握。"""
+    if not hits:
+        return 0.0
+    s1 = hits[0][1]
+    s2 = hits[1][1] if len(hits) > 1 else 0.0
+    return (s1 - s2) / s1 if s1 > 0 else 0.0
+
+
 def _tokens(text: str) -> int:
     """粗估：中文约 1.5 字 = 1 token。"""
     return max(1, int(len(text) / 1.5))
@@ -83,10 +92,17 @@ class RAG:
         store_name, store = self._pick_store(want_tokens)
 
         search_query, rewritten = question, ""
-        if self.s.rewrite_query and hasattr(self.answerer, "rewrite_query"):
+        mode = self.s.rewrite_mode
+        can_rewrite = hasattr(self.answerer, "rewrite_query")
+
+        if mode == "always" and can_rewrite:
             rewritten = self.answerer.rewrite_query(question) or ""
-            if rewritten:
-                search_query = f"{question} {rewritten}"      # 原始 + 改写，扩查询
+        elif mode == "auto" and can_rewrite:
+            first = store.search_to_budget(question, want_tokens, hybrid=route.hybrid)
+            if _confidence(first) < self.s.rewrite_threshold:   # 没把握才花钱改写
+                rewritten = self.answerer.rewrite_query(question) or ""
+        if rewritten:
+            search_query = f"{question} {rewritten}"            # 原始 + 改写，扩查询
 
         hits = store.search_to_budget(search_query, want_tokens, hybrid=route.hybrid)
         fallback_price = self.s.price_strong if route.hybrid else self.s.price_cheap
