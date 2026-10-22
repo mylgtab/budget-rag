@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from budget_rag.config import Settings              # noqa: E402
-from budget_rag.embedding import HashEmbedder, OpenAIEmbedder  # noqa: E402
+from budget_rag.embedding import HashEmbedder, build_embedder  # noqa: E402
 from budget_rag.metrics import norm                 # noqa: E402
 from budget_rag.store import Store                  # noqa: E402
 from budget_rag.tokens import backend, count_tokens  # noqa: E402
@@ -72,7 +72,7 @@ def main() -> int:
 
     candidates = [("hash", HashEmbedder(s.embed_dim))]
     if s.embed_base and s.embed_key:
-        candidates.append(("real", OpenAIEmbedder(s.embed_base, s.embed_model, s.embed_key, s.embed_dim)))
+        candidates.append(("real", build_embedder(s)))
     else:
         print("⚠️ 没配 RAG_EMBED_BASE / RAG_EMBED_KEY，只跑哈希基线\n")
 

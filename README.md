@@ -101,6 +101,24 @@ python scripts/eval.py --set data/eval_set.jsonl --llm
 
 调预算：`RAG_CTX_TOKENS=300`；调切换点：`RAG_AUTO_THRESHOLD=500`。
 
+## 缓存
+
+两层缓存，默认开启：
+
+| 层 | 存什么 | 位置 | 开关 |
+|---|---|---|---|
+| 答案 / 改写 | LLM 返回文本 | `.cache/llm.json` | `RAG_CACHE=0` 关 |
+| 向量 | embedding 结果（float32 BLOB） | `.cache/embed.db` | `RAG_EMBED_CACHE=0` 关 |
+
+向量之所以用 SQLite 而不是 JSON：一条 1024 维向量 JSON 要 8KB，BLOB 只要 4KB，
+而且能按 key 精确读、不必整文件进内存。
+
+实测（LongBench 30 条，bge-m3）：冷缓存 46.6 秒 → 热缓存 **4.6 秒**，重复跑零 API 成本。
+
+```bash
+python scripts/cache_stats.py   # 看条目数、命中率、占用
+```
+
 ## 接真实 embedding
 
 默认的 `HashEmbedder` 是**离线占位**（零依赖，保证克隆下来就能跑）。换成真实模型只要三个环境变量：

@@ -9,7 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from budget_rag.cache import DiskCache                  # noqa: E402
+from budget_rag.cache import DiskCache, EmbedCache
+from budget_rag.embedding import CachedEmbedder, HashEmbedder as _HE                  # noqa: E402
 from budget_rag.config import Settings                 # noqa: E402
 from budget_rag.embedding import HashEmbedder          # noqa: E402
 from budget_rag.metrics import cohen_kappa, contain, em, f1  # noqa: E402
@@ -137,3 +138,74 @@ class TestMetrics(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class _CountingEmbedder:
+    """记录调用次数的假 embedder，用来验证缓存是否真的拦住了调用。"""
+
+    model = "fake"
+
+    def __init__(self):
+        self.dim = 4
+        self.calls = 0
+
+    def embed(self, texts):
+        self.calls += 1
+        return [[float(len(t) % 7), 1.0, 0.0, 0.5] for t in texts]
+
+
+class TestEmbedCache(unittest.TestCase):
+    def test_roundtrip_persists(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "e.db"
+            c = EmbedCache(path=path, enabled=True)
+            c.put_many("m", ["a", "b"], [[1.0, 2.0], [3.0, 4.0]])
+            got = c.get_many("m", ["a", "zzz"])
+            self.assertEqual(got[0], [1.0, 2.0])
+            self.assertIsNone(got[1])
+            c.close()
+
+            fresh = EmbedCache(path=path, enabled=True)
+            self.assertEqual(fresh.get_many("m", ["b"])[0], [3.0, 4.0])
+            fresh.close()
+
+    def test_disabled_cache(self):
+        c = EmbedCache(path=Path("results/_x.db"), enabled=False)
+        c.put_many("m", ["a"], [[1.0]])
+        self.assertIsNone(c.get_many("m", ["a"])[0])
+
+
+class TestCachedEmbedder(unittest.TestCase):
+    def test_second_call_hits_cache(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            inner = _CountingEmbedder()
+            emb = CachedEmbedder(inner, cache=EmbedCache(path=Path(td) / "e.db", enabled=True))
+            first = emb.embed(["hello", "world"])
+            second = emb.embed(["hello", "world"])
+            self.assertEqual(inner.calls, 1)          # 第二次没有真调用
+            self.assertEqual(first, second)
+            emb.cache.close()
+
+    def test_partial_miss_only_embeds_new(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            inner = _CountingEmbedder()
+            emb = CachedEmbedder(inner, cache=EmbedCache(path=Path(td) / "e.db", enabled=True))
+            emb.embed(["a"])
+            out = emb.embed(["a", "b"])
+            self.assertEqual(inner.calls, 2)
+            self.assertEqual(len(out), 2)
+            emb.cache.close()
+
+    def test_empty(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            emb = CachedEmbedder(_CountingEmbedder(), cache=EmbedCache(path=Path(td) / "e.db"))
+            self.assertEqual(emb.embed([]), [])
+            emb.cache.close()

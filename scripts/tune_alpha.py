@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from budget_rag.config import Settings               # noqa: E402
-from budget_rag.embedding import HashEmbedder, OpenAIEmbedder  # noqa: E402
+from budget_rag.embedding import HashEmbedder, build_embedder  # noqa: E402
 from budget_rag.metrics import norm                  # noqa: E402
 from budget_rag.store import Store                   # noqa: E402
 from budget_rag.tokens import count_tokens            # noqa: E402
@@ -48,7 +48,7 @@ def main() -> int:
     if args.limit:
         items = items[: args.limit]
 
-    emb = OpenAIEmbedder(s.embed_base, s.embed_model, s.embed_key)
+    emb = build_embedder(s)
     store = Store(emb, s.chunk_size, s.chunk_overlap, "sentence")
     for p in sorted((ROOT / "data" / "sample_docs").glob("*.md")):
         store.add_document(p.name, p.read_text(encoding="utf-8"))

@@ -89,11 +89,42 @@ class OpenAIEmbedder:
         return out
 
 
+class CachedEmbedder:
+    """给 embedding 加一层 SQLite 缓存：同一段文本只算一次。
+
+    真实模型的调用成本在「重复建索引」上最明显——200 条语料跑一次要重算几千条向量。
+    """
+
+    def __init__(self, inner, cache=None) -> None:
+        from .cache import EmbedCache
+
+        self.inner = inner
+        self.dim = getattr(inner, "dim", 0)
+        self.model = getattr(inner, "model", getattr(inner, "dim", "hash"))
+        self.cache = cache or EmbedCache()
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        if not texts:
+            return []
+        model = str(self.model)
+        cached = self.cache.get_many(model, texts)
+        miss_idx = [i for i, v in enumerate(cached) if v is None]
+        if miss_idx:
+            fresh = self.inner.embed([texts[i] for i in miss_idx])
+            self.cache.put_many(model, [texts[i] for i in miss_idx], fresh)
+            for j, i in enumerate(miss_idx):
+                cached[i] = fresh[j]
+        if cached and cached[0]:
+            self.dim = len(cached[0])
+        return [v if v is not None else [] for v in cached]
+
+
 def build_embedder(settings) -> "Embedder":
     """有 key 用真实模型，没有就退回离线哈希，保证永远能跑。"""
     base = getattr(settings, "embed_base", "")
     key = getattr(settings, "embed_key", "")
     if base and key:
-        return OpenAIEmbedder(base, getattr(settings, "embed_model", "BAAI/bge-m3"), key,
-                              getattr(settings, "embed_dim", 1024))
+        inner = OpenAIEmbedder(base, getattr(settings, "embed_model", "BAAI/bge-m3"), key,
+                               getattr(settings, "embed_dim", 1024))
+        return CachedEmbedder(inner)          # 真实模型一律走缓存
     return HashEmbedder(getattr(settings, "embed_dim", 256))
