@@ -96,6 +96,7 @@ def main() -> int:
     ap.add_argument("--model", default="")
     ap.add_argument("--base", default="")
     ap.add_argument("--key", default="")
+    ap.add_argument("--no-think", action="store_true", help="给 Qwen3 加 /no_think")
     args = ap.parse_args()
 
     s = Settings.from_env()
@@ -124,12 +125,18 @@ def main() -> int:
                 hits = store.search_hybrid_precomputed(q, emb.embed([q])[0], len(store.chunks), alpha=0.2)
                 ctx = take_budget(hits, args.tokens)
                 span_hit = int(any(g.lower() in ctx.lower() for g in golds))
-                answer, tokens = ask(s, RAG_PROMPT.format(ctx=ctx[:2500], q=q),
+                _prompt = RAG_PROMPT.format(ctx=ctx[:2500], q=q)
+                if args.no_think:
+                    _prompt += " /no_think"
+                answer, tokens = ask(s, _prompt,
                                  model=args.model or None, base=args.base or None, key=args.key or None)
                 stats[mode]["hit"] += span_hit
                 row["span_recall"] = span_hit
             else:
-                answer, tokens = ask(s, NONE_PROMPT.format(q=q),
+                _nprompt = NONE_PROMPT.format(q=q)
+                if args.no_think:
+                    _nprompt += " /no_think"
+                answer, tokens = ask(s, _nprompt,
                                  model=args.model or None, base=args.base or None, key=args.key or None)
 
             stats[mode]["c"] += max(contain(answer, g) for g in golds)

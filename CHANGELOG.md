@@ -2,6 +2,15 @@
 
 所有值得一提的改动都记在这里。版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.14.0 — 2026-10-22
+
+**模型无关性验证**
+
+- `scripts/longbench_qa.py` 支持 `--model/--base/--key` 与 `--no-think`
+- 本地部署 Qwen3-4B（ModelScope GGUF → Ollama），同 20 题对比 DeepSeek
+- 结果：DeepSeek 0.500 / Qwen3-4B 0.400，不检索均为 0.100
+- 结论：检索收益是模型无关的；`/no_think` 让单条延迟 6.6s → 0.4s
+
 ## v0.13.0 — 2026-10-22
 
 **学习型路由器与负结果**
