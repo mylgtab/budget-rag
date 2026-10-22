@@ -59,7 +59,7 @@ class Store:
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored[:k]
 
-    def search_hybrid_precomputed(self, query: str, qv: list[float], k: int, alpha: float = 0.1) -> list[tuple[Chunk, float]]:
+    def search_hybrid_precomputed(self, query: str, qv: list[float], k: int, alpha: float = 0.2) -> list[tuple[Chunk, float]]:
         """混合检索，但查询向量预先算好（省 API 调用）。"""
         bm = self.search_bm25(query, len(self.chunks))
         ve = {id(c): cosine(qv, c.vec) for c in self.chunks}
@@ -69,7 +69,7 @@ class Store:
         fused.sort(key=lambda x: x[1], reverse=True)
         return fused[:k]
 
-    def search_hybrid(self, query: str, k: int, alpha: float = 0.1) -> list[tuple[Chunk, float]]:
+    def search_hybrid(self, query: str, k: int, alpha: float = 0.2) -> list[tuple[Chunk, float]]:
         """BM25 与向量分数各自归一化后加权融合。"""
         bm = self.search_bm25(query, len(self.chunks))
         ve = {id(c): s for c, s in self.search_vector(query, len(self.chunks))}
