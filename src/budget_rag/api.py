@@ -19,7 +19,7 @@ from .config import Settings
 from .llm import OfflineAnswerer
 from .pipeline import RAG
 
-app = FastAPI(title="budget-rag", version="0.12.0")
+app = FastAPI(title="budget-rag", version="0.13.0")
 _settings = Settings.from_env()
 _rag: RAG | None = None
 

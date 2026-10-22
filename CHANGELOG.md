@@ -2,6 +2,16 @@
 
 所有值得一提的改动都记在这里。版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.13.0 — 2026-10-22
+
+**学习型路由器与负结果**
+
+- `scripts/train_router_bert.py`：本地微调 bert-base-chinese（CPU，3 分钟）
+- `scripts/learned_router.py`：自动生成路由标签 + TF-IDF 基线
+- 结果：BERT 0.737 vs TF-IDF 0.747 —— **更强模型没有更好**
+- 结论：瓶颈是标注数据（300 条、类别 222/52/17/9），不是模型容量
+- Oracle 显示上限：0.970 召回只需 54 token（vs 启发式 172）
+
 ## v0.12.0 — 2026-10-22
 
 **投稿级实验**

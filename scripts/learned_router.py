@@ -137,6 +137,7 @@ def main() -> int:
         out[name] = {"recall": r, "tokens": t}
         print(f"{name:<20}{r:>8.4f}{t:>12.0f}")
 
+    (ROOT / "results" / "router_rows.json").write_text(json.dumps(rows, ensure_ascii=False), encoding="utf-8")
     (ROOT / args.out).write_text(json.dumps({"n": len(rows), "acc": acc,
                                              "label_dist": np.bincount(y, minlength=4).tolist(),
                                              "strategies": out}, ensure_ascii=False), encoding="utf-8")
