@@ -66,6 +66,16 @@ make api
 输入问题即可看到答案、走了哪条路径、真实成本与上下文 token。
 没有 `index.json` 时会自动用 `data/sample_docs` 建索引。
 
+## 4.5 Docker（可选）
+
+```bash
+docker build -t budget-rag:dev .
+docker run -p 8000:8000 budget-rag:dev
+# http://127.0.0.1:8000/ui/
+```
+
+镜像内置 `data/sample_docs` 索引，零配置即可查询；CI 每次 push 都会构建并打一次真实请求。
+
 ## 5 跑公开基准（可选，本地模型零成本）
 
 ```bash

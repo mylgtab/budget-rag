@@ -42,3 +42,25 @@ jobs:
           python -m coverage report -m
       - name: gate (>= 80%)
         run: python -m coverage report --fail-under=80
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build image
+        run: docker build -t budget-rag:ci .
+      - name: run container
+        run: docker run -d --name rag -p 8000:8000 budget-rag:ci
+      - name: wait healthy
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8000/health > /dev/null; then echo "healthy"; exit 0; fi
+            sleep 2
+          done
+          echo "container did not become healthy"; docker logs rag; exit 1
+      - name: smoke query
+        run: |
+          curl -sS -X POST http://127.0.0.1:8000/query             -H 'Content-Type: application/json'             -d '{"question":"ETag 和 Last-Modified 哪个更精确？"}' | head -c 500
+      - name: logs on failure
+        if: failure()
+        run: docker logs rag
