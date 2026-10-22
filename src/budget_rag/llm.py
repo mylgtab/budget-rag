@@ -8,6 +8,7 @@ import time
 import urllib.request
 
 from .chunking import split_sentences
+from .cache import DiskCache
 from .config import Settings
 
 _WORD = re.compile(r"[a-zA-Z0-9_]+|[\u4e00-\u9fff]")
@@ -47,6 +48,7 @@ class LLMAnswerer:
         self.s = settings
         self.last_usage: dict | None = None
         self.last_rewrite_usage: dict | None = None
+        self.cache = DiskCache()
 
     def answer(self, question: str, contexts: list[str]) -> str:
         prompt = (
@@ -69,6 +71,11 @@ class LLMAnswerer:
             data=body,
             headers={"Authorization": f"Bearer {self.s.api_key}", "Content-Type": "application/json"},
         )
+        ck = DiskCache.key("answer", self.s.llm_model, prompt)
+        if (hit := self.cache.get(ck)) is not None:
+            self.last_usage = {"prompt_tokens": 0, "completion_tokens": 0}
+            return hit
+
         last_err: Exception | None = None
         for attempt in range(3):
             try:
@@ -86,6 +93,7 @@ class LLMAnswerer:
             "completion_tokens": int(usage.get("completion_tokens", 0)),
         }
         text = data["choices"][0]["message"]["content"].strip()
+        self.cache.put(ck, text)
         # 兜底清洗：模型偶尔还是会带前缀或引号
         text = re.sub(r"^根据(上述)?资料\s*\[\d+\]\s*[，,：:]\s*", "", text)
         text = re.sub(r"^资料\s*\[\d+\]\s*[，,：:]\s*", "", text)
@@ -144,6 +152,9 @@ class LLMAnswerer:
             data=body,
             headers={"Authorization": f"Bearer {self.s.api_key}", "Content-Type": "application/json"},
         )
+        ck = DiskCache.key("rewrite", self.s.llm_model, prompt)
+        if (hit := self.cache.get(ck)) is not None:
+            return hit
         for attempt in range(3):
             try:
                 with urllib.request.urlopen(req, timeout=60) as resp:
@@ -153,7 +164,9 @@ class LLMAnswerer:
                     "prompt_tokens": int(u.get("prompt_tokens", 0)),
                     "completion_tokens": int(u.get("completion_tokens", 0)),
                 }
-                return data["choices"][0]["message"]["content"].strip()
+                out = data["choices"][0]["message"]["content"].strip()
+                self.cache.put(ck, out)
+                return out
             except Exception:
                 time.sleep(1.5 * (attempt + 1))
         return ""

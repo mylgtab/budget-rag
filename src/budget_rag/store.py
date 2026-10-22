@@ -9,6 +9,7 @@ from pathlib import Path
 from .bm25 import BM25
 from .chunking import chunk_text, split_sentences
 from .embedding import Embedder, cosine
+from .tokens import count_tokens
 
 
 @dataclass
@@ -94,7 +95,7 @@ class Store:
         used = 0
         for chunk, score in ranked:
             picked.append((chunk, score))
-            used += max(1, int(len(chunk.text) / 1.5))
+            used += max(1, count_tokens(chunk.text))
             if used >= max_tokens:
                 break
         return picked

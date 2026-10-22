@@ -7,3 +7,4 @@ results/
 .pytest_cache/
 .idea/
 .vscode/
+.cache/

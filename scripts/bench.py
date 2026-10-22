@@ -35,7 +35,7 @@ def norm(s: str) -> str:
 
 
 def f1(pred: str, gold: str) -> float:
-    p, g = _WORD.findall(norm(pred)), _WORD.findall(norm(gold))
+    p, g = _WORD.findall(str(pred).lower()), _WORD.findall(str(gold).lower())
     if not p or not g:
         return float(norm(pred) == norm(gold))
     gs, common = list(g), 0

@@ -9,6 +9,7 @@ from .config import Settings
 from .embedding import build_embedder
 from .llm import OfflineAnswerer
 from .router import decide
+from .tokens import count_tokens
 from .store import Store
 
 
@@ -22,8 +23,7 @@ def _confidence(hits) -> float:
 
 
 def _tokens(text: str) -> int:
-    """粗估：中文约 1.5 字 = 1 token。"""
-    return max(1, int(len(text) / 1.5))
+    return max(1, count_tokens(text))
 
 
 @dataclass
