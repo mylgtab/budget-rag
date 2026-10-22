@@ -2,6 +2,16 @@
 
 所有值得一提的改动都记在这里。版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.16.0 — 2026-10-22
+
+**工程修正**
+
+- `api.py`：有 `DEEPSEEK_API_KEY` 时改用 `LLMAnswerer`（此前永远走离线抽取）
+- `api.py`：启动时若无 `index.json` 自动用 `data/sample_docs` 建索引，避免空服务
+- 新增 `pyproject.toml`：可 `pip install -e .`，依赖按 extras 分组（api / tokens / dev）
+- `Makefile` 重写：修复中文乱码，新增 `make check`，bench 指向 `baselines.py`
+- 版本号与 `pyproject.toml` 对齐
+
 ## v0.15.0 — 2026-10-22
 
 **多基准与路由器数据扩展**

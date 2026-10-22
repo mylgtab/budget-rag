@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "budget-rag"
+version = "0.16.0"
+description = "Cost-aware retrieval for long-document QA: budgeted chunking, cascade routing and a confidence gate"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "mylgtab" }]
+keywords = ["rag", "retrieval", "cost-aware", "submodular", "long-context"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Text Processing :: Indexing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+api = ["fastapi>=0.110", "uvicorn>=0.29", "pydantic>=2.6"]
+tokens = ["tiktoken>=0.7"]
+dev = ["numpy>=1.26", "scikit-learn>=1.4", "python-docx>=1.1"]
+
+[project.urls]
+Homepage = "https://github.com/mylgtab/budget-rag"
+Issues = "https://github.com/mylgtab/budget-rag/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+budget_rag = ["static/*.html"]

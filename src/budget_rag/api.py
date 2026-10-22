@@ -16,10 +16,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import Settings
-from .llm import OfflineAnswerer
+from .llm import LLMAnswerer, OfflineAnswerer
 from .pipeline import RAG
 
-app = FastAPI(title="budget-rag", version="0.15.0")
+app = FastAPI(title="budget-rag", version="0.16.0")
 _settings = Settings.from_env()
 _rag: RAG | None = None
 
@@ -60,10 +60,20 @@ def _check_rate(request: Request) -> None:
 def _get_rag() -> RAG:
     global _rag
     if _rag is None:
-        _rag = RAG(_settings, OfflineAnswerer())
+        answerer = LLMAnswerer(_settings) if _settings.api_key else OfflineAnswerer()
+        _rag = RAG(_settings, answerer)
         idx = Path("index.json")
         if idx.exists():
             _rag.store.load(idx)
+        else:
+            docs_dir = Path("data/sample_docs")          # 没有索引就先建一份，避免空服务
+            if docs_dir.exists():
+                _rag.ingest({p.name: p.read_text(encoding="utf-8")
+                             for p in sorted(docs_dir.glob("*.md"))})
+                try:
+                    _rag.store.save(idx)
+                except Exception:
+                    pass
     return _rag
 
 
