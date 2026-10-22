@@ -1,0 +1,249 @@
+# budget-rag 项目交接书
+
+> 专供「只做这个项目」的会话使用。工作区级的通用交接在 `../HANDOFF.md`。
+> 最后更新：2026-10-22 · 版本 v0.15.0 · 44 commits · 102 文件 · 15 个 release
+
+---
+
+## 0 三十秒上手
+
+```powershell
+cd C:\Users\32997\Documents\deepseek-harness\default-workspace\budget-rag
+D:\Python310\python.exe -m unittest discover -s tests        # 42 个测试，应全绿
+D:\Python310\python.exe scripts\seed_stability.py             # 零成本，验证主结果稳健
+```
+
+要调 API 先设环境变量（见第 7 节）。
+
+---
+
+## 1 一句话现状
+
+**实验已足够投 Q2 期刊，论文骨架 v0.2（248 行）完成核心章节，剩相关工作/讨论/图/润色。**
+
+主线主张：**同等预算下更强，同等质量下更便宜。**
+
+---
+
+## 2 目录地图
+
+```
+budget-rag/
+├─ src/budget_rag/          核心库（13 个模块）
+│  ├─ pipeline.py           RAG 主流程：路由→门控→取块→生成→Trace
+│  ├─ store.py             双索引（句级/固定块）、BM25、向量、混合、预算取块
+│  ├─ router.py            成本档位路由（cheap / strong）
+│  ├─ embedding.py         HashEmbedder（离线占位）、OpenAIEmbedder、CachedEmbedder
+│  ├─ cache.py             DiskCache（LLM 文本）+ EmbedCache（SQLite 向量）
+│  ├─ llm.py               LLMAnswerer（含改写、重试、账单捕获）、OfflineAnswerer
+│  ├─ metrics.py           contain / EM / F1 / Cohen kappa
+│  ├─ tokens.py            tiktoken 优先，缺失时退回字数估算
+│  ├─ api.py               FastAPI：/health、/query、/ui 静态页
+│  └─ static/index.html    演示页
+├─ scripts/                 36 个实验脚本（见第 4 节分组）
+├─ docs/
+│  ├─ paper-draft.md        ★ 论文骨架（248 行，当前最重要）
+│  ├─ report.md             完整实验报告（749 行，4.1–4.30）
+│  ├─ theory.md             形式化（子模最大化 + 三个命题）
+│  ├─ fcs-checklist.md      投稿清单 + 做不到的事项
+│  ├─ references.md         参考项目与借鉴点
+│  ├─ experiment-log.md     时间线日志
+│  └─ annotation-guide*.md  标注指南 v1/v2
+├─ results/                 47 个结果文件（json/md/log）
+├─ data/                    sample_docs/、eval_500.jsonl、longbench/
+└─ tests/                   5 个测试文件，42 个用例
+```
+
+---
+
+## 3 架构数据流
+
+```
+问题 q
+  │
+  ├─ 路由 router.decide(预算, 问题) → 档位 cheap/strong
+  │
+  ├─ 双索引 store：ctx<500 用句级，否则固定块
+  │
+  ├─ [门控] 先廉价检索 → 置信度 γ=(s1-s2)/s1
+  │         γ < 0.25 → LLM 改写 → 「原问题+改写词」重检索
+  │
+  ├─ 预算取块：按分数累积到 token 预算 B 即停（不是固定 k）
+  │
+  ├─ [多跳] 第一跳 → 问模型「还缺什么」→ 第二跳 → 去重合并
+  │
+  └─ 生成 → Trace{path, store, cost, tokens, billed, latency}
+```
+
+---
+
+## 4 实验总表（脚本 → 结论 → 报告节）
+
+### 4.1 评测与稳健性
+| 脚本 | 作用 | 结论 | 报告 |
+|---|---|---|---|
+| `eval.py` | 主评测（含 --llm） | 500 条 contain 0.920 / 0.002 元 | 4.4–4.8 |
+| `bench.py` | 四策略对比 + bootstrap CI | 级联 47% 成本拿 99.5% 召回 | 4.6 |
+| `seed_stability.py` | 5 次 2/3 子采样 | 本文 0.962±0.011，与 CRAG 区间不重叠 | 6.2 |
+| `latency_bench.py` | p50/p95 延迟 | 改写是延迟主因（+0.9s） | 6.8 |
+| `significance.py` | 配对 bootstrap + McNemar | 对 5 个基线全部显著 | 4.23 |
+| `multi_seed.py` | 自助重采样 | 0.8580±0.0148（hash 配置） | 4.15 |
+
+### 4.2 检索实验
+| 脚本 | 结论 | 报告 |
+|---|---|---|
+| `rewrite_gate.py` | 门控 38% 调用拿 67% 收益 | 4.10 |
+| `prf_test.py` | PRF 失败（−1.6 / −19.6pt） | 附录 A |
+| `llm_rewrite_test.py` | 改写 +4.6pt 召回 | 4.8 |
+| `tune_alpha.py` / `tune_params.py` | alpha=0.2，同预算 +1.7pt | 4.13 |
+| `chunk_budget.py` | 切块粒度 × 预算曲线 | 4.5 |
+| `budget_opt.py` | 验证贪心近似与递减 | 4.24 / theory |
+| `sweep.py` | 预算三档曲线 | 4.3 |
+| `embed_compare.py` | bge-m3 0.938 vs 哈希 0.884 | 4.12 |
+| `llm_rerank.py` | 预算截断时 +5.5pt | 4.11 |
+| `multihop.py` | 两跳 0.540→0.620；模型补查 > 实体补查 | 4.21 / 4.22 |
+| `threshold_sensitivity.py` | λ≥2 时最优阈值降为 0 | 4.25 |
+
+### 4.3 公开基准
+| 脚本 | 数据集 | 结论 |
+|---|---|---|
+| `fetch_longbench.py` | 下载解压 | 镜像 hf-mirror |
+| `longbench_passage.py` | passage_retrieval zh/en | 0.995 / 1.000 |
+| `longbench_qa.py` | hotpotqa / 2wiki / musique | 0.400 / 0.200 / 0.250（Qwen3-4B） |
+| `no_retrieval.py` | 第 0 级不检索 | contain 0.11（负结果） |
+
+### 4.4 标注与路由
+| 脚本 | 结论 |
+|---|---|
+| `make_annotation.py` | 生成标注表（--llm） |
+| `analyze_annotation.py` | 混淆矩阵、一致率 |
+| `kappa.py` | 双人 kappa 0.548 / 加权 0.673 |
+| `learned_router.py` | 自动标签 + TF-IDF 路由（0.730） |
+| `train_router_bert.py` | BERT 路由（0.702，未超过 TF-IDF） |
+
+---
+
+## 5 核心数字速查
+
+**主结果（200 条，bge-m3）**
+
+| 方法 | 召回 | token |
+|---|---|---|
+| BM25 | 0.825 | 68 |
+| 纯向量 | 0.910 | 115 |
+| 混合 | 0.900 | 114 |
+| Adaptive 近似 | 0.855 | 100 |
+| CRAG 近似 | 0.925 | 179 |
+| **本文** | **0.960** | **126** |
+
+**其他关键数**
+
+- 500 条端到端：contain 0.920 / 0.002 元每条
+- 改写门控：38%–76% 触发率（取决于数据难度）
+- 忠实度：94% 有依据 / 3% 编造
+- 人工标注：自动指标偏保守，召回是**下界**
+- 成本：500 条约 0.5 元；embedding 全程约 0.01 元
+
+---
+
+## 6 复现
+
+```powershell
+# 建索引 + 跑评测
+D:\Python310\python.exe scripts\ingest.py
+D:\Python310\python.exe scripts\eval.py --set data\eval_500.jsonl --llm --limit 50
+
+# 基线对比（论文主表）
+D:\Python310\python.exe scripts\baselines.py --limit 200
+
+# 公开基准
+D:\Python310\python.exe scripts\fetch_longbench.py --subsets passage_retrieval_zh hotpotqa
+D:\Python310\python.exe scripts\longbench_passage.py --limit 200
+
+# 本地 Qwen（免费）
+ollama list      # 应有 qwen3-4b
+D:\Python310\python.exe scripts\longbench_qa.py --file data\longbench\hotpotqa.jsonl --limit 20 `
+  --model qwen3-4b --base http://127.0.0.1:11434/v1 --key ollama --no-think
+```
+
+---
+
+## 7 环境与依赖
+
+```powershell
+$env:DEEPSEEK_API_KEY='<你的 DeepSeek key>'
+$env:RAG_EMBED_BASE='https://api.siliconflow.cn/v1'
+$env:RAG_EMBED_MODEL='BAAI/bge-m3'
+$env:RAG_EMBED_KEY='<你的 SiliconFlow key>'
+```
+
+> 真实 key 不写进仓库（GitHub 密钥扫描会拦截 push）。
+> 本机 key 存在工作区级 `../HANDOFF.md`，或你自己的 `.env`。
+
+| 依赖 | 状态 |
+|---|---|
+| Python | `D:\Python310\python.exe` |
+| 已装 | numpy, scikit-learn, torch(CPU), transformers, fastapi, uvicorn, httpx, tiktoken |
+| 模型 | `D:\AAAAAgongju\models\bert-base-chinese`、`qwen3-4b`（GGUF） |
+| Node/pnpm | DSH 运行时内置 |
+
+**坑（照抄即可）**
+
+- pip 用 `--index-url https://pypi.tuna.tsinghua.edu.cn/simple`
+- HF 用 `HF_ENDPOINT=https://hf-mirror.com`，必要时 curl 直接下权重
+- Ollama pull 会失败（拒绝私有 IP 重定向）→ 用 ModelScope GGUF + `ollama create`
+- Qwen3 必须加 `/no_think`，否则 content 为空
+- 测延迟要 `RAG_CACHE=0`，否则命中缓存（9ms 假数据）
+- PowerShell 写 JSON 会带 BOM → 用 Python 写
+- 长文档建索引会超时 → embedding 已按 32 条分批
+
+---
+
+## 8 技术债（知道但没修）
+
+| # | 问题 | 影响 | 建议 |
+|---|---|---|---|
+| 1 | 检索是暴力扫全库 | 上万块会崩 | 上 FAISS / HNSW |
+| 2 | tiktoken 对中文高估 84% | 预算是保守值 | 换 DeepSeek 分词或加系数 |
+| 3 | 缓存无 TTL | 会越积越大 | 加过期与容量清理 |
+| 4 | 基线是「行为近似」 | 论文须标注 | 有条件再复现原版 |
+| 5 | 单机 CPU 延迟 | 不代表生产 | 不做主张即可 |
+
+---
+
+## 9 论文状态
+
+**已完成**：标题候选、中文摘要、英文摘要、引言四段、方法 4.1–4.4、形式化、理论三命题、实验 6.1–6.8（含种子稳定性与延迟）。
+
+**待写**：相关工作（素材在 `docs/references.md`）、讨论、局限（四条已列）、图 1、命题 4 证明。
+
+**验收清单**（骨架末尾有更细版）：
+- [ ] 摘要前五句有问题和贡献
+- [ ] 主表在第一页可见
+- [ ] 负结果全在附录
+- [ ] 引言没有提前示弱
+- [ ] 结论没有突然自我否定
+
+---
+
+## 10 下一步（按用户时间线）
+
+| 时间 | 目标 |
+|---|---|
+| **2026.11** | 论文成稿并投出（Q2：Applied Sciences / Electronics） |
+| 2026.12–2027.2 | 数学打底，项目退到周末 |
+| 2027.7 | **项目冻结**，全力冲刺考研 |
+| 2028.3 | 复试：论文 + 仓库 + 10 分钟技术故事 |
+
+**用户背景**：28 考研（2027.12 考试），目标院校较好，担心本科背景。
+对策：把「可验证的科研产出」做扎实——初试分数 + 能讲清楚的系统 + 论文。
+
+---
+
+## 11 协作约定
+
+- 说话风格遵循工作区 `AGENTS.md`（溟月人设）
+- 写论文时调用 `anti-defensive-writing` skill
+- **先写后做**：任何「要不要补实验」的犹豫，先写一段论文，答案自然出现
+- 负结果记录但放附录，不进主线
+- 每个结论必须能指到一个 `results/` 文件
