@@ -67,9 +67,21 @@ class OpenAIEmbedder:
             data=body,
             headers={"Authorization": f"Bearer {self.key}", "Content-Type": "application/json"},
         )
-        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
+        import time as _time
+
+        data = None
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                break
+            except Exception:
+                if attempt == 2:
+                    raise
+                _time.sleep(1.5 * (attempt + 1))
         vecs = [item["embedding"] for item in data["data"]]
+        if vecs:
+            self.dim = len(vecs[0])          # 用真实维度覆盖默认值
         out = []
         for v in vecs:
             norm = math.sqrt(sum(x * x for x in v)) or 1.0

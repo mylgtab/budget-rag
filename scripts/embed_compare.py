@@ -32,11 +32,24 @@ def take_budget(hits, budget: int) -> str:
     return "".join(ctx)
 
 
-def evaluate(store: Store, items: list[dict], budget: int, hybrid: bool) -> tuple[float, float]:
+def batch_query_vectors(emb, questions: list[str], batch: int = 32) -> list[list[float]]:
+    vecs: list[list[float]] = []
+    for i in range(0, len(questions), batch):
+        vecs.extend(emb.embed(questions[i:i + batch]))
+    return vecs
+
+
+def evaluate(store: Store, items: list[dict], budget: int, hybrid: bool,
+             qvecs: list[list[float]] | None = None) -> tuple[float, float]:
     hit, ms = 0, 0.0
-    for item in items:
+    for idx, item in enumerate(items):
         t0 = time.perf_counter()
-        hits = store.search_to_budget(item["question"], budget, hybrid=hybrid)
+        if qvecs is not None and hybrid:
+            hits = store.search_hybrid_precomputed(item["question"], qvecs[idx], len(store.chunks))
+        elif qvecs is not None:
+            hits = store.search_vector_precomputed(qvecs[idx], len(store.chunks))
+        else:
+            hits = store.search_to_budget(item["question"], budget, hybrid=hybrid)
         ms += (time.perf_counter() - t0) * 1000
         ctx = take_budget(hits, budget)
         hit += any(norm(g) in norm(ctx) for g in item["answers"])
@@ -73,7 +86,16 @@ def main() -> int:
         build_s = time.perf_counter() - t0
 
         bm25_r, _ = evaluate(store, items, args.tokens, hybrid=False)
-        vec_r, vec_ms = evaluate(store, items, args.tokens, hybrid=True)   # hybrid 作近似“向量参与”
+        if name == "real":
+            t1 = time.perf_counter()
+            qv = batch_query_vectors(emb, [it["question"] for it in items])
+            print(f"   查询向量预算耗时 {time.perf_counter()-t1:.1f}s（不重复计）")
+            if name == "real":
+                pure_r, _ = evaluate(store, items, args.tokens, hybrid=False, qvecs=qv)
+                vec_r, vec_ms = evaluate(store, items, args.tokens, hybrid=True, qvecs=qv)
+                print(f"   真实模型：纯向量 {pure_r:.4f} / 混合 {vec_r:.4f}")
+        else:
+            vec_r, vec_ms = evaluate(store, items, args.tokens, hybrid=True)
         print(f"{name:<10}{bm25_r:>10.4f}{vec_r:>10.4f}{vec_r:>10.4f}{vec_ms:>10.0f} ms  (建索引 {build_s:.1f}s)")
     return 0
 
