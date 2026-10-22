@@ -30,7 +30,7 @@
 | MuSiQue | 0.250 | 0.000 |
 | TriviaQA（反例：不检索更好） | 0.100 | 0.300 |
 
-论文草稿：[docs/paper-draft.md](docs/paper-draft.md)（Word 版 `docs/paper-draft.docx`）。
+**五分钟上手**：[docs/quickstart.md](docs/quickstart.md) · 论文草稿：[docs/paper-draft.md](docs/paper-draft.md)（Word 版 `docs/paper-draft.docx`）。
 完整实验记录：[docs/report.md](docs/report.md)。复现：`make check`。
 
 ## 为什么做

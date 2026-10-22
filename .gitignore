@@ -10,3 +10,4 @@ results/
 .cache/
 
 data/longbench/
+!data/longbench_sample/

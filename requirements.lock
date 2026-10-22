@@ -1,0 +1,23 @@
+# 参考环境精确版本（Windows 11 / Python 3.10 / 2026-10-22）
+# 用法：pip install -r requirements.lock 复现作者环境
+# 核心库本身零第三方依赖；以下按 extras 分组。
+
+## 核心库（零第三方依赖）
+# （无）
+
+## api（HTTP 服务）
+fastapi==0.159.1
+uvicorn==0.54.0
+pydantic==2.14.1
+starlette==1.7.0
+httpx==0.28.1
+
+## tokens（可选分词器）
+tiktoken==0.14.0
+
+## dev（实验与论文工具）
+numpy==2.2.6
+scikit-learn==1.7.2
+torch==2.14.1
+transformers==5.20.2
+python-docx==1.2.0   # 用 DSH 运行时 python 跑 scripts/md_to_docx.py
