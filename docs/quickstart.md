@@ -110,3 +110,17 @@ python scripts/longbench_qa.py --file data/longbench/hotpotqa.jsonl --limit 20 \
 - 全部实验与负结果：`docs/report.md`
 - 形式化与三个命题：`docs/theory.md`
 - 代码结构与环境坑：[`HANDOFF.md`](../HANDOFF.md)
+
+## 润色后自检
+
+润色稿容易把「诚实限定」磨掉。改完跑一遍：
+
+```bash
+python scripts/check_polish.py --cand 我的润色稿.md                 # 正文段落
+python scripts/check_polish.py --cand 摘要.md --journal mdpi        # 摘要查 200 词上限
+python scripts/check_polish.py --cand 摘要.md --journal kbs         # KBS 查 250 词
+```
+
+会检查五类问题：数字被改、限定词（approximation / within paired noise / lower bound）被删、
+主语范围被放大、结论被拔高（establishes / state-of-the-art）、术语不一致（cross-hop / Recall@k）。
+退出码 0 表示通过。
