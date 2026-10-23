@@ -1,18 +1,6 @@
-# 论文骨架 v0.4（投稿用）
+# Budget-Aware Retrieval: Allocating Context Tokens Where They Pay Off
 
-> 目标期刊：Applied Sciences / Electronics（Q2）→ 二轮冲 Frontiers of Computer Science
-> 写作原则：学术发布会。主线只讲**同等预算下更强、同等质量下更便宜**。
-> 状态标记：`[已有]` 数据已跑完；`[待补]` 需要补实验；`[待写]` 纯写作。
-
----
-
-## 标题（候选）
-
-1. **Budget-Aware Retrieval: Allocating Context Tokens Where They Pay Off**
-2. Cost-Controlled Retrieval for Long-Document QA: A Submodular View with a Confidence Gate
-3. 中文版：面向长文档问答的预算感知检索：子模视角与置信度门控
-
-> 倾向 1：把「预算」写进标题，第一眼就区分于 Adaptive-RAG（复杂度）和 CRAG（纠正）。
+> 中文标题：面向长文档问答的预算感知检索：子模视角与置信度门控
 
 ---
 
@@ -35,7 +23,7 @@
 
 **关键词**：检索增强生成；上下文预算；子模最大化；自适应检索；成本感知
 
-## Abstract (English, `[草稿 v0.1]`)
+## Abstract (English,)
 
 Retrieval-augmented generation treats the amount of retrieved context as a fixed
 hyperparameter, although real budgets are finite and query difficulty varies by orders
@@ -67,7 +55,7 @@ adaptive retrieval; cost-aware inference
 
 ---
 
-## 1 引言 `[草稿，v0.2]`
+## 1 引言
 
 检索增强生成（RAG）已经在开放域问答、文档助理和代码检索中成为标准做法。
 这些系统普遍共享一个未加审视的默认设定：**上下文长度是固定超参**。
@@ -109,7 +97,7 @@ $\tau^*(\lambda)$ 并实测其方向：单价系数从 0.25 升到 2，$\tau^*$ 
 
 ---
 
-## 2 相关工作 `[草稿 v0.2，引用条目见 docs/citations-v2.md]`
+## 2 相关工作
 
 检索增强生成把参数化记忆与可更新的外部证据结合起来 [Lewis 等, 2020]，其检索深度在多数系统中
 是一个超参：固定取 top-$k$ 段落后整段拼入上下文 [Robertson & Zaragoza, 2009; Karpukhin 等, 2020]。
@@ -247,7 +235,7 @@ Khuller 等 [1999] 的修正贪心以局部枚举补上跨档，把预算情形�
 
 ---
 
-## 3 问题形式化 `[已有，见 docs/theory.md 第 1–2 节]`
+## 3 问题形式化
 
 设一次查询上可执行一组检索动作 $\mathcal{A}$，动作 $a$ 有成本 $c(a)$ 与在已选集合 $S$ 上的
 边际收益 $g(a\mid S)$，质量 $Q(S)$ 单调不减。检索策略即在 $\sum_{a\in S} c(a) \le B$ 下
@@ -256,7 +244,7 @@ A2 成本可加且与顺序无关（推导见 `docs/theory.md` 第 1–2 节）�
 
 ---
 
-## 4 方法 `[草稿 v0.2]`
+## 4 方法
 
 ### 4.1 双索引与预算取块
 
@@ -296,7 +284,7 @@ $$\gamma = \frac{s_1 - s_2}{s_1}.$$
 
 ---
 
-## 5 理论 `[已有，docs/theory.md 第 3 节]`
+## 5 理论
 
 **命题 1（近似界）** 在 A1（边际收益递减）、A2（成本可加）下，质量函数 $Q(S)$ 单调子模。
 基数约束下按边际收益贪心得到 $1-1/e$ 近似 [Nemhauser 等, 1978]；
@@ -322,13 +310,13 @@ $$\gamma = \frac{s_1 - s_2}{s_1}.$$
 
 ## 6 实验
 
-### 6.1 设置 `[已有]`
+### 6.1 设置
 
 数据集（500 条合成 + LongBench 三子集 + HotpotQA/2Wiki/MuSiQue）、
 模型（DeepSeek-V4.1-Flash、Qwen3-4B 本地）、embedding（bge-m3）、
 评价（Recall@budget、contain、EM、F1、成本）。
 
-### 6.2 主结果 `[已有]`
+### 6.2 主结果
 
 同等预算下本文更强。
 
@@ -344,7 +332,7 @@ $$\gamma = \frac{s_1 - s_2}{s_1}.$$
 **这张表是论文的心脏**，配一段解释：为什么本文在更低成本下更高——
 因为预算花在「检索质量边际提升最大」的动作上，而不是固定走完整管线。
 
-**种子稳定性（5 次 2/3 子采样）`[已有]`：**
+**种子稳定性（5 次 2/3 子采样）：**
 
 | 方法 | 全量 | 子采样均值 ± 标准差 |
 |---|---|---|
@@ -358,7 +346,7 @@ $$\gamma = \frac{s_1 - s_2}{s_1}.$$
 本文字采样区间 `[0.947, 0.970]` 与 CRAG 的 `[0.925, 0.932]` 不重叠——
 **优势不依赖样本选择**。
 
-### 6.3 消融 `[已有]`
+### 6.3 消融
 
 | 去掉什么 | 召回变化 | 说明 |
 |---|---|---|
@@ -367,12 +355,12 @@ $$\gamma = \frac{s_1 - s_2}{s_1}.$$
 | 预算 300 → 100 | −6.1pt | 4.13 |
 | alpha 0.2 → 0.5 | −1.7pt | 4.25 |
 
-### 6.4 跨语料验证 `[已有]`
+### 6.4 跨语料验证
 
 LongBench 中文检索子集上召回 0.995，BM25 为 0.955；英文子集上两者都是 1.000。
 跨语料这一节只主张「不退化、相对提升方向一致」，不主张绝对领先。
 
-### 6.5 检索收益与模型无关 `[已有]`
+### 6.5 检索收益与模型无关
 
 每个数据集 20 条、同一预算（800 token）口径：
 
@@ -394,16 +382,16 @@ LongBench 中文检索子集上召回 0.995，BM25 为 0.955；英文子集上�
 > 该方法学修正：早期版本的取块循环有 24 块上限，导致 800 token 预算实际只用了约 500 token。
 > 上表为修正上限后重跑的结果，修正本身也说明「预算」这类接口需要有对应的测试。
 
-### 6.6 人工标注 `[已有]`
+### 6.6 人工标注
 
 200 条双人标注上，自动 contain 与人工判断的一致率为 90%–97%，标注者间 kappa 为 0.548（未加权）
 与 0.673（二次加权）。自动指标**偏保守**，主表的召回因此是下界。
 
-### 6.7 阈值敏感性（命题 2 的验证）`[已有]`
+### 6.7 阈值敏感性（命题 2 的验证）
 
 λ=0.25/0.5/1 时最优 τ=0.25；λ≥2 时 τ=0。验证「成本越高越不该改写」。
 
-### 6.8 效率 `[已有]`
+### 6.8 效率
 
 20 条实测（单机 CPU + API，DeepSeek-V4.1-Flash，关闭答案缓存）：
 
@@ -422,7 +410,7 @@ LongBench 中文检索子集上召回 0.995，BM25 为 0.955；英文子集上�
 
 ---
 
-## 7 讨论 `[草稿 v0.1]`
+## 7 讨论
 
 
 ### 7.1 预算是接口，不是超参
@@ -485,7 +473,7 @@ oracle 显示，在知道该取哪一块的前提下，0.958 的召回只需 58 
 
 ---
 
-## 8 局限 `[草稿 v0.1，只写必要项]`
+## 8 局限
 
 本文的结论有以下边界。**语料**以合成的 500 条技术问答为主，跨语料验证只覆盖检索任务（6.4 节），
 生成侧的多跳结果规模较小（6.5 节）；结论迁移到真实业务语料需要额外的验证集。
@@ -499,7 +487,7 @@ oracle 显示，在知道该取哪一块的前提下，0.958 的召回只需 58 
 
 ---
 
-## 附录 A 负结果 `[已有，全部移入附录]`
+## 附录 A 负结果
 
 负结果集中放在这里。伪相关反馈（PRF）造成查询漂移，句级与固定块上分别掉 1.6 pt 与 19.6 pt；
 第 0 级「不检索直接答」在技术语料上不可行，contain 只有 0.11；贪心在预算 200 时比暴力最优低
@@ -508,7 +496,7 @@ oracle 显示，在知道该取哪一块的前提下，0.958 的召回只需 58 
 
 ---
 
-## 附录 B 复现说明 `[已有]`
+## 附录 B 复现说明
 
 ```
 make test          # 42 个测试
@@ -541,3 +529,39 @@ python scripts/tune_params.py
 | 4 | 命题 4 的证明补全 | 5 理论 | 0（写作） | 待写 |
 
 > 只有 4 项，其中 3 项零成本。已完成 2 项。
+
+---
+
+
+## 声明（Declarations，MDPI 模板用）
+
+**Data Availability Statement.** 全部代码、评测集与实验脚本位于
+https://github.com/mylgtab/budget-rag （MIT 许可，v1.0.0）。
+LongBench 各子集的少量快照随仓库提供，完整数据可由 `scripts/fetch_longbench.py` 从原发布源获取。
+所有论文表格可由 `make check`、`scripts/baselines.py`、`scripts/seed_stability.py` 与
+`scripts/latency_bench.py` 复现。
+
+**Author Contributions.** 单一作者完成：概念化、方法、软件、验证、形式分析、数据整理、
+初稿撰写与修订。
+
+**Funding.** 本研究未接受外部资助。
+
+**Conflicts of Interest.** 作者声明无利益冲突。
+
+**Use of Generative AI.** 代码实现、实验脚本与初稿文字在 AI 编程助手辅助下完成；
+所有实验数字均由仓库内脚本在作者机器上实际运行产生，作者对全部内容负责。
+
+---
+
+## 作者备注（不投稿，正式排版时删除）
+
+**期刊路线**：先投 Applied Sciences / Electronics（Q2），二轮冲 Frontiers of Computer Science。
+
+**标题候选**：
+1. Budget-Aware Retrieval: Allocating Context Tokens Where They Pay Off（已采用）
+2. Cost-Controlled Retrieval for Long-Document QA: A Submodular View with a Confidence Gate
+3. 面向长文档问答的预算感知检索：子模视角与置信度门控
+
+**写作原则**：学术发布会。主线只讲「同等预算下更强、同等质量下更便宜」；
+负结果全部放附录；引言不提前示弱；结论不突然自我否定。
+
