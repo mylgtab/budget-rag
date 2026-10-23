@@ -697,7 +697,7 @@ conclusion unchanged.
 18. **Gao, L.; Ma, X.; Lin, J.; Callan, J.** Precise Zero-Shot Dense Retrieval without Relevance Labels (HyDE). In *ACL 2023*. arXiv:2212.10496.
 19. **Ma, X.; Gong, Y.; He, P.; Zhao, H.; Duan, N.** Query Rewriting for Retrieval-Augmented Large Language Models. In *EMNLP 2023*. arXiv:2305.14283.
 20. **Carbonell, J.; Goldstein, J.** The Use of MMR, Diversity-Based Reranking for Reordering Documents and Producing Summaries. In *SIGIR 1998*, pp. 335–336.
-21. **Lin, H.; Bilmes, J.** A Class of Submodular Functions for Document Summarization. In *ACL-HLT 2011*, pp. 510–520.
+21. **Lin, H.; Bilmes, J.** A Class of Submodular Functions for Document Summarization. In *ACL-HLT 2011*, pp. 510–520. Available: https://aclanthology.org/P11-1052/
 22. **Nemhauser, G. L.; Wolsey, L. A.; Fisher, M. L.** An Analysis of Approximations for Maximizing Submodular Set Functions—I. *Mathematical Programming* **1978**, 14(1), 265–294.
 23. **Khuller, S.; Moss, A.; Naor, J.** The Budgeted Maximum Coverage Problem. *Information Processing Letters* **1999**, 70(1), 39–45.
 24. **Wald, A.** *Sequential Analysis*; Wiley: New York, 1947.
