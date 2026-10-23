@@ -16,7 +16,7 @@ from docx.shared import Inches, Pt
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SKIP_HEADINGS = ("写作检查清单", "待补实验清单")
+SKIP_HEADINGS = ("写作检查清单", "待补实验清单", "作者备注")
 IMAGE = re.compile(r"^!\[(.*?)\]\((.+?)\)\s*$")
 STATUS = re.compile(r"\s*`?\[(已有|草稿|待写|待补|待画|待证)[^\]]*\]`?")
 INLINE_BOLD = re.compile(r"\*\*(.+?)\*\*")
