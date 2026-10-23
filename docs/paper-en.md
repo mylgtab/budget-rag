@@ -193,4 +193,238 @@ $\tau^*=0$ (never rewrite) and $\lambda c_r \le B(1)$ gives $\tau^*=1$ (always r
 Section 6.7 verifies the former boundary: when the unit-price coefficient rises to 2, the optimal
 threshold falls from 0.25 to 0.
 
-<!-- Sections 6–8 and appendices to be translated. -->
+## 6. Experiments
+
+### 6.1 Setup
+
+**Corpus.** Sixteen Chinese technical notes (operating systems, networking, databases, Git,
+Docker, algorithms, testing, HTTP caching, RAG), 8,546 characters and 348 factual sentences,
+yielding roughly 344 sentence-level chunks.
+
+**Benchmarks.** A synthetic main set of 500 questions (generated from the source text; answers are
+verbatim spans, verified); a harder 200-question set with deliberately paraphrased queries to widen
+the surface gap. Public benchmarks: LongBench `passage_retrieval_zh` / `passage_retrieval_en`
+(paragraph-level retrieval, answer = paragraph id), `hotpotqa` / `2wikimqa` / `musique`
+(multi-hop generation), and `triviaqa` (a commonsense-style contrast).
+
+**Models.** DeepSeek-V4.1-Flash (API) for the main experiments; a locally deployed Qwen3-4B
+(GGUF Q4_K_M, Ollama, `/no_think`) for the model-agnostic check.
+
+**Vectors.** BAAI/bge-m3 (1024-d, OpenAI-compatible endpoint); deterministic hashing vectors for
+the offline baseline.
+
+**Hyperparameters.** Sentence-level chunking; context budget 300 tokens (swept over 100–800);
+hybrid weight $\alpha=0.2$; gate threshold $\tau=0.25$; routing tiers defined by cost per thousand
+tokens.
+
+**Cost model.** 2 CNY per million input tokens, 8 per million output, 0.7 per million embedding
+tokens, billed from the API-reported `usage`; hashing vectors are charged zero.
+
+**Statistics.** Paired bootstrap (1,000–2,000 resamples) for 95% intervals; McNemar exact test for
+system comparisons; five 2/3 subsamples for robustness.
+
+**Hardware.** i7-13650HX, 16 GB RAM, RTX 4060 Laptop 8 GB. API models run over the network, the
+local model on the GPU; all retrieval and statistics run on the CPU.
+
+### 6.2 Main Results
+
+The proposed system is stronger at equal or lower budget.
+
+| Method | Recall | 95% CI | tokens |
+|---|---|---|---|
+| BM25 | 0.825 | [0.770, 0.875] | 68 |
+| Dense | 0.910 | [0.870, 0.945] | 115 |
+| Hybrid | 0.900 | [0.860, 0.940] | 114 |
+| Adaptive-RAG approx. | 0.855 | [0.805, 0.905] | 100 |
+| CRAG approx. | 0.925 | [0.885, 0.960] | 179 |
+| **Ours** | **0.960** | [0.930, 0.985] | **126** |
+
+Higher recall at lower cost follows from spending the budget where the marginal gain is largest:
+easy questions stop after a single chunk (about 20 tokens) and the saved budget goes to questions
+that need hybrid retrieval and rewriting, instead of running every query through the full
+pipeline. The CRAG approximation pays one evaluator call plus five chunks for *every* query,
+while a fixed $k$ cannot cut losses on easy ones.
+
+**Seed stability (five 2/3 subsamples).**
+
+| Method | Full | Subsample mean ± sd |
+|---|---|---|
+| BM25 | 0.825 | 0.826 ± 0.010 |
+| Dense | 0.910 | 0.914 ± 0.009 |
+| Hybrid | 0.900 | 0.902 ± 0.005 |
+| Adaptive-RAG approx. | 0.855 | 0.853 ± 0.010 |
+| CRAG approx. | 0.925 | 0.928 ± 0.004 |
+| **Ours** | **0.960** | **0.962 ± 0.011** |
+
+The subsample interval for our system, [0.947, 0.970], does not overlap that of the CRAG
+approximation, [0.925, 0.932]: the advantage does not depend on which questions are drawn.
+
+### 6.3 Ablation
+
+| Removed component | Recall change | Interpretation |
+|---|---|---|
+| Gate (rewrite on every query) | −3.6 pt | Rewriting helps, but not on every query |
+| Hybrid retrieval (BM25 only) | −6.8 pt | Semantic matching carries most of the signal |
+| Budget 300 → 100 | −6.1 pt | Budget matters, but must be allocated by difficulty |
+| $\alpha$ 0.2 → 0.5 | −1.7 pt | The default weight is not optimal for this corpus |
+
+Figure 3 summarizes the ablation: dropping hybrid retrieval costs the most (−6.8 pt), followed by
+tightening the budget (−6.1 pt), so the gains come mainly from semantic matching and budget
+allocation, with the gate as a refinement (−3.6 pt).
+
+![Figure 2. Budget versus recall (sentence-level vs fixed blocks)](figures/fig2-budget-recall.png)
+
+**Figure 2.** Recall as the budget grows from 80 to 800 tokens. Below 300 tokens the sentence-level
+index wins because the same budget accommodates more sentences; beyond 500 tokens fixed blocks
+overtake it as a single block is more coherent. This is the basis for switching indexes by budget
+(Section 4.1).
+
+![Figure 3. Ablation: recall cost of removing each component](figures/fig3-ablation.png)
+
+**Figure 3.** Ablation relative to the full system; the horizontal axis is answer-span recall and
+parentheses give the relative change.
+
+### 6.4 Cross-Corpus Check
+
+On the LongBench Chinese retrieval subset our recall is 0.995 against 0.955 for BM25; on the
+English subset both reach 1.000. The claim here is that performance does not degrade across
+corpora and that the direction of the relative gain is preserved; absolute levels depend on task
+difficulty and are not used as a comparison basis.
+
+### 6.5 The Benefit of Retrieval Is Model-Agnostic
+
+Twenty questions per dataset, same 800-token budget:
+
+| Dataset | Model | With retrieval | Without | Span hit |
+|---|---|---|---|---|
+| HotpotQA | DeepSeek-V4.1-Flash | **0.500** | 0.200 | 0.60 |
+| HotpotQA | Qwen3-4B | **0.450** | 0.100 | 0.60 |
+| 2WikiMultiHopQA | Qwen3-4B | **0.150** | 0.000 | 0.70 |
+| MuSiQue | Qwen3-4B | **0.250** | 0.000 | 0.65 |
+| TriviaQA | Qwen3-4B | 0.100 | **0.300** | 0.15 |
+
+The first four rows support the claim: retrieval raises accuracy by 0.15–0.45, in the same
+direction for a large hosted model and a small local one.
+
+The fifth row is a boundary condition, reported as measured. TriviaQA questions are largely
+commonsense, so the model answers from parameters (0.30); the corpus consists of twenty-odd
+distractor passages and an 800-token budget covers about 11% of it, so retrieved fragments pull the
+model off course (0.10). This agrees with the motivation for the gate in Section 6.8: **whether to
+retrieve is itself a decision**, not a default. Our gate only decides *whether to rewrite*; leaving
+*whether to retrieve* to future work (Section 8).
+
+### 6.6 Human Annotation
+
+On 200 doubly-annotated items, automatic containment agrees with human judgement 90%–97% of the
+time, and inter-annotator agreement is 0.548 (unweighted) and 0.673 (quadratic weighted). The
+automatic metric is **conservative**, so the recall in the main table is a lower bound.
+
+### 6.7 Threshold Sensitivity (Proposition 2)
+
+For unit-price coefficients λ = 0.25, 0.5 and 1, the optimal threshold stays at τ = 0.25; for λ ≥ 2
+it falls to τ = 0. The direction predicted by Propositions 2 and 4 holds: the more expensive the
+rewrite, the less often it should be triggered.
+
+### 6.8 Efficiency
+
+Twenty queries (single machine, API model, answer cache disabled):
+
+| Configuration | p50 (ms) | p95 (ms) | cost/query (CNY) | recall |
+|---|---|---|---|---|
+| Cheap tier (BM25) | 923 | 1469 | 0.00088 | 0.850 |
+| Strong tier (hybrid) | 898 | 1705 | 0.00087 | 0.850 |
+| Strong + always rewrite | 1765 | 3090 | 0.00116 | 0.900 |
+| Strong + gated rewrite | 1788 | 2577 | 0.00116 | 0.900 |
+
+**Rewriting dominates latency** (+0.9 s at p50, +1.4 s at p95). The value of the gate depends on the
+rewrite trigger rate of the batch: 38% on the full 500 questions (saving 62% of rewriting calls),
+76% on the first 50 harder questions, and 69.5% on a 200-question medium subset. The gate adapts to
+difficulty, so its latency saving is not unconditional; the default threshold of 0.25 should move
+with the shadow price of the budget (Section 6.7).
+
+## 7. Discussion
+
+### 7.1 Budget as an Interface, Not a Hyperparameter
+
+Writing the budget as a constraint rather than a tuned $k$ buys three transferable properties.
+First, the shadow price becomes a readable configuration value: $\lambda$ is the quality obtained
+per additional unit of budget, and it translates "how many chunks" into "is this unit still worth
+it". Section 6.7 shows the observable consequence—when the unit-price coefficient rises from 0.25 to
+2, the optimal threshold falls from 0.25 to 0 and the system decides by itself that rewriting is not
+worth it at that price. A budget can therefore be written into configuration as an SLA (tokens and
+money per query) and survives a change of model or price without re-sweeping hyperparameters.
+
+Second, the benefit of the gate must be reported together with the difficulty distribution of the
+load. It saves 62% of rewriting calls at a 38% trigger rate on the full set, but only 24% at 76% on
+the hard subset. Since rewriting dominates latency, what the gate saves is exactly the latency that
+scales inversely with batch difficulty; reporting a gate benefit without the trigger rate can make
+the same method look like opposite conclusions on two batches.
+
+Third, the extension point is the action set alone. Adding an action (reranking, cross-hop
+retrieval, a compressor) only requires stating its cost $c(a)$ and marginal gain $g(a\mid S)$; the
+ordering rule and the approximation bound are unchanged. The reranking experiment illustrates the
+usage: with a pool of 8 and a 300-token budget the gain is 0.0 pt, whereas with a pool of 30 and a
+150-token budget it is +5.5 pt. The gain comes from truncation, not from the action itself.
+
+### 7.2 When It Applies
+
+The gains come from heterogeneity in difficulty and tightness of budget; they are largest when both
+hold. Granularity experiments bound the budget regime: at or below 500 tokens the sentence-level
+index saves 15%–50% of context at equal recall, while above 800 tokens fixed blocks overtake it
+(Section 6.3). With a loose budget, freedom in *which* chunks to take is diluted—any policy can
+afford large blocks and allocation stops mattering.
+
+Where the bottleneck sits decides where the gain lands. On the three multi-hop benchmarks retrieval
+hits the answer span 0.50–0.65 of the time, yet a 4B model answers correctly only 0.20–0.40
+(Section 6.5): the evidence is already in the context and the generator fails to use it. Additional
+context budget is then absorbed by the generation side, and the money should move there—a stronger
+model, longer reasoning, an explicit extraction prompt. $\lambda$ points wherever marginal gain is
+highest; when that is not retrieval, it points elsewhere.
+
+Finally, on a homogeneous load the benefit of scheduling tends to zero: on the synthetic set all
+policies except fixed shallow retrieval fall within the same confidence interval (Section 6.2), and
+fixed top-$k$ suffices; the gap only opens on heterogeneous loads.
+
+### 7.3 Boundaries of the Cost Model
+
+Assumption A2 (fixed, order-independent unit prices) is an approximation of real billing: tiered
+discounts, cache hits and batching all make $\lambda$ drift with the load. This does not require a
+new model—treat $\lambda$ as a runtime observable; the sweep in Section 6.7 is its time-invariant
+approximation, and online it can be updated over shorter windows.
+
+The token estimate used for budget control is conservative. On the same prompt, tiktoken estimates
+131 tokens while the API bills 71, an 84% overestimate (Section 8). Reported token costs are
+therefore upper bounds and the true cost is lower; the 126 tokens that buy 0.960 recall in Section
+6.2 still leave margin.
+
+Cost can also be a vector. Latency and money are different dimensions: rewriting takes more than
+half of the end-to-end latency while its token cost is negligible. Charging both makes $c(a)$ a
+vector and turns the optimal policy from a single threshold chain into a chain on the Pareto
+frontier; the greedy guarantee relaxes to a per-dimension bound while the ordering rule is
+unchanged. Multi-dimensional budgeting is the most natural next step for this framework and needs
+no new theory.
+
+### 7.4 Distance to the Lower Bound
+
+An oracle that knows which chunk to take reaches 0.958 recall with 58 tokens (Appendix A); without
+that oracle we need 126 tokens for 0.960 (Section 6.2). The remaining cost gap comes from selection
+error—not knowing which chunk is better—rather than from insufficient context. The direction is
+therefore clear: improve the estimate of $g(a\mid S)$ and refine the selection granularity. The
+counter-intuitive result in Appendix A has the same origin: more labels did not improve routing,
+because the label depends on what was retrieved, not only on how the question is worded.
+
+## 8. Limitations
+
+The conclusions have four boundaries. **Corpus**: the main evidence is 500 synthetic technical
+questions; cross-corpus validation covers retrieval only (Section 6.4) and the multi-hop generation
+results are small (Section 6.5), so transfer to production corpora needs an additional validation
+set. **Baselines**: the Adaptive-RAG and CRAG entries are behavioural approximations—a heuristic
+router and an off-the-shelf relevance evaluator (Section 6.1)—not reproductions of the fine-tuned
+models of the original papers, so the comparison is evidence at the same order of magnitude rather
+than an exact replication. **Cost**: figures are converted from public unit prices and exclude
+batch discounts, cache hits and operations overhead (Section 7.3), which makes them suitable for
+relative comparison only. **Token estimates**: tiktoken over-counts Chinese relative to actual
+billing (Section 7.3), so the true context cost at equal recall is lower than reported. None of these
+four enters the abstract, and none changes the main conclusions of Section 6.
+
+<!-- Appendices to be translated. -->
