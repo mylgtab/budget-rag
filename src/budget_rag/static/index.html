@@ -61,7 +61,7 @@ $("go").addEventListener("click", async () => {
   const tok = $("token").value.trim();
   if (tok) headers["Authorization"] = "Bearer " + tok;
   try {
-    const r = await fetch("/query", {
+    const r = await fetch("/v1/query", {
       method: "POST", headers,
       body: JSON.stringify({ question: q, ctx_tokens: Number($("tokens").value) || 300 }),
     });

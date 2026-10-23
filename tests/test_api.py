@@ -54,6 +54,34 @@ class TestApi(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertIn("answer", r.json())
 
+    def test_v1_paths(self):
+        c = self._client(token="secret")
+        h = c.get("/v1/health")
+        self.assertEqual(h.status_code, 200)
+        self.assertIn("version", h.json())
+        r = c.post("/v1/query", json={"question": "x"},
+                   headers={"Authorization": "Bearer secret"})
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("answer", r.json())
+        self.assertIn("trace", r.json())
+
+    def test_legacy_alias_still_works(self):
+        c = self._client(token="")
+        self.assertEqual(c.get("/health").status_code, 200)
+        self.assertEqual(c.post("/query", json={"question": "x"}).status_code, 200)
+
+    def test_openapi_only_documents_v1(self):
+        c = self._client(token="")
+        spec = c.get("/openapi.json").json()
+        self.assertIn("/v1/query", spec["paths"])
+        self.assertIn("/v1/health", spec["paths"])
+        self.assertNotIn("/query", spec["paths"])
+
+    def test_question_validation(self):
+        c = self._client(token="")
+        self.assertEqual(c.post("/v1/query", json={"question": ""}).status_code, 422)
+        self.assertEqual(c.post("/v1/query", json={"question": "x" * 3000}).status_code, 422)
+
     def test_rate_limit(self):
         c = self._client(token="", rate=1, burst=2)
         codes = [c.post("/query", json={"question": "x"}).status_code for _ in range(4)]
