@@ -70,8 +70,8 @@ def main() -> int:
         if not issue and doc in cache:
             if not any(norm(a) in cache[doc] for a in answers):
                 issue = "答案不在该文档里（需逐字匹配）"
-        if not issue and any(len(str(a)) > 12 for a in answers):
-            issue = f"答案偏长（{max(len(str(a)) for a in answers)} 字），建议 ≤12"
+        if not issue and any(len(str(a).split()) > 8 for a in answers):
+            issue = f"答案偏长（{max(len(str(a).split()) for a in answers)} 词），建议 ≤8 词"
 
         if issue:
             problems += 1
