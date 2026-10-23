@@ -1,0 +1,1 @@
+{"question": "Which controller restores the original template when a node is recreated?", "answers": ["DaemonSet controller"], "doc": "kubernetes-daemonset.md"}

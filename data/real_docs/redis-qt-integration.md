@@ -1,0 +1,136 @@
+Qt is a popular cross-platform C++ framework that
+you can use to build command line and GUI apps. This guide explains how
+to use hiredis to connect to a Redis server from a Qt app.
+
+## Install Qt
+
+You should first download and install the
+Qt development environment for your
+development platform, if you have not already done so. The example
+below briefly explains how to use Qt Creator
+to manage your project, but see the Qt Creator
+docs for an extensive set of examples and tutorials.
+
+## Create a simple app
+
+We will use a simple console app to demonstrate how to connect
+to Redis from Qt. Create the app project in Qt Creator using the
+ File > New Project command. The generated source code is a
+single C++ file, called main.cpp, that uses a
+ QCoreApplication 
+object to handle the main event loop. Although it will compile and run,
+it doesn't do anything useful at this stage.
+
+## Add hiredis files
+
+Build hiredis if you have not already done so (see
+Build and install
+for more information).
+
+You should also make the libhiredis library available to the project. For example,
+if you have used the default option of cmake as the project
+build tool and you have installed the.dylib or.so file for hiredis in /usr/local/lib,
+you should add the following lines to the CMakeLists.txt file:
+
+[code example]
+
+You should also modify the target_link_libraries directive to include
+ hiredis:
+
+[code example]
+
+## Add code to access Redis
+
+You can add a class using the Add new context menu
+on the project folder in Qt Creator. The sections below give
+examples of the code you should add to this class to
+connect to Redis. The code is separated into header and
+implementation files.
+
+### Header file
+
+The header file for a class called RedisExample is shown below.
+An explanation follows the code.
+
+[code example]
+
+ QObject is a key Qt class that
+implements the Object model for
+communication between objects. When you create your class in Qt Creator,
+you can specify that you want it to be a subclass of QObject (this will
+add the appropriate header files and include the Q_OBJECT macro in the
+class declaration).
+
+The QObject communication model uses some instance methods as *signals*
+to report events and others as *slots* to act as callbacks that process the
+events (see Signals and slots
+for an introduction). The Qt meta-object compiler
+recognizes the non-standard C++ access specifiers signals: and slots: in the
+class declaration and adds extra code for them during compilation to enable
+the communication mechanism.
+
+In our class, there is a run() slot that will implement the code to access Redis.
+The code eventually emits a finished() signal when it is complete to indicate that
+the app should exit.
+
+Our simple example code just sets and gets a Redis
+string key. The class contains
+private attributes for the key and value (following the Qt m_xxx naming convention
+for class members). These are set by the constructor along with a call to the
+ QObject constructor. The other attributes represent the connection context for
+Redis (which should generally be
+asynchronous
+for a Qt app) and an adapter object that hiredis uses to integrate with Qt.
+
+### Implementation file
+
+The file that implements the methods declared in the header is shown
+below. A full explanation follows the code.
+
+[code example]
+
+This creates the QCoreApplication 
+instance that manages the main event loop for a console app. It
+then creates the instance of RedisExample with the key ("url") and
+value ("https://redis.io/") for our Redis string.
+
+The two lines below set up the QObject communication mechanism
+for the app. The call to
+ QTimer::singleShot() 
+activates the run() 
+slot method on our RedisExample instance. The 
+ QObject::connect() 
+call creates a communication link between the finished() signal of
+out RedisExample instance and the quit() slot of our
+ QCoreApplication instance. This quits the application event loop and
+exits the app when the finished() signal is emitted by the
+ RedisExample object. This happens when the finish() method is called
+at the end of the GET command callback.
+
+## Run the code
+
+When you have added the code, you can run it from the Build menu of
+Qt Creator or from the toolbar at the left hand side of the window.
+Assuming the connection to Redis succeeds, it will print the message
+ Value: https://redis.io/ and quit. You can use the
+ KEYS command from
+ redis-cli or
+Redis Insight to check
+that the "url" string key was added to the Redis database.
+
+## Key information
+
+There are many ways you could use Redis with a Qt app, but our example
+demonstrates some techniques that are broadly useful:
+
+- Use the QObject communication mechanism to simplify your code.
+- Use the hiredis asynchronous API. Add a RedisQtAdapter instance
+ to your code and ensure you call its setContext() method to
+ initialize it before issuing Redis commands.
+- Place all code and data you need to interact with Redis
+ (including the connection context) in a single
+ class or ensure it is available from a class via pointers and
+ Qt signals. Pass a pointer to an instance of your class in the
+ custom data parameter when you issue a Redis command with
+ redisAsyncCommand() and use this to process the reply or
+ issue more commands from the callback.

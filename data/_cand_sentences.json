@@ -1,0 +1,542 @@
+[
+ {
+  "doc": "docker-connect",
+  "sentence": "After the record is live, go to Identity & auth, then Domain  management, and select Verify."
+ },
+ {
+  "doc": "docker-connect",
+  "sentence": "After the record is live, go to Identity & auth, then Domain  management, and select Verify."
+ },
+ {
+  "doc": "docker-connect",
+  "sentence": "Because you must use the same domain for each IdP, you won't need to repeat steps to add and verify your domains."
+ },
+ {
+  "doc": "docker-examples",
+  "sentence": "Allows flexibility in development while enforcing strict rules for production."
+ },
+ {
+  "doc": "docker-examples",
+  "sentence": "Ensures images are built by trusted CI/CD pipelines with auditable provenance."
+ },
+ {
+  "doc": "docker-examples",
+  "sentence": "A permissive policy that allows typical development workflows while blocking obvious security issues."
+ },
+ {
+  "doc": "docker-hardened-packages",
+  "sentence": "All packages installed from the Docker Hardened Images repository are built from source by Docker and include full provenance."
+ },
+ {
+  "doc": "docker-hardened-packages",
+  "sentence": "Every hardened package is cryptographically signed and includes metadata that proves its provenance and build integrity."
+ },
+ {
+  "doc": "docker-hardened-packages",
+  "sentence": "Hardened packages are cryptographically signed by Docker."
+ },
+ {
+  "doc": "docker-local",
+  "sentence": "Either no allow or deny rule matches it and your machine isn't under organization governance, or an organization policy allows it but requires approval first."
+ },
+ {
+  "doc": "docker-local",
+  "sentence": "A host that a network rule allows can still have individual methods or paths denied by an HTTP rule."
+ },
+ {
+  "doc": "docker-local",
+  "sentence": "When organization governance is active, only organization allow rules can grant access."
+ },
+ {
+  "doc": "docker-methods",
+  "sentence": "Matching is case-sensitive, so a mismatch signs out  every user - Check for stray whitespace in the value."
+ },
+ {
+  "doc": "docker-methods",
+  "sentence": "- overrideProxyHTTP: Sets the URL of the HTTP proxy that must be used for outgoing HTTP requests."
+ },
+ {
+  "doc": "docker-methods",
+  "sentence": "- overrideProxyHTTPS: Sets the URL of the HTTP proxy that must be used for outgoing HTTPS requests."
+ },
+ {
+  "doc": "docker-metrics-exporter",
+  "sentence": "For this reason, the metrics endpoint has a 60-minute cache by default, which means a scraping interval of 60 minutes or higher is recommended."
+ },
+ {
+  "doc": "docker-metrics-exporter",
+  "sentence": "The Prometheus server runs in a Docker container and is accessible on port 9090."
+ },
+ {
+  "doc": "docker-metrics-exporter",
+  "sentence": "If you're running the agent as a container, such file must be mounted at  /etc/datadog-agent/conf.d/openmetrics.d/conf.yaml."
+ },
+ {
+  "doc": "docker-multi-stage-builds",
+  "sentence": "As a result, the final image is smaller in size since it doesn’t contain any development or debugging tools."
+ },
+ {
+  "doc": "docker-multi-stage-builds",
+  "sentence": "In addition, the COPY statement in the second stage is copying --from the previous stage."
+ },
+ {
+  "doc": "docker-multi-stage-builds",
+  "sentence": "Multi-stage builds are recommended for all types of applications."
+ },
+ {
+  "doc": "docker-networking",
+  "sentence": "If any containers have connections open to the old container, they are closed."
+ },
+ {
+  "doc": "docker-networking",
+  "sentence": "Each service can specify what networks to connect to with the service-level networks key, which is a list of names referencing entries under the top-level networks key."
+ },
+ {
+  "doc": "docker-networking",
+  "sentence": "It is each container's responsibility to detect this condition, look up the name again, and reconnect."
+ },
+ {
+  "doc": "docker-optimize",
+  "sentence": "Any changes to the cache are persisted across builds, and the cache is shared between multiple builds."
+ },
+ {
+  "doc": "docker-optimize",
+  "sentence": "The file writes are sustained for the duration of the RUN instruction, and  are discarded after the instruction is done."
+ },
+ {
+  "doc": "docker-optimize",
+  "sentence": "When building with Docker, a layer is reused from the build cache if the instruction and the files it depends on hasn't changed since it was previously built."
+ },
+ {
+  "doc": "docker-platform",
+  "sentence": "- The policy results page and the policy details side panel are now read-only."
+ },
+ {
+  "doc": "docker-platform",
+  "sentence": "Up-to-date base images help you ensure that your  environments are reliable and secure."
+ },
+ {
+  "doc": "docker-platform",
+  "sentence": "With the integration enabled, Docker Scout is able to connect analysis results to the source."
+ },
+ {
+  "doc": "docker-port-publishing",
+  "sentence": "To access containers on a bridge network from outside the Docker host, you must first set up routing to the bridge network via an address on the Docker host."
+ },
+ {
+  "doc": "docker-port-publishing",
+  "sentence": "The  com.docker.network.bridge.enable_ip_masquerade option must be true, the default, for these options to have any effect."
+ },
+ {
+  "doc": "docker-port-publishing",
+  "sentence": "In a nat mode network, publishing a port to an address on the loopback interface means remote hosts cannot access it."
+ },
+ {
+  "doc": "docker-provision-scim",
+  "sentence": "- The external namespace is the same for all of them:  urn:ietf:params:scim:schemas:extension:docker:2.0:User."
+ },
+ {
+  "doc": "docker-provision-scim",
+  "sentence": "If a user doesn't already have attributes set up, users who are added to the group will inherit these attributes upon provisioning."
+ },
+ {
+  "doc": "docker-provision-scim",
+  "sentence": "For JIT, role mapping applies only when the user is first > provisioned."
+ },
+ {
+  "doc": "docker-scan",
+  "sentence": "Trivy is an open-source vulnerability scanner for containers and other artifacts."
+ },
+ {
+  "doc": "docker-scan",
+  "sentence": "After exporting the VEX attestation, you can inspect its contents to understand what each statement means and filter by status."
+ },
+ {
+  "doc": "docker-scan",
+  "sentence": "It provides vulnerability insights, CVE summaries, and direct links to remediation guidance."
+ },
+ {
+  "doc": "docker-usage",
+  "sentence": "The strict=true flag fails the build if policies aren't loaded (for example, if the BuildKit instance used by the build is too old and doesn't support policies)."
+ },
+ {
+  "doc": "docker-usage",
+  "sentence": "This is useful for testing sources against policies associated with different Dockerfiles."
+ },
+ {
+  "doc": "docker-usage",
+  "sentence": "The --filename flag specifies which policy file to load by providing the base Dockerfile name (without the.rego extension)."
+ },
+ {
+  "doc": "docker-using-the-build-cache",
+  "sentence": "For Node-based applications, dependencies are defined in the package.json file."
+ },
+ {
+  "doc": "docker-using-the-build-cache",
+  "sentence": "Here are a few examples of situations that can cause cache to be invalidated:  - Any changes to the command of a RUN instruction invalidates that layer."
+ },
+ {
+  "doc": "docker-using-the-build-cache",
+  "sentence": "- Once one layer is invalidated, all following layers are also invalidated."
+ },
+ {
+  "doc": "kubernetes-daemonset",
+  "sentence": "Also, the DaemonSet controller will use the original template the next time a node (even with the same name) is created."
+ },
+ {
+  "doc": "kubernetes-daemonset",
+  "sentence": "It is possible to create Pods by writing a file to a certain directory watched by Kubelet."
+ },
+ {
+  "doc": "kubernetes-daemonset",
+  "sentence": "The name of a DaemonSet object must be a valid DNS subdomain name."
+ },
+ {
+  "doc": "kubernetes-dns-pod-service",
+  "sentence": "DNS queries that don't specify a namespace are limited to the Pod's namespace."
+ },
+ {
+  "doc": "kubernetes-dns-pod-service",
+  "sentence": "The values of the search option are used to expand queries."
+ },
+ {
+  "doc": "kubernetes-dns-pod-service",
+  "sentence": "The dnsConfig field is optional and it can work with any dnsPolicy settings."
+ },
+ {
+  "doc": "kubernetes-how-dra-works",
+  "sentence": "Cluster administrators must enable the DRADeviceBindingConditions and DRAResourceClaimDeviceStatus feature gates for the scheduler to honor these fields."
+ },
+ {
+  "doc": "kubernetes-how-dra-works",
+  "sentence": "* Each individual container's limit plus its DRA allocations must not exceed the Pod-level limits; otherwise, the Pod will fail to schedule."
+ },
+ {
+  "doc": "kubernetes-how-dra-works",
+  "sentence": "* Overhead: Used when the device requires auxiliary node dependencies (e.g.,  host memory consumed by a GPU)."
+ },
+ {
+  "doc": "kubernetes-init-containers",
+  "sentence": "Unlike sidecar containers, init containers are not continuously running alongside the main containers."
+ },
+ {
+  "doc": "kubernetes-init-containers",
+  "sentence": "A can have multiple containers running apps within it, but it can also have one or more init containers, which are run before the app containers are started."
+ },
+ {
+  "doc": "kubernetes-init-containers",
+  "sentence": "However, if the Pod restartPolicy is set to Always, the init containers use  restartPolicy OnFailure."
+ },
+ {
+  "doc": "kubernetes-kubernetes-api",
+  "sentence": "For example, suppose there are two API versions, v1 and v1beta1, for the same resource."
+ },
+ {
+  "doc": "kubernetes-kubernetes-api",
+  "sentence": "Once the beta API completes its deprecation period and is no longer served, the replacement API version must be used."
+ },
+ {
+  "doc": "kubernetes-kubernetes-api",
+  "sentence": "The OpenAPI v3 is the preferred method for accessing OpenAPI as it provides  a more comprehensive and accurate view of the API."
+ },
+ {
+  "doc": "kubernetes-labels",
+  "sentence": "Keep in mind that label Key must be unique for a given object."
+ },
+ {
+  "doc": "kubernetes-labels",
+  "sentence": "The label selector is the core grouping primitive in Kubernetes."
+ },
+ {
+  "doc": "kubernetes-labels",
+  "sentence": "You can apply a single label to any resources, but this is not always the best practice."
+ },
+ {
+  "doc": "kubernetes-linux-kernel-security-constraints",
+  "sentence": "You should already be familiar with Linux and with the basics of Kubernetes workloads."
+ },
+ {
+  "doc": "kubernetes-linux-kernel-security-constraints",
+  "sentence": "This page describes some of the security features that are built into the Linux kernel that you can use in your Kubernetes workloads."
+ },
+ {
+  "doc": "kubernetes-linux-kernel-security-constraints",
+  "sentence": "It is configured through profiles tuned to allow the access needed by a specific program or container, such as Linux capabilities, network access, and file permissions."
+ },
+ {
+  "doc": "kubernetes-management",
+  "sentence": "Helm is a tool for managing packages of pre-configured Kubernetes resources."
+ },
+ {
+  "doc": "kubernetes-management",
+  "sentence": "Kubernetes provides a number of tools to help you manage your application deployment, including scaling and updating."
+ },
+ {
+  "doc": "kubernetes-management",
+  "sentence": "kubectl supports several update operations, each of which is applicable to different scenarios."
+ },
+ {
+  "doc": "kubernetes-node-autoscaling",
+  "sentence": "For the purpose of consolidation, a Node is considered _empty_ if it only has DaemonSet and static Pods running on it."
+ },
+ {
+  "doc": "kubernetes-node-autoscaling",
+  "sentence": "Correctly setting the resource requests of your Pods is as important to the overall cost-effectiveness of a cluster as optimizing Node utilization."
+ },
+ {
+  "doc": "kubernetes-node-autoscaling",
+  "sentence": "This includes automatically refreshing Nodes once they reach a certain lifetime, and auto-upgrading Nodes when new worker Node images are released."
+ },
+ {
+  "doc": "kubernetes-node-shutdown",
+  "sentence": "If additional flexibility is needed to explicitly define the ordering of pods during shutdown in a more granular way, pod priority based graceful shutdown can be used."
+ },
+ {
+  "doc": "kubernetes-node-shutdown",
+  "sentence": "There are cases when Node termination was cancelled by the system (or perhaps manually by an administrator)."
+ },
+ {
+  "doc": "kubernetes-node-shutdown",
+  "sentence": "On Linux, the graceful node shutdown feature is controlled with the GracefulNodeShutdown  feature gate which is enabled by default in 1.21."
+ },
+ {
+  "doc": "kubernetes-nodes",
+  "sentence": "This means that the scheduler won't place Pods onto unhealthy nodes."
+ },
+ {
+  "doc": "kubernetes-nodes",
+  "sentence": "Otherwise, that node is ignored for any cluster activity until it becomes healthy."
+ },
+ {
+  "doc": "kubernetes-nodes",
+  "sentence": "The node controller is also responsible for evicting pods running on nodes with  NoExecute taints, unless those pods tolerate that taint."
+ },
+ {
+  "doc": "kubernetes-pod-condition",
+  "sentence": "Ready: the Pod is able to serve requests and should be added to the load balancing pools of all matching Services."
+ },
+ {
+  "doc": "kubernetes-pod-condition",
+  "sentence": "The following conditions are not part of the normal Pod lifecycle progression."
+ },
+ {
+  "doc": "kubernetes-pod-condition",
+  "sentence": "Pods that are not Ready are removed from Service endpoints."
+ },
+ {
+  "doc": "kubernetes-system-logs",
+  "sentence": "Log formatting and value serialization are subject to change."
+ },
+ {
+  "doc": "kubernetes-system-logs",
+  "sentence": "enableSystemLogHandler defaults to _false_ and is recommended to be left  disabled unless actively debugging."
+ },
+ {
+  "doc": "kubernetes-system-logs",
+  "sentence": "Similar to the container logs, you should rotate system component logs in the /var/log directory."
+ },
+ {
+  "doc": "kubernetes-system-metrics",
+  "sentence": "The version is expressed as x.y, where x is the major version, y is the minor version."
+ },
+ {
+  "doc": "kubernetes-system-metrics",
+  "sentence": "In most cases metrics are available on /metrics endpoint of the HTTP server."
+ },
+ {
+  "doc": "kubernetes-system-metrics",
+  "sentence": "No labels can be removed from beta metrics during their lifetime, however, labels can be added while the metric is in the beta stage."
+ },
+ {
+  "doc": "kubernetes-user-namespaces",
+  "sentence": "If a user namespace is used, this will isolate the users in the container from the users in the node."
+ },
+ {
+  "doc": "kubernetes-user-namespaces",
+  "sentence": "Furthermore, as users on each pod will be mapped to different non-overlapping users in the host, it is limited what they can do to other pods too."
+ },
+ {
+  "doc": "kubernetes-user-namespaces",
+  "sentence": "Here are two examples: - CAP_SYS_MODULE does not have any effect if granted to a pod using user namespaces, the pod isn't able to load kernel modules."
+ },
+ {
+  "doc": "redis-amr",
+  "sentence": "You must reconnect with fresh tokens when this happens."
+ },
+ {
+  "doc": "redis-amr",
+  "sentence": "If you don't supply a custom  function in this parameter, the default behavior is to retry all types of errors."
+ },
+ {
+  "doc": "redis-amr",
+  "sentence": "This is similar to createForClientCredentials() but it takes a clientCertificate parameter object instead of the clientSecret parameter."
+ },
+ {
+  "doc": "redis-arrays",
+  "sentence": "Operations that touch N elements—such as ARGETRANGE, ARSCAN, ARDELRANGE, AROP, and ARLASTITEMS —are O(N)."
+ },
+ {
+  "doc": "redis-arrays",
+  "sentence": "Multiple predicates are combined with OR by default, or with AND when the option is given."
+ },
+ {
+  "doc": "redis-arrays",
+  "sentence": "Redis arrays are sparse, index-addressable data structures that map integer indexes (in the range 0 to 2⁶⁴−1) to string values."
+ },
+ {
+  "doc": "redis-autopipeline",
+  "sentence": "Defaults to 0, meaning a single shard, which funnels every caller into one queue so batches stay deep."
+ },
+ {
+  "doc": "redis-autopipeline",
+  "sentence": "Because each command is rejected separately, a later command can succeed after an earlier one failed, so check the error of any command that a later one depends on."
+ },
+ {
+  "doc": "redis-autopipeline",
+  "sentence": "Connection and buffer tuning is not part of AutoPipelineOptions."
+ },
+ {
+  "doc": "redis-bitmaps",
+  "sentence": "Since strings are binary safe blobs and their maximum length is 512 MB, they are suitable to set up to 2^32 different bits."
+ },
+ {
+  "doc": "redis-bitmaps",
+  "sentence": "Out of range bits (addressing a bit that is outside the length of the string stored into the target key) are always considered to be zero."
+ },
+ {
+  "doc": "redis-bitmaps",
+  "sentence": "* Object permissions, where each bit represents a particular permission, similar to the way that file systems store permissions."
+ },
+ {
+  "doc": "redis-bloom-filter",
+  "sentence": "So when it responds that an item is not present in a set (a negative answer), you can be sure that indeed is the case."
+ },
+ {
+  "doc": "redis-bloom-filter",
+  "sentence": "- If yes, the process restarts and repeats until it finds a product that is not present in the filter."
+ },
+ {
+  "doc": "redis-bloom-filter",
+  "sentence": "- If no, the ad is shown to the user and is added to the Bloom filter."
+ },
+ {
+  "doc": "redis-client-side-caching",
+  "sentence": "You can use the MONITOR command to check the server's behavior when you are using client-side caching."
+ },
+ {
+  "doc": "redis-client-side-caching",
+  "sentence": "Parts of the same string retrieved by  SUBSTR are calculated on the  server the first time and then cached separately from the original  string."
+ },
+ {
+  "doc": "redis-client-side-caching",
+  "sentence": "For example MGET name:1 name:2 is  cached separately from MGET name:2 name:1 because the server returns the  values in the order you specify."
+ },
+ {
+  "doc": "redis-connect",
+  "sentence": "> To maximize compatibility with all Redis products, client-side caching > is supported by Redis v7.4 or later."
+ },
+ {
+  "doc": "redis-connect",
+  "sentence": "Each pool holds a specified number of connections, creates more connections when necessary, and terminates them when they are no longer needed."
+ },
+ {
+  "doc": "redis-connect",
+  "sentence": "> > The Redis server products support > opt-in/opt-out mode > and broadcasting mode > for CSC, but these modes are not currently implemented by Jedis."
+ },
+ {
+  "doc": "redis-error-handling",
+  "sentence": "This can help you identify which errors are most common and whether your retry and fallback strategies are effective."
+ },
+ {
+  "doc": "redis-error-handling",
+  "sentence": "Some resource errors are temporary (Redis loading), while others indicate a configuration problem."
+ },
+ {
+  "doc": "redis-error-handling",
+  "sentence": "Connection errors are usually temporary, so implementing retry logic or fallback strategies is recommended."
+ },
+ {
+  "doc": "redis-handle-replies",
+  "sentence": "The redisCommand() call allocates memory for the reply, so you should always free it using freeReplyObject() when you have finished using the reply."
+ },
+ {
+  "doc": "redis-handle-replies",
+  "sentence": "For all these types, the string value is returned in reply->str and the length of the string is in  reply->len."
+ },
+ {
+  "doc": "redis-handle-replies",
+  "sentence": "If you want to reuse the reply variable then it is wise to set it to NULL after you free it, so that you don't accidentally use the stale pointer later."
+ },
+ {
+  "doc": "redis-migration",
+  "sentence": "With node-redis  you should use the HSET command with multiple key-value pairs."
+ },
+ {
+  "doc": "redis-migration",
+  "sentence": "You may find this information useful if you are an ioredis user and you want to start a new Node.js project or migrate an existing ioredis project to node-redis."
+ },
+ {
+  "doc": "redis-migration",
+  "sentence": "Redis previously recommended the ioredis  client library for development with Node.js, but this library is now deprecated in favor of  node-redis."
+ },
+ {
+  "doc": "redis-prob",
+  "sentence": "For example, with a set of measurements of people's heights, the quantile of 0.75 is the value of height below which 75% of all people's heights lie."
+ },
+ {
+  "doc": "redis-prob",
+  "sentence": "A quantile is the value below which a certain fraction of samples lie."
+ },
+ {
+  "doc": "redis-prob",
+  "sentence": "Note that for both types, there is an asymmetry between presence and absence of items in the set."
+ },
+ {
+  "doc": "redis-qt-integration",
+  "sentence": "The class contains private attributes for the key and value (following the Qt m_xxx naming convention for class members)."
+ },
+ {
+  "doc": "redis-qt-integration",
+  "sentence": "The code eventually emits a finished() signal when it is complete to indicate that the app should exit."
+ },
+ {
+  "doc": "redis-qt-integration",
+  "sentence": "The sections below give examples of the code you should add to this class to connect to Redis."
+ },
+ {
+  "doc": "redis-queryjson",
+  "sentence": "Also, you must set OnHash to true in the FTCreateOptions  object when you create the index."
+ },
+ {
+  "doc": "redis-queryjson",
+  "sentence": "The example data shown below is compatible with both JSON and hash objects."
+ },
+ {
+  "doc": "redis-queryjson",
+  "sentence": "The FieldName field of the FieldSchema struct specifies a JSON path that identifies which data field to index."
+ },
+ {
+  "doc": "redis-sorted-sets",
+  "sentence": "Another extremely useful operation defined for sorted set elements is the get-rank operation."
+ },
+ {
+  "doc": "redis-sorted-sets",
+  "sentence": "ZADD is also variadic, so you are free to specify multiple score-value pairs, as shown in the example above."
+ },
+ {
+  "doc": "redis-sorted-sets",
+  "sentence": "It is possible to ask what is the position of an element in the set of ordered elements."
+ },
+ {
+  "doc": "redis-vecsearch",
+  "sentence": "The code is first demonstrated for hash documents with a separate section to explain the differences with JSON documents."
+ },
+ {
+  "doc": "redis-vecsearch",
+  "sentence": "To add an embedding as a field of a hash object, you must encode the vector array as a binary string."
+ },
+ {
+  "doc": "redis-vecsearch",
+  "sentence": "The vector distance between two embeddings indicates how similar they are semantically."
+ }
+]

@@ -1,0 +1,407 @@
+[
+  {
+    "project": "docker",
+    "path": "content/manuals/build/policies/usage.md",
+    "slug": "usage",
+    "bytes_src": 15793,
+    "bytes_clean": 9965,
+    "chars": 9965,
+    "file": "docker-usage.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/build/policies/examples.md",
+    "slug": "examples",
+    "bytes_src": 15360,
+    "bytes_clean": 7391,
+    "chars": 7391,
+    "file": "docker-examples.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/security/provisioning/scim/provision-scim.md",
+    "slug": "provision-scim",
+    "bytes_src": 15014,
+    "bytes_clean": 12566,
+    "chars": 12566,
+    "file": "docker-provision-scim.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/compose/how-tos/networking.md",
+    "slug": "networking",
+    "bytes_src": 14981,
+    "bytes_clean": 10668,
+    "chars": 10668,
+    "file": "docker-networking.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/ai/sandboxes/governance/access-controls/local.md",
+    "slug": "local",
+    "bytes_src": 14967,
+    "bytes_clean": 11364,
+    "chars": 11364,
+    "file": "docker-local.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/dhi/how-to/hardened-packages.md",
+    "slug": "hardened-packages",
+    "bytes_src": 14893,
+    "bytes_clean": 8662,
+    "chars": 8662,
+    "file": "docker-hardened-packages.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/get-started/docker-concepts/building-images/multi-stage-builds.md",
+    "slug": "multi-stage-builds",
+    "bytes_src": 14840,
+    "bytes_clean": 9087,
+    "chars": 9065,
+    "file": "docker-multi-stage-builds.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/desktop/enterprise/enforce-sign-in/methods.md",
+    "slug": "methods",
+    "bytes_src": 14766,
+    "bytes_clean": 9525,
+    "chars": 9525,
+    "file": "docker-methods.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/dhi/how-to/scan.md",
+    "slug": "scan",
+    "bytes_src": 14637,
+    "bytes_clean": 8271,
+    "chars": 8271,
+    "file": "docker-scan.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/get-started/docker-concepts/building-images/using-the-build-cache.md",
+    "slug": "using-the-build-cache",
+    "bytes_src": 14592,
+    "bytes_clean": 6544,
+    "chars": 6540,
+    "file": "docker-using-the-build-cache.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/scout/release-notes/platform.md",
+    "slug": "platform",
+    "bytes_src": 14443,
+    "bytes_clean": 13351,
+    "chars": 13351,
+    "file": "docker-platform.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/scout/explore/metrics-exporter.md",
+    "slug": "metrics-exporter",
+    "bytes_src": 14437,
+    "bytes_clean": 9929,
+    "chars": 9923,
+    "file": "docker-metrics-exporter.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/security/authentication/single-sign-on/connect.md",
+    "slug": "connect",
+    "bytes_src": 14345,
+    "bytes_clean": 11249,
+    "chars": 11249,
+    "file": "docker-connect.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/build/cache/optimize.md",
+    "slug": "optimize",
+    "bytes_src": 14197,
+    "bytes_clean": 10397,
+    "chars": 10397,
+    "file": "docker-optimize.md"
+  },
+  {
+    "project": "docker",
+    "path": "content/manuals/engine/network/port-publishing.md",
+    "slug": "port-publishing",
+    "bytes_src": 14191,
+    "bytes_clean": 12281,
+    "chars": 12281,
+    "file": "docker-port-publishing.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/php/vecsearch.md",
+    "slug": "vecsearch",
+    "bytes_src": 15706,
+    "bytes_clean": 7517,
+    "chars": 7517,
+    "file": "redis-vecsearch.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/nodejs/amr.md",
+    "slug": "amr",
+    "bytes_src": 15375,
+    "bytes_clean": 9858,
+    "chars": 9858,
+    "file": "redis-amr.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/jedis/connect.md",
+    "slug": "connect",
+    "bytes_src": 15276,
+    "bytes_clean": 6702,
+    "chars": 6702,
+    "file": "redis-connect.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/nodejs/prob.md",
+    "slug": "prob",
+    "bytes_src": 14980,
+    "bytes_clean": 7854,
+    "chars": 7854,
+    "file": "redis-prob.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/nodejs/migration.md",
+    "slug": "migration",
+    "bytes_src": 12198,
+    "bytes_clean": 7478,
+    "chars": 7478,
+    "file": "redis-migration.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/error-handling.md",
+    "slug": "error-handling",
+    "bytes_src": 12095,
+    "bytes_clean": 6746,
+    "chars": 6746,
+    "file": "redis-error-handling.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/hiredis/int-examples/qt-integration.md",
+    "slug": "qt-integration",
+    "bytes_src": 11925,
+    "bytes_clean": 5343,
+    "chars": 5343,
+    "file": "redis-qt-integration.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/hiredis/handle-replies.md",
+    "slug": "handle-replies",
+    "bytes_src": 11854,
+    "bytes_clean": 6235,
+    "chars": 6235,
+    "file": "redis-handle-replies.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/data-types/sorted-sets.md",
+    "slug": "sorted-sets",
+    "bytes_src": 11826,
+    "bytes_clean": 8448,
+    "chars": 8448,
+    "file": "redis-sorted-sets.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/data-types/strings/bitmaps.md",
+    "slug": "bitmaps",
+    "bytes_src": 11575,
+    "bytes_clean": 7086,
+    "chars": 7086,
+    "file": "redis-bitmaps.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/data-types/probabilistic/bloom-filter.md",
+    "slug": "bloom-filter",
+    "bytes_src": 10741,
+    "bytes_clean": 9341,
+    "chars": 9341,
+    "file": "redis-bloom-filter.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/data-types/arrays.md",
+    "slug": "arrays",
+    "bytes_src": 10627,
+    "bytes_clean": 6567,
+    "chars": 6553,
+    "file": "redis-arrays.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/go/autopipeline.md",
+    "slug": "autopipeline",
+    "bytes_src": 10158,
+    "bytes_clean": 7901,
+    "chars": 7901,
+    "file": "redis-autopipeline.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/client-side-caching.md",
+    "slug": "client-side-caching",
+    "bytes_src": 9836,
+    "bytes_clean": 7256,
+    "chars": 7256,
+    "file": "redis-client-side-caching.md"
+  },
+  {
+    "project": "redis",
+    "path": "content/develop/clients/go/queryjson.md",
+    "slug": "queryjson",
+    "bytes_src": 9576,
+    "bytes_clean": 4861,
+    "chars": 4861,
+    "file": "redis-queryjson.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/workloads/management.md",
+    "slug": "management",
+    "bytes_src": 16000,
+    "bytes_clean": 10498,
+    "chars": 10498,
+    "file": "kubernetes-management.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/resource-management/dynamic-resource-allocation/how-dra-works.md",
+    "slug": "how-dra-works",
+    "bytes_src": 15837,
+    "bytes_clean": 12675,
+    "chars": 12675,
+    "file": "kubernetes-how-dra-works.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/cluster-administration/node-shutdown.md",
+    "slug": "node-shutdown",
+    "bytes_src": 15816,
+    "bytes_clean": 12247,
+    "chars": 12247,
+    "file": "kubernetes-node-shutdown.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/workloads/pods/init-containers.md",
+    "slug": "init-containers",
+    "bytes_src": 15716,
+    "bytes_clean": 10934,
+    "chars": 10934,
+    "file": "kubernetes-init-containers.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/overview/working-with-objects/labels.md",
+    "slug": "labels",
+    "bytes_src": 15513,
+    "bytes_clean": 11062,
+    "chars": 11062,
+    "file": "kubernetes-labels.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/overview/kubernetes-api.md",
+    "slug": "kubernetes-api",
+    "bytes_src": 15435,
+    "bytes_clean": 11061,
+    "chars": 11061,
+    "file": "kubernetes-kubernetes-api.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/cluster-administration/node-autoscaling.md",
+    "slug": "node-autoscaling",
+    "bytes_src": 15346,
+    "bytes_clean": 12905,
+    "chars": 12905,
+    "file": "kubernetes-node-autoscaling.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/services-networking/dns-pod-service.md",
+    "slug": "dns-pod-service",
+    "bytes_src": 15166,
+    "bytes_clean": 12170,
+    "chars": 12170,
+    "file": "kubernetes-dns-pod-service.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/cluster-administration/system-metrics.md",
+    "slug": "system-metrics",
+    "bytes_src": 15077,
+    "bytes_clean": 11279,
+    "chars": 11269,
+    "file": "kubernetes-system-metrics.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/workloads/pods/user-namespaces.md",
+    "slug": "user-namespaces",
+    "bytes_src": 14964,
+    "bytes_clean": 13388,
+    "chars": 13386,
+    "file": "kubernetes-user-namespaces.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/architecture/nodes.md",
+    "slug": "nodes",
+    "bytes_src": 14884,
+    "bytes_clean": 11355,
+    "chars": 11355,
+    "file": "kubernetes-nodes.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/workloads/controllers/daemonset.md",
+    "slug": "daemonset",
+    "bytes_src": 14881,
+    "bytes_clean": 10737,
+    "chars": 10737,
+    "file": "kubernetes-daemonset.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/cluster-administration/system-logs.md",
+    "slug": "system-logs",
+    "bytes_src": 14833,
+    "bytes_clean": 9482,
+    "chars": 9482,
+    "file": "kubernetes-system-logs.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/security/linux-kernel-security-constraints.md",
+    "slug": "linux-kernel-security-constraints",
+    "bytes_src": 14833,
+    "bytes_clean": 12686,
+    "chars": 12686,
+    "file": "kubernetes-linux-kernel-security-constraints.md"
+  },
+  {
+    "project": "kubernetes",
+    "path": "content/en/docs/concepts/workloads/pods/pod-condition.md",
+    "slug": "pod-condition",
+    "bytes_src": 14434,
+    "bytes_clean": 10288,
+    "chars": 10288,
+    "file": "kubernetes-pod-condition.md"
+  }
+]
