@@ -540,7 +540,7 @@ oracle 显示，在知道该取哪一块的前提下，0.958 的召回只需 58 
 
 
 ```
-make test          # 42 个测试
+make test          # 65 个测试
 python scripts/baselines.py --limit 200
 python scripts/multihop.py --modes single bridge entity
 python scripts/tune_params.py

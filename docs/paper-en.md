@@ -96,7 +96,181 @@ Our contributions are threefold.
 
 ## 2. Related Work
 
-*Translation pending; see the Chinese master in `paper-draft.md` (Sections 2.1–2.6).*
+Retrieval-augmented generation couples parametric memory with updatable external evidence
+[Lewis et al., 2020], and in most systems the retrieval depth is a hyperparameter: a fixed number
+of top-$k$ passages is retrieved and concatenated into the context [Robertson and Zaragoza, 2009;
+Karpukhin et al., 2020]. That default was reasonable when context was cheap—taking a few more
+passages cost nearly nothing. The cost has since moved. Position-sensitivity experiments show
+double-digit accuracy differences depending on where the same evidence lands [Liu et al., 2024], so
+"retrieve more" is no longer equivalent to "answer better"; both *how much* to take and *where to
+put it* have become resources to allocate rather than tune. A subtler cost is reporting: most work
+reports Recall@$k$ at a fixed $k$, while $k$, chunk length and routing depth differ across methods,
+so quality–cost curves cannot be stitched together—an apparent recall gain may simply be more
+tokens spent. We therefore treat the comparison protocol as part of the method and report
+Recall@budget throughout (Section 6.1).
+
+Existing work answers "how much to retrieve" along four lines: adaptive retrieval decides *whether*
+and *in how many steps* to retrieve (Section 2.1); corrective retrieval handles retrieval that went
+wrong (Section 2.2); cost-aware retrieval treats evidence acquisition as a bill (Section 2.3); and
+compression, reranking and rewriting change the unit price, ordering and candidate pool of what has
+already been fetched (Section 2.4). Section 2.5 traces the two decision tools we use—submodular
+approximation and threshold stopping—and Section 2.6 states our position.
+
+### 2.1 Adaptive Retrieval
+
+**FLARE** [Jiang Z. et al., 2023] ties "when to retrieve" to the generation process: when a
+low-confidence token appears, it is used as a query for a forward-looking retrieval, producing
+multi-round retrieval that is triggered on demand. **Self-RAG** [Asai et al., 2024] goes further and
+writes "is retrieval needed", "is the passage relevant" and "is the answer supported" into the
+generation sequence as reflection tokens, training the model end-to-end to decide when to retrieve
+and how much to adopt. **SKR** [Wang et al., 2023] takes a lower-effort route: it labels questions by
+the model's own sense of its knowledge boundary and triggers retrieval only for unfamiliar ones,
+without touching the generation process. All three turn retrieval from a fixed pipeline stage into a
+switch driven by generation-side self-assessment or meta-knowledge.
+
+Deciding *how many steps* is equally mature. **Adaptive-RAG** [Jeong et al., 2024] trains a query
+complexity classifier that assigns questions to no retrieval, single-step retrieval or multi-step
+retrieval; **Self-Ask** [Press et al., 2023] decomposes composite questions into sub-questions that
+are retrieved one by one; **IRCoT** [Trivedi et al., 2023] interleaves chain-of-thought with
+retrieval, so each reasoning step becomes the query for the next retrieval. These methods align
+retrieval depth with the reasoning structure of the question and pay off on tasks that need
+multi-hop evidence.
+
+Together, the two lines turn retrieval into a per-query policy. But they optimize the correctness of
+the decision, not its cost: the budget is given outside the model, and a classifier answers "which
+tier" rather than "within 200 tokens, which chunk gets the first slot and does the second step
+deserve a rewrite". The triggering signals also cost something—generation-side self-assessment needs
+extra sampling or extra output, a complexity classifier needs labels and training, and
+meta-knowledge discrimination needs a front model. Our gate uses only the relative score margin
+$\gamma$ of an existing retrieval (Section 4.3), a scalar that comes for free inside the retrieval it
+already performed; its threshold is solved from the shadow price of the budget (Proposition 2) and
+shifts by formula when the unit price changes (Section 6.7). The multi-hop side follows the same
+logic: whether a second hop is warranted is decided by the gain-to-cost ratio, not by whether the
+question "looks complex" (Section 4.4, Proposition 3).
+
+### 2.2 Corrective Retrieval
+
+**CRAG** [Yan et al., 2024] inserts a lightweight retrieval evaluator between retrieval and
+generation, judges the result as correct, incorrect or ambiguous, and triggers one of three
+corrective actions—use it, discard it for web search, or combine both. It is a pipeline-style scheme
+that treats retrieval quality as an anomaly to be repaired; later work adds finer-grained
+verification, iterative retrieval and adaptive correction, all keeping the
+detect–branch–correct structure.
+
+This line acknowledges that retrieval fails, at the price of writing correction as a conditional
+branch: whether to correct is decided by the evaluator's verdict, independently of whether the
+correction is worth its cost. We fold the corrective actions (rewriting, cross-hop retrieval,
+reranking) into the same action set and decide by gain-to-cost ratio—picked automatically when the
+budget is loose, skipped automatically when it is tight, with no separate correction stage. The two
+compose: a CRAG-style evaluator can serve as a prior for $g(a\mid S)$ in our action set—the evaluator
+scores, the ordering rule decides.
+
+### 2.3 Cost-Aware Retrieval
+
+Cost-aware retrieval approaches from the other end: if acquiring each piece of evidence itself costs
+money (paid retrievers, external APIs, human annotation), the selector must trade utility against
+expense. Prior work reports that static selectors are brittle under load shifts and that larger
+budgets do not reliably improve quality [Wu et al., 2026], which argues for modelling the allocation
+policy explicitly rather than tuning it.
+
+We handle a different cost: **context occupancy**. It never appears on a retrieval bill, yet three
+things price it simultaneously—per-token billing, the attention budget, and position sensitivity
+[Liu et al., 2024]. This explains why fixed top-$k$ misses at both ends: too much for easy
+questions, too little for hard ones. The two costs can be written into one knapsack problem by
+making action cost a vector (access fee plus occupancy fee) and the budget multi-dimensional. We
+solve the occupancy dimension only; the two compose directly, and under a multi-dimensional budget
+the optimal policy moves from a single threshold chain to a chain on the Pareto frontier while the
+ordering rule is unchanged (Section 7.3).
+
+### 2.4 Compression, Reranking and Query Rewriting
+
+One line subtracts from what has already been fetched. **LLMLingua** [Jiang H. et al., 2023] uses a
+small model's perplexity to estimate token importance and compress the prompt; **LongLLMLingua**
+[Jiang H. et al., 2024] adds question-aware compression to reduce information loss on long documents;
+**RECOMP** [Xu et al., 2024] trains extractive and generative compressors that turn multiple passages
+into a summary. These methods raise information density per token, trading compression rate against
+fidelity.
+
+Reranking changes the order of the same candidates. **monoT5** [Nogueira et al., 2020] casts
+relevance as sequence-to-sequence generation, and **RankGPT** [Sun et al., 2023] uses a large model for
+listwise reranking. Reranking does not reduce the number of candidates; it decides who gets packed
+first when the budget truncates, and its gain is realized only when truncation actually happens.
+
+On the rewriting side, **HyDE** [Gao et al., 2023] replaces the query with a generated pseudo-document
+for dense retrieval, and **Rewrite-Retrieve-Read** [Ma et al., 2023] places a rewriter before the
+retriever and trains it with downstream feedback, showing that "asking differently" can be a
+first-class action.
+
+These three techniques and our budget allocation are orthogonal layers: compression lowers the unit
+price of a token, reranking changes the packing order within a fixed budget, rewriting changes the
+candidate pool itself, and we decide how many units to buy and which action to buy. When combined,
+compression is equivalent to multiplying each action's cost $c(a)$ by a discount factor, which
+changes neither the structure of the selection problem nor the optimality condition of the greedy
+rule. The gain from reranking, in contrast, grows as the budget tightens—our reranking experiment
+gives direct evidence: with a pool of 8 and a 300-token budget the gain is 0.0 pt (no selection
+pressure), while with a pool of 30 and a 150-token budget it is +5.5 pt (Section 7.1). The same action
+differs by 5.5 pt across two budgets, which is precisely the observable consequence of "gain is
+priced by budget tightness".
+
+### 2.5 Submodular Approximation and Threshold Stopping
+
+Both decision forms we use have mature sources. Submodular selection controls redundancy in retrieval
+and summarization: **MMR** [Carbonell and Goldstein, 1998] subtracts similarity to already-selected
+items from relevance and selects greedily one at a time, while Lin and Bilmes [2011] write coverage
+and diversity into one family of submodular functions and summarize under a unified objective. The
+approximation bound comes from Nemhauser et al. [1978]: for a monotone submodular function under a
+cardinality constraint, greedy selection by marginal gain is within $1-1/e$ of optimal. With
+heterogeneous costs the bound of unit-cost greedy drops to $(1-1/e)/2$; the modified greedy of
+Khuller et al. [1999] adds local enumeration across tiers and restores $1-1/e$ for the budgeted case.
+These results establish that ordering by gain-per-cost is not a heuristic but a bounded
+approximation algorithm.
+
+Threshold stopping has long had an optimal-stopping form in statistics: sequential analysis shows
+that with increasing costs and observations arriving in stages, the optimal policy is a threshold—
+stop when the observation is good enough, continue otherwise [Wald, 1947]. The form was rediscovered
+in LLM serving: **FrugalGPT** [Chen et al., 2023] answers with a cheap model first and decides by
+confidence whether to escalate to a stronger and more expensive one, validating threshold routing on
+real billing.
+
+We join the two: submodular ordering decides which action to buy next, and the threshold decides when
+to stop. We do not reprove the approximation bound—Proposition 1 cites the budgeted result directly
+(Section 5); the increment is to replace the selected "elements" with "actions": chunks, hybrid
+retrieval, rewriting, reranking and cross-hop retrieval share one definition of cost and gain.
+Proposition 3 extends the threshold form to retrieval actions: when action costs increase and gains
+decrease monotonically with confidence, the optimal policy is again a chain of confidence thresholds,
+with thresholds moving monotonically with the budget. The difference from FrugalGPT is the direction
+of the constraint: it minimizes cost subject to a quality target, whereas we maximize quality subject
+to a budget; the two are dual, and the dual variable is exactly our shadow price $\lambda$. This is
+why we can write "what the threshold should be" as a computable formula instead of a hyperparameter to
+be searched.
+
+### 2.6 Our Position
+
+| Line | Decision object | Role of the budget | Trigger signal | Relation to this work |
+|---|---|---|---|---|
+| Adaptive and multi-hop [Jiang Z. 2023; Asai 2024; Jeong 2024; Press 2023; Trivedi 2023] | Whether to retrieve, how many steps | External constant | Generation confidence / complexity classifier / question decomposition | We add "how much to give" and make the second hop a priced action |
+| Corrective [Yan 2024] | Whether the result is trustworthy, how to fix | Not modelled | Fine-tuned evaluator | Corrective actions join the action set and fire by cost-effectiveness; the evaluator serves as a gain prior |
+| Cost-aware [Wu 2026] | Which evidence to buy | Spending cap | Utility-to-cost ratio | Cost becomes context occupancy; composes into a multi-dimensional knapsack |
+| Compression and reranking [Jiang H. 2023/2024; Xu 2024; Nogueira 2020; Sun 2023] | What to delete, who gets packed first | Token cap | — | Orthogonal and composable; compression is a cost discount, reranking is paid by budget tightness |
+| Submodular selection [Carbonell and Goldstein 1998; Nemhauser 1978; Khuller 1999] | Selecting a subset from a fixed pool | Cardinality or coverage budget | Marginal gain | Elements become actions: heterogeneous costs, gains estimated online |
+| Cascades and thresholds [Wald 1947; Chen 2023] | When to escalate to a costlier tier | Threshold / quality constraint | Confidence | We extend the threshold chain to retrieval actions, with thresholds from the shadow price |
+
+Taken together, prior work advances four questions—whether to retrieve, whether retrieval is right,
+whether evidence is expensive, and whether context can be deleted—and they share an unstated
+assumption: **retrieval behaviour can be chosen independently of the budget**. We supply that layer,
+writing the budget as an explicit constraint and the shadow price as an observable quantity, with the
+policy derived from their ratio. Which tier, whether to rewrite, whether to cross-hop and who gets
+packed first are then answered by one ordering rule: actions appear as the budget allows and disappear
+as it tightens, with no per-combination stage design.
+
+Two accounting differences remain. First, the evaluation protocol: we report Recall@budget
+uniformly, so all methods are compared under the same budget with quality and cost visible together
+(Sections 6.1 and 6.2), rather than each reporting Recall@$k$ at its own $k$. Second, the source of
+gain: the marginal gain $g(a\mid S)$ is produced online from existing retrieval scores and lightweight
+judgements, requiring neither a trained discriminator nor generation-side self-assessment, so the
+same policy transfers directly across generator models (Section 6.5). Together these form the seam
+with the lines above: they provide components, we provide the rule that assembles components under a
+budget.
 
 ## 3. Problem Formulation
 
@@ -153,7 +327,9 @@ runs with "original question + supplementary query", and the two result sets are
 chunk-level deduplication. Model-generated supplementary queries outperform rule-based extraction
 of proper nouns from the context (Section 6.5).
 
-**Figure 1.** System overview (`docs/figures/fig1-pipeline.svg`). The corpus is indexed twice;
+![Figure 1. System overview](figures/fig1-pipeline.png)
+
+**Figure 1.** System overview. The corpus is indexed twice;
 the budget selects sentence level or fixed blocks; routing assigns a tier; the first retrieval
 yields the confidence $\gamma$; the gate decides whether to rewrite and re-retrieve; chunks are
 accumulated until the budget $B$ is reached; a second hop is enabled when two pieces of evidence
@@ -428,3 +604,80 @@ billing (Section 7.3), so the true context cost at equal recall is lower than re
 four enters the abstract, and none changes the main conclusions of Section 6.
 
 <!-- Appendices to be translated. -->
+
+## Appendix A. Negative Results
+
+Negative results are collected here. Pseudo-relevance feedback (PRF) causes query drift, losing
+1.6 pt on the sentence index and 19.6 pt on fixed blocks; the zeroth rung—answering without
+retrieval—is not viable on a technical corpus, with containment of 0.11; at a 200-token budget greedy
+allocation falls 6 pt below the brute-force optimum, in the direction predicted by the approximation
+in Proposition 1; and learned routers (TF-IDF 0.747, BERT 0.702) do not reach the score-based gate
+(0.960). Their role is to rule out alternative explanations, which is why they sit in the appendix.
+
+## Appendix B. Reproducibility
+
+**One implementation correction.** An early version of the packing loop carried a 24-chunk cap, so a
+nominal 800-token budget consumed only about 500 tokens. After changing the cap to scale with the
+budget we re-ran the generation experiments of Section 6.5; a regression test
+(`tests/test_longbench.py`) now guards against the cap binding before the budget does. Budgeted
+interfaces need assertions of this kind—that is the lesson from building the system.
+
+```
+make test          # 65 tests
+python scripts/baselines.py --limit 200
+python scripts/multihop.py --modes single bridge entity
+python scripts/tune_params.py
+```
+
+All code, evaluation sets and scripts are released under the MIT license at
+https://github.com/mylgtab/budget-rag (v1.0.0). A stranger can reproduce the main table in about
+thirty minutes: clone, `pip install -e .`, `make check`. The repository ships small data snapshots so
+reproduction does not depend on external mirrors, and CI rebuilds and queries the Docker image on
+every push.
+
+## References
+
+- **Asai, A.; Wu, Z.; Wang, Y.; Sil, A.; Hajishirzi, H.** Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection. In *ICLR 2024*. arXiv:2310.11511.
+- **Carbonell, J.; Goldstein, J.** The Use of MMR, Diversity-Based Reranking for Reordering Documents and Producing Summaries. In *SIGIR 1998*, pp. 335–336.
+- **Chen, L.; Zaharia, M.; Zou, J.** FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance. arXiv:2305.05176, 2023.
+- **Gao, L.; Ma, X.; Lin, J.; Callan, J.** Precise Zero-Shot Dense Retrieval without Relevance Labels (HyDE). In *ACL 2023*. arXiv:2212.10496.
+- **Jeong, S.; Baek, J.; Cho, S.; Hwang, S. J.; Park, J. C.** Adaptive-RAG: Learning to Adapt Retrieval-Augmented Large Language Models through Question Complexity. In *NAACL 2024*, pp. 7036–7056. arXiv:2403.14403.
+- **Jiang, H.; Wu, Q.; Lin, C.-Y.; Yang, Y.; Qiu, L.** LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models. In *EMNLP 2023*. arXiv:2310.05736.
+- **Jiang, H.; Wu, Q.; Luo, X.; Li, D.; Lin, C.-Y.; Yang, Y.; Qiu, L.** LongLLMLingua: Accelerating and Enhancing LLMs in Long Context Scenarios via Prompt Compression. In *ACL 2024*. arXiv:2310.06839.
+- **Jiang, Z.; Xu, F. F.; Gao, L.; Sun, Z.; Liu, Q.; Dwivedi-Yu, J.; Yang, Y.; Callan, J.; Neubig, G.** Active Retrieval Augmented Generation (FLARE). In *EMNLP 2023*. arXiv:2305.06983.
+- **Karpukhin, V.; Oğuz, B.; Min, S.; Lewis, P.; Wu, L.; Edunov, S.; Chen, D.; Yih, W.-t.** Dense Passage Retrieval for Open-Domain Question Answering. In *EMNLP 2020*. arXiv:2004.04906.
+- **Khuller, S.; Moss, A.; Naor, J.** The Budgeted Maximum Coverage Problem. *Information Processing Letters* **1999**, 70(1), 39–45.
+- **Lewis, P.; Perez, E.; Piktus, A.; Petroni, F.; Karpukhin, V.; Goyal, N.; Küttler, H.; Lewis, M.; Yih, W.-t.; Rocktäschel, T.; Riedel, S.; Kiela, D.** Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. In *NeurIPS 2020*. arXiv:2005.11401.
+- **Lin, H.; Bilmes, J.** A Class of Submodular Functions for Document Summarization. In *ACL-HLT 2011*, pp. 510–520.
+- **Liu, N. F.; Lin, K.; Hewitt, J.; Paranjape, A.; Bevilacqua, M.; Petroni, F.; Liang, P.** Lost in the Middle: How Language Models Use Long Contexts. *TACL* **2024**, 12, 157–173. arXiv:2307.03172.
+- **Ma, X.; Gong, Y.; He, P.; Zhao, H.; Duan, N.** Query Rewriting for Retrieval-Augmented Large Language Models. In *EMNLP 2023*. arXiv:2305.14283.
+- **Nemhauser, G. L.; Wolsey, L. A.; Fisher, M. L.** An Analysis of Approximations for Maximizing Submodular Set Functions—I. *Mathematical Programming* **1978**, 14(1), 265–294.
+- **Nogueira, R.; Jiang, Z.; Pradeep, R.; Lin, J.** Document Ranking with a Pretrained Sequence-to-Sequence Model. In *Findings of EMNLP 2020*. arXiv:2003.06713.
+- **Press, O.; Zhang, M.; Min, S.; Schmidt, L.; Smith, N. A.; Lewis, M.** Measuring and Narrowing the Compositionality Gap in Language Models (Self-Ask). In *Findings of EMNLP 2023*. arXiv:2210.03350.
+- **Robertson, S.; Zaragoza, H.** The Probabilistic Relevance Framework: BM25 and Beyond. *Foundations and Trends in Information Retrieval* **2009**, 3(4), 333–389.
+- **Sun, W.; Yan, L.; Ma, X.; Wang, S.; Ren, P.; Chen, Z.; Yin, D.; Ren, Z.** Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agents (RankGPT). In *EMNLP 2023*. arXiv:2304.09542.
+- **Trivedi, H.; Balasubramanian, N.; Khot, T.; Sabharwal, A.** Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions (IRCoT). In *ACL 2023*. arXiv:2212.10509.
+- **Wald, A.** *Sequential Analysis*; Wiley: New York, 1947.
+- **Wang, Y.; Li, P.; Sun, M.; Liu, Y.** Self-Knowledge Guided Retrieval Augmentation for Large Language Models (SKR). In *Findings of EMNLP 2023*. arXiv:2310.05002.
+- **Wu, M.; Yang, H.; Ben-Porat, O.; Ziser, Y.** When Knowledge Is Not Free: Cost-Aware Evidence Selection in Retrieval-Augmented Generation. arXiv:2606.02245, 2026.
+- **Xu, F.; Shi, W.; Choi, E.** RECOMP: Improving Retrieval-Augmented LMs with Compression and Selective Augmentation. In *ICLR 2024*. arXiv:2310.04408.
+- **Yan, S.-Q.; Gu, J.-C.; Zhu, Y.; Ling, Z.-H.** Corrective Retrieval Augmented Generation (CRAG). arXiv:2401.15884, 2024.
+
+## Declarations
+
+**Data Availability Statement.** All code, evaluation sets and experiment scripts are available at
+https://github.com/mylgtab/budget-rag (MIT license, v1.0.0). Small snapshots of the LongBench subsets
+ship with the repository; the complete data can be fetched with `scripts/fetch_longbench.py` from the
+original distribution. Every table in this paper is reproducible with `make check`,
+`scripts/baselines.py`, `scripts/seed_stability.py` and `scripts/latency_bench.py`.
+
+**Author Contributions.** The single author performed conceptualization, methodology, software,
+validation, formal analysis, data curation, writing of the original draft and revision.
+
+**Funding.** This research received no external funding.
+
+**Conflicts of Interest.** The author declares no conflict of interest.
+
+**Use of Generative AI.** Code implementation, experiment scripts and the first draft were produced
+with the assistance of AI coding tools. All experimental numbers were produced by running the
+repository scripts on the author's machine, and the author takes full responsibility for the content.
