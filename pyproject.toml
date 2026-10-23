@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "budget-rag"
-version = "0.17.0"
+version = "1.0.0"
 description = "Cost-aware retrieval for long-document QA: budgeted chunking, cascade routing and a confidence gate"
 readme = "README.md"
 requires-python = ">=3.10"

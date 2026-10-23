@@ -20,7 +20,7 @@ from .config import Settings
 from .llm import LLMAnswerer, OfflineAnswerer
 from .pipeline import RAG
 
-__version__ = "0.17.0"
+__version__ = "1.0.0"
 
 app = FastAPI(
     title="budget-rag",
