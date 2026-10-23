@@ -1,1 +1,45 @@
-{"question": "Which controller restores the original template when a node is recreated?", "answers": ["DaemonSet controller"], "doc": "kubernetes-daemonset.md"}
+{"question": "Which Kubernetes object keeps one Pod copy on every node?", "answers": ["DaemonSet"], "doc": "kubernetes-daemonset.md"}
+{"question": "What naming rule applies to DaemonSet object names?", "answers": ["valid DNS subdomain name"], "doc": "kubernetes-daemonset.md"}
+{"question": "What does the DaemonSet controller do when node labels change?", "answers": ["add Pods to newly matching nodes"], "doc": "kubernetes-daemonset.md"}
+{"question": "Is the dnsConfig field required?", "answers": ["optional"], "doc": "kubernetes-dns-pod-service.md"}
+{"question": "What are DNS queries without a namespace limited to?", "answers": ["the Pod's namespace"], "doc": "kubernetes-dns-pod-service.md"}
+{"question": "What are the values of the search option used for?", "answers": ["expand queries"], "doc": "kubernetes-dns-pod-service.md"}
+{"question": "What happens if a container limit plus its DRA allocations exceed the Pod limit?", "answers": ["fail to schedule"], "doc": "kubernetes-how-dra-works.md"}
+{"question": "Which feature gates must administrators enable for the scheduler to honor these fields?", "answers": ["DRADeviceBindingConditions"], "doc": "kubernetes-how-dra-works.md"}
+{"question": "What kind of dependencies is Overhead used for?", "answers": ["auxiliary node dependencies"], "doc": "kubernetes-how-dra-works.md"}
+{"question": "When do init containers run relative to app containers?", "answers": ["before the app containers are started"], "doc": "kubernetes-init-containers.md"}
+{"question": "Do init containers keep running alongside the main containers?", "answers": ["not continuously running"], "doc": "kubernetes-init-containers.md"}
+{"question": "If a Pod restartPolicy is Always, which restart policy do init containers use?", "answers": ["OnFailure"], "doc": "kubernetes-init-containers.md"}
+{"question": "How does the API server handle conversions between API versions?", "answers": ["transparently"], "doc": "kubernetes-kubernetes-api.md"}
+{"question": "Do different API versions represent different persisted data?", "answers": ["same persisted data"], "doc": "kubernetes-kubernetes-api.md"}
+{"question": "Which specification is significantly larger than the Discovery API?", "answers": ["complete specification"], "doc": "kubernetes-kubernetes-api.md"}
+{"question": "Which three operators are supported for label selectors?", "answers": ["in, notin and exists"], "doc": "kubernetes-labels.md"}
+{"question": "Why are many scenarios using multiple labels?", "answers": ["distinguish resource sets"], "doc": "kubernetes-labels.md"}
+{"question": "What is the app label included for in the examples?", "answers": ["manual queries"], "doc": "kubernetes-labels.md"}
+{"question": "Which mechanism restricts what containers are allowed to do?", "answers": ["AppArmor"], "doc": "kubernetes-linux-kernel-security-constraints.md"}
+{"question": "Which low-level security configuration controls Linux syscalls?", "answers": ["seccomp"], "doc": "kubernetes-linux-kernel-security-constraints.md"}
+{"question": "What are profiles tuned to allow?", "answers": ["the access needed by a specific program"], "doc": "kubernetes-linux-kernel-security-constraints.md"}
+{"question": "Which tool manages packages of pre-configured Kubernetes resources?", "answers": ["Helm"], "doc": "kubernetes-management.md"}
+{"question": "What is Helm used to manage?", "answers": ["packages of pre-configured Kubernetes resources"], "doc": "kubernetes-management.md"}
+{"question": "What is another reason to use multiple labels?", "answers": ["distinguish deployments of different releases"], "doc": "kubernetes-management.md"}
+{"question": "What is the most common kind of scheduling constraint?", "answers": ["resource requests"], "doc": "kubernetes-node-autoscaling.md"}
+{"question": "What should node autoscaling do with Nodes that are no longer needed?", "answers": ["consolidate"], "doc": "kubernetes-node-autoscaling.md"}
+{"question": "What may happen to some Pods as a result of consolidation?", "answers": ["pending"], "doc": "kubernetes-node-autoscaling.md"}
+{"question": "What condition does the kubelet set on the Node when shutdown starts?", "answers": ["NotReady"], "doc": "kubernetes-node-shutdown.md"}
+{"question": "What reason is set for that condition?", "answers": ["node is shutting down"], "doc": "kubernetes-node-shutdown.md"}
+{"question": "What determines the ordering of pods during graceful node shutdown?", "answers": ["priority classes"], "doc": "kubernetes-node-shutdown.md"}
+{"question": "What are the two forms of node heartbeats?", "answers": ["Updates to the .status of a Node"], "doc": "kubernetes-nodes.md"}
+{"question": "What is the default secondary node eviction rate?", "answers": ["0.01"], "doc": "kubernetes-nodes.md"}
+{"question": "What does Kubernetes assume about a resource with the same name?", "answers": ["same object"], "doc": "kubernetes-nodes.md"}
+{"question": "What does a Pod phase provide?", "answers": ["high-level summary"], "doc": "kubernetes-pod-condition.md"}
+{"question": "What does PodResizeInProgress mean?", "answers": ["accepted the resize and allocated resources"], "doc": "kubernetes-pod-condition.md"}
+{"question": "What determines readiness gates?", "answers": ["status.condition fields"], "doc": "kubernetes-pod-condition.md"}
+{"question": "Where are system logs also available by reading files?", "answers": ["/var/log/"], "doc": "kubernetes-system-logs.md"}
+{"question": "In which Kubernetes version was the log viewing feature introduced?", "answers": ["v1.27"], "doc": "kubernetes-system-logs.md"}
+{"question": "What does the heuristic check first?", "answers": ["the native logger"], "doc": "kubernetes-system-logs.md"}
+{"question": "What format are the system metrics in?", "answers": ["structured plain text"], "doc": "kubernetes-system-metrics.md"}
+{"question": "What happens to a STABLE metric and when?", "answers": ["hidden in 1.32 at the earliest"], "doc": "kubernetes-system-metrics.md"}
+{"question": "What is the node not over-committed on?", "answers": ["memory"], "doc": "kubernetes-system-metrics.md"}
+{"question": "Which command shows which user the container process runs as?", "answers": ["ps aux"], "doc": "kubernetes-user-namespaces.md"}
+{"question": "Which UID range can a configuration knob extend?", "answers": ["0-65535"], "doc": "kubernetes-user-namespaces.md"}
+{"question": "What does the kubelet guarantee about UID mappings on a node?", "answers": ["no two pods on the same node use the same mapping"], "doc": "kubernetes-user-namespaces.md"}

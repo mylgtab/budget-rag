@@ -1,0 +1,471 @@
+[
+ {
+  "doc": "docker-connect.md",
+  "kind": "num",
+  "sent": "DNS propagation can take up to 72 hours.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-connect.md",
+  "kind": "num",
+  "sent": "Wait up to 72 hours for TXT record verification.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-connect.md",
+  "kind": "num",
+  "sent": "Wait up to 72 hours for TXT record verification.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-connect.md",
+  "kind": "num",
+  "sent": "Wait up to 72 hours for TXT record verification.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-connect.md",
+  "kind": "num",
+  "sent": "Wait up to 72 hours for TXT record verification.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-connect.md",
+  "kind": "def",
+  "sent": "Value is the secret string Entra generated.",
+  "q": "What is Value?",
+  "a": "the secret string Entra generated"
+ },
+ {
+  "doc": "docker-connect.md",
+  "kind": "def",
+  "sent": "Secret ID is the identifier for that row.",
+  "q": "What is Secret ID?",
+  "a": "the identifier for that row"
+ },
+ {
+  "doc": "docker-local.md",
+  "kind": "num",
+  "sent": "Bare hostnames and IP addresses are evaluated against port 443.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-methods.md",
+  "kind": "def",
+  "sent": "The payload is a dictionary of key-values.",
+  "q": "What is The payload?",
+  "a": "a dictionary of key-values"
+ },
+ {
+  "doc": "docker-metrics-exporter.md",
+  "kind": "num",
+  "sent": "The Prometheus server runs in a Docker container and is accessible on port 9090.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-metrics-exporter.md",
+  "kind": "num",
+  "sent": "## Scrape interval By default, Prometheus and Datadog scrape metrics at a 15 second interval.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-metrics-exporter.md",
+  "kind": "num",
+  "sent": "For this reason, the metrics endpoint has a 60-minute cache by default, which means a scraping interval of 60 minutes or higher is recommended.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-metrics-exporter.md",
+  "kind": "num",
+  "sent": "If you set the scrape interval to less than 60 minutes, you will see the same data in the metrics for multiple scrapes during that time window.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-optimize.md",
+  "kind": "def",
+  "sent": "There are a few things to be aware of when using bind mounts in a build: - Bind mounts are read-only by default.",
+  "q": "What is There?",
+  "a": "a few things to be aware of when using bind mounts in a build: - Bind mounts are read-only by default"
+ },
+ {
+  "doc": "docker-optimize.md",
+  "kind": "def",
+  "sent": "Cache mounts are a way to specify a persistent cache location to be used during builds.",
+  "q": "What is Cache mounts?",
+  "a": "a way to specify a persistent cache location to be used during builds"
+ },
+ {
+  "doc": "docker-platform.md",
+  "kind": "def",
+  "sent": "SonarQube is an open-source platform for continuous inspection of code quality.",
+  "q": "What is SonarQube?",
+  "a": "an open-source platform for continuous inspection of code quality"
+ },
+ {
+  "doc": "docker-platform.md",
+  "kind": "def",
+  "sent": "Adding attestations to images is a good first step in improving your supply chain conduct, and is often a prerequisite for doing more.",
+  "q": "What is Adding attestations to images?",
+  "a": "a good first step in improving your supply chain conduct, and is often a prerequisite for doing more"
+ },
+ {
+  "doc": "docker-port-publishing.md",
+  "kind": "num",
+  "sent": "For example, docker run -p 8080:80 [...] creates a mapping between port 8080 on any address on the Docker host, and the container's port 80.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-port-publishing.md",
+  "kind": "num",
+  "sent": "Here are some examples: | Flag value | Description | | -p 8080:80 | Map port 8080 on the Docker host to TCP port 80 in the container.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-port-publishing.md",
+  "kind": "num",
+  "sent": "| | -p 192.168.1.100:8080:80 | Map port 8080 on the Docker host IP 192.168.1.100 to TCP port 80 in the container.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-port-publishing.md",
+  "kind": "num",
+  "sent": "| | -p 8080:80/udp | Map port 8080 on the Docker host to UDP port 80 in the container.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-port-publishing.md",
+  "kind": "num",
+  "sent": "| | -p 8080:80/tcp -p 8080:80/udp | Map TCP port 8080 on the Docker host to TCP port 80 in the container, and map UDP port 8080 on the Docker host to UDP port 80 in the container.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-port-publishing.md",
+  "kind": "num",
+  "sent": "Port 8080 will not be opened on the host's IP addresses, and outgoing packets will use the container's IP address.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-port-publishing.md",
+  "kind": "num",
+  "sent": "But, container port 80 cannot be accessed directly from outside the host.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "docker-usage.md",
+  "kind": "def",
+  "sent": "Writing policies is an iterative process: 1.",
+  "q": "What is Writing policies?",
+  "a": "an iterative process: 1"
+ },
+ {
+  "doc": "docker-usage.md",
+  "kind": "num",
+  "sent": "The flag defaults to Dockerfile if not specified.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-daemonset.md",
+  "kind": "num",
+  "sent": "A Pod Template in a DaemonSet must have a RestartPolicy equal to Always, or be unspecified, which defaults to Always.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-dns-pod-service.md",
+  "kind": "num",
+  "sent": "In Linux, the hostname field of the kernel (the nodename field of struct utsname ) is limited to 64 characters.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-how-dra-works.md",
+  "kind": "num",
+  "sent": "The scheduler waits up to 600 seconds (default) for all bindingConditions to become True.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-kubernetes-api.md",
+  "kind": "def",
+  "sent": "The OpenAPI v3 is the preferred method for accessing OpenAPI as it provides a more comprehensive and accurate view of the API.",
+  "q": "What is The OpenAPI v3?",
+  "a": "the preferred method for accessing OpenAPI as it provides a more comprehensive and accurate view of the API"
+ },
+ {
+  "doc": "kubernetes-kubernetes-api.md",
+  "kind": "def",
+  "sent": "The data is a complete specification and is significantly larger than that from the Discovery API.",
+  "q": "What is The data?",
+  "a": "a complete specification and is significantly larger than that from the Discovery API"
+ },
+ {
+  "doc": "kubernetes-labels.md",
+  "kind": "num",
+  "sent": "The name segment is required and must be 63 characters or less, beginning and ending with an alphanumeric character ( [a-z0-9A-Z] ) with dashes ( - ), underscores ( _ ), dots (.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-labels.md",
+  "kind": "num",
+  "sent": "), not longer than 253 characters in total, followed by a slash ( / ).",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-labels.md",
+  "kind": "def",
+  "sent": "The label selector is the core grouping primitive in Kubernetes.",
+  "q": "What is The label selector?",
+  "a": "the core grouping primitive in Kubernetes"
+ },
+ {
+  "doc": "kubernetes-node-shutdown.md",
+  "kind": "num",
+  "sent": "This happens if the shutdownGracePeriod value is greater than 30 seconds.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-node-shutdown.md",
+  "kind": "num",
+  "sent": "For example, if shutdownGracePeriod=30s, and shutdownGracePeriodCriticalPods=10s, kubelet will delay the node shutdown by 30 seconds.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-node-shutdown.md",
+  "kind": "num",
+  "sent": "During the shutdown, the first 20 (30-10) seconds would be reserved for gracefully terminating normal pods, and the last 10 seconds would be reserved for terminating critical pods.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-node-shutdown.md",
+  "kind": "num",
+  "sent": "Finally, all other pods will get 60 seconds to shut down.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-nodes.md",
+  "kind": "num",
+  "sent": "By default, the node controller waits 5 minutes between marking the node as Unknown and submitting the first eviction request.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-nodes.md",
+  "kind": "num",
+  "sent": "By default, the node controller checks the state of each node every 5 seconds.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-system-logs.md",
+  "kind": "num",
+  "sent": "The logrotate tool rotates logs daily, or once the log size is greater than 100MB.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-system-logs.md",
+  "kind": "num",
+  "sent": "enableSystemLogHandler defaults to _false_ and is recommended to be left disabled unless actively debugging.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "kubernetes-system-metrics.md",
+  "kind": "num",
+  "sent": "These averages represent the percentage of time that tasks were stalled on a resource over the respective 10-second, 60-second, and 5-minute intervals.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-amr.md",
+  "kind": "num",
+  "sent": "For example, a value of 0.75 means the token should be refreshed when 75% of its lifetime has elapsed.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-amr.md",
+  "kind": "num",
+  "sent": "For example, a value of 0.1 will add or subtract up to 10% of the delay time.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-autopipeline.md",
+  "kind": "num",
+  "sent": "Defaults to 128 KiB in v9.23.0 or later.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-autopipeline.md",
+  "kind": "num",
+  "sent": "Defaults to 0, which adds no accumulation wait.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-autopipeline.md",
+  "kind": "num",
+  "sent": "Defaults to 1, which gives a single ordered stream.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-autopipeline.md",
+  "kind": "num",
+  "sent": "Defaults to 0, meaning a single shard, which funnels every caller into one queue so batches stay deep.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-autopipeline.md",
+  "kind": "num",
+  "sent": "Cluster clients default to several slot-routed shards instead.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-autopipeline.md",
+  "kind": "def",
+  "sent": "Each of them is a *singleton* that the client creates on first use and then shares with every later caller.",
+  "q": "What is Each of them?",
+  "a": "a *singleton* that the client creates on first use and then shares with every later caller"
+ },
+ {
+  "doc": "redis-autopipeline.md",
+  "kind": "num",
+  "sent": "This is why cluster clients default to several shards instead of one.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-bitmaps.md",
+  "kind": "num",
+  "sent": "Since strings are binary safe blobs and their maximum length is 512 MB, they are suitable to set up to 2^32 different bits.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-bitmaps.md",
+  "kind": "num",
+  "sent": "* Rider 123 pings the server on January 1, 2024 within the 00:00 hour.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-bloom-filter.md",
+  "kind": "num",
+  "sent": "In the example that follows, you'll create a filter with space for a million entries and with a 0.1% error rate.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-bloom-filter.md",
+  "kind": "num",
+  "sent": "For example, for a desired false positive rate of 0.1% (1 in 1000), error_rate should be set to 0.001.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-bloom-filter.md",
+  "kind": "def",
+  "sent": "The size of the new sub-filter is the size of the last sub-filter multiplied by EXPANSION.",
+  "q": "What is The size of the new sub-filter?",
+  "a": "the size of the last sub-filter multiplied by EXPANSION"
+ },
+ {
+  "doc": "redis-bloom-filter.md",
+  "kind": "num",
+  "sent": "* 1% error rate requires 7 hash functions and 9.585 bits per item.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-bloom-filter.md",
+  "kind": "num",
+  "sent": "* 0.1% error rate requires 10 hash functions and 14.378 bits per item.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-bloom-filter.md",
+  "kind": "num",
+  "sent": "* 0.01% error rate requires 14 hash functions and 19.170 bits per item.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-connect.md",
+  "kind": "def",
+  "sent": "Here is a simplified connection lifecycle in a pool: 1.",
+  "q": "What is Here?",
+  "a": "a simplified connection lifecycle in a pool: 1"
+ },
+ {
+  "doc": "redis-handle-replies.md",
+  "kind": "def",
+  "sent": "A simple example is the status response returned by the SET command.",
+  "q": "What is A simple example?",
+  "a": "the status response returned by the SET command"
+ },
+ {
+  "doc": "redis-prob.md",
+  "kind": "num",
+  "sent": "They can count up to 2^64 items with less than 1% standard error using a maximum 12KB of memory.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-prob.md",
+  "kind": "num",
+  "sent": "For example, you can request that the count should stay within 0.1% of the true value and have a 0.05% probability of going outside this limit.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-prob.md",
+  "kind": "num",
+  "sent": "For example, with a set of measurements of people's heights, the quantile of 0.75 is the value of height below which 75% of all people's heights lie.",
+  "q": "",
+  "a": ""
+ },
+ {
+  "doc": "redis-sorted-sets.md",
+  "kind": "def",
+  "sent": "A Redis sorted set is a collection of unique strings (members) ordered by an associated score.",
+  "q": "What is A Redis sorted set?",
+  "a": "a collection of unique strings (members) ordered by an associated score"
+ },
+ {
+  "doc": "redis-vecsearch.md",
+  "kind": "def",
+  "sent": "The query is a K nearest neighbors (KNN) search that sorts the results in order of vector distance from the query vector.",
+  "q": "What is The query?",
+  "a": "a K nearest neighbors (KNN) search that sorts the results in order of vector distance from the query vector"
+ }
+]
