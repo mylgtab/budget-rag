@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="420" font-family="system-ui,-apple-system,sans-serif">
+<rect width="680" height="420" fill="white"/>
+<line x1="78" y1="358.0" x2="550" y2="358.0" stroke="#eceff1"/>
+<text x="68" y="362.0" font-size="11" fill="#607d8b" text-anchor="end">0.76</text>
+<line x1="78" y1="277.0" x2="550" y2="277.0" stroke="#eceff1"/>
+<text x="68" y="281.0" font-size="11" fill="#607d8b" text-anchor="end">0.82</text>
+<line x1="78" y1="196.0" x2="550" y2="196.0" stroke="#eceff1"/>
+<text x="68" y="200.0" font-size="11" fill="#607d8b" text-anchor="end">0.87</text>
+<line x1="78" y1="115.0" x2="550" y2="115.0" stroke="#eceff1"/>
+<text x="68" y="119.0" font-size="11" fill="#607d8b" text-anchor="end">0.93</text>
+<line x1="78" y1="34.0" x2="550" y2="34.0" stroke="#eceff1"/>
+<text x="68" y="38.0" font-size="11" fill="#607d8b" text-anchor="end">0.98</text>
+<text x="91.1" y="378" font-size="11" fill="#607d8b" text-anchor="middle">100</text>
+<text x="156.7" y="378" font-size="11" fill="#607d8b" text-anchor="middle">200</text>
+<text x="222.2" y="378" font-size="11" fill="#607d8b" text-anchor="middle">300</text>
+<text x="353.3" y="378" font-size="11" fill="#607d8b" text-anchor="middle">500</text>
+<text x="550.0" y="378" font-size="11" fill="#607d8b" text-anchor="middle">800</text>
+<line x1="78" y1="358" x2="550" y2="358" stroke="#37474f"/>
+<line x1="78" y1="34" x2="78" y2="358" stroke="#37474f"/>
+<polyline points="78.0,227.8 156.7,167.1 222.2,138.1 353.3,115.0 550.0,100.5" fill="none" stroke="#2b6cb0" stroke-width="2.5"/>
+<circle cx="78.0" cy="227.8" r="4" fill="#2b6cb0"/>
+<text x="78.0" y="216.8" font-size="10" fill="#2b6cb0" text-anchor="middle">0.850</text>
+<circle cx="156.7" cy="167.1" r="4" fill="#2b6cb0"/>
+<text x="156.7" y="156.1" font-size="10" fill="#2b6cb0" text-anchor="middle">0.892</text>
+<circle cx="222.2" cy="138.1" r="4" fill="#2b6cb0"/>
+<text x="222.2" y="127.1" font-size="10" fill="#2b6cb0" text-anchor="middle">0.912</text>
+<circle cx="353.3" cy="115.0" r="4" fill="#2b6cb0"/>
+<text x="353.3" y="104.0" font-size="10" fill="#2b6cb0" text-anchor="middle">0.928</text>
+<circle cx="550.0" cy="100.5" r="4" fill="#2b6cb0"/>
+<text x="550.0" y="89.5" font-size="10" fill="#2b6cb0" text-anchor="middle">0.938</text>
+<polyline points="78.0,300.1 156.7,248.1 222.2,164.2 353.3,129.5 550.0,77.4" fill="none" stroke="#c53030" stroke-width="2.5"/>
+<circle cx="78.0" cy="300.1" r="4" fill="#c53030"/>
+<text x="78.0" y="289.1" font-size="10" fill="#c53030" text-anchor="middle">0.800</text>
+<circle cx="156.7" cy="248.1" r="4" fill="#c53030"/>
+<text x="156.7" y="237.1" font-size="10" fill="#c53030" text-anchor="middle">0.836</text>
+<circle cx="222.2" cy="164.2" r="4" fill="#c53030"/>
+<text x="222.2" y="153.2" font-size="10" fill="#c53030" text-anchor="middle">0.894</text>
+<circle cx="353.3" cy="129.5" r="4" fill="#c53030"/>
+<text x="353.3" y="118.5" font-size="10" fill="#c53030" text-anchor="middle">0.918</text>
+<circle cx="550.0" cy="77.4" r="4" fill="#c53030"/>
+<text x="550.0" y="66.4" font-size="10" fill="#c53030" text-anchor="middle">0.954</text>
+<line x1="568" y1="48" x2="594" y2="48" stroke="#2b6cb0" stroke-width="2.5"/>
+<text x="600" y="52" font-size="11" fill="#37474f">句级索引</text>
+<line x1="568" y1="70" x2="594" y2="70" stroke="#c53030" stroke-width="2.5"/>
+<text x="600" y="74" font-size="11" fill="#37474f">固定块索引</text>
+<text x="314.0" y="404" font-size="12" fill="#37474f" text-anchor="middle">上下文预算（token）</text>
+<text x="24" y="196.0" font-size="12" fill="#37474f" transform="rotate(-90 24 196.0)" text-anchor="middle">答案片段召回率</text>
+</svg>

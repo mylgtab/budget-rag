@@ -12,11 +12,12 @@ from pathlib import Path
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
-from docx.shared import Pt
+from docx.shared import Inches, Pt
 
 ROOT = Path(__file__).resolve().parents[1]
 
 SKIP_HEADINGS = ("写作检查清单", "待补实验清单")
+IMAGE = re.compile(r"^!\[(.*?)\]\((.+?)\)\s*$")
 STATUS = re.compile(r"\s*`?\[(已有|草稿|待写|待补|待画|待证)[^\]]*\]`?")
 INLINE_BOLD = re.compile(r"\*\*(.+?)\*\*")
 INLINE_CODE = re.compile(r"`([^`]+)`")
@@ -139,6 +140,16 @@ def main() -> int:
             add_runs(p, text[2:])
             continue
         if text.startswith("```"):
+            continue
+        m = IMAGE.match(text)
+        if m:
+            img = (ROOT / "docs" / m.group(2)).resolve()
+            if img.exists():
+                try:
+                    doc.add_picture(str(img), width=Inches(5.6))
+                    doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
+                except Exception:
+                    doc.add_paragraph(m.group(1))
             continue
         p = doc.add_paragraph()
         add_runs(p, text)
