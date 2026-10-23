@@ -227,6 +227,80 @@ def png_bar_chart(rows, path: Path, scale: int = 2) -> None:
     img.save(path)
 
 
+def png_pipeline(path: Path, scale: int = 2) -> None:
+    """英文版系统总览：两行主链 + 可选支路（虚线）。"""
+    from PIL import Image, ImageDraw
+
+    w, h = 1000 * scale, 420 * scale
+    img = Image.new("RGB", (w, h), "white")
+    d = ImageDraw.Draw(img)
+    d._image = img
+    f13, f11, f12 = _font(13 * scale), _font(11 * scale), _font(12 * scale)
+
+    def box(x, y, bw, bh, title, sub, fill=(242, 247, 255), edge=(59, 111, 182)):
+        d.rounded_rectangle([x, y, x + bw, y + bh], radius=10 * scale, fill=fill, outline=edge, width=2 * scale)
+        d.text((x + bw / 2, y + bh * 0.36), title, font=f12, fill=(18, 40, 63), anchor="mm")
+        d.text((x + bw / 2, y + bh * 0.70), sub, font=f11, fill=(74, 106, 146), anchor="mm")
+
+    def arrow(x1, y1, x2, y2, dashed=False):
+        if dashed:
+            n = 12
+            for i in range(n):
+                a = i / n
+                bx, by = x1 + (x2 - x1) * a, y1 + (y2 - y1) * a
+                ex, ey = x1 + (x2 - x1) * (a + 0.5 / n), y1 + (y2 - y1) * (a + 0.5 / n)
+                d.line([(bx, by), (ex, ey)], fill=(138, 138, 138), width=2 * scale)
+        else:
+            d.line([(x1, y1), (x2, y2)], fill=(59, 111, 182), width=2 * scale)
+        # 箭头
+        import math
+        ang = math.atan2(y2 - y1, x2 - x1)
+        L = 9 * scale
+        for s in (-0.45, 0.45):
+            d.line([(x2, y2), (x2 - L * math.cos(ang + s), y2 - L * math.sin(ang + s))],
+                   fill=(59, 111, 182) if not dashed else (138, 138, 138), width=2 * scale)
+
+    # 第一行
+    y1, bh = 120 * scale, 64 * scale
+    box(30 * scale, y1, 150 * scale, bh, "Question q", "user request")
+    box(215 * scale, y1, 150 * scale, bh, "Router", "budget B → tier")
+    box(400 * scale, y1, 150 * scale, bh, "Retrieve", "BM25 / vector / hybrid")
+    box(585 * scale, y1, 170 * scale, bh, "Confidence gate", "γ = (s1−s2)/s1")
+    box(795 * scale, y1, 170 * scale, bh, "Rewrite + re-retrieve", "only if γ < τ", fill=(255, 247, 237), edge=(224, 123, 57))
+
+    arrow(180 * scale, y1 + bh / 2, 215 * scale, y1 + bh / 2)
+    arrow(365 * scale, y1 + bh / 2, 400 * scale, y1 + bh / 2)
+    arrow(550 * scale, y1 + bh / 2, 585 * scale, y1 + bh / 2)
+    arrow(755 * scale, y1 + bh / 2, 795 * scale, y1 + bh / 2)
+
+    # 第二行
+    y2 = 270 * scale
+    box(585 * scale, y2, 170 * scale, bh, "Budgeted packing", "until B tokens")
+    box(400 * scale, y2, 150 * scale, bh, "Generate", "LLM answer")
+    box(215 * scale, y2, 150 * scale, bh, "Second hop", "optional, needs 2 facts",
+        fill=(255, 255, 255), edge=(138, 138, 138))
+    box(795 * scale, y2, 170 * scale, bh, "Answer + trace", "cost · tokens · path")
+
+    arrow(670 * scale, y1 + bh, 670 * scale, y2)
+    arrow(585 * scale, y2 + bh / 2, 550 * scale, y2 + bh / 2)
+    arrow(400 * scale, y2 + bh / 2, 365 * scale, y2 + bh / 2)
+    arrow(755 * scale, y2 + bh / 2, 795 * scale, y2 + bh / 2)
+
+    # 可选支路：Second hop → Retrieve（虚线）
+    arrow(290 * scale, y2, 290 * scale, y1 + bh, dashed=True)
+    d.text((300 * scale, (y1 + bh + y2) / 2), "optional loop", font=f11, fill=(138, 138, 138), anchor="lm")
+
+    # 语料 / 双索引
+    box(30 * scale, 20 * scale, 210 * scale, 60 * scale, "Corpus", "dual index: sentence / block",
+        fill=(247, 250, 255), edge=(157, 184, 221))
+    arrow(135 * scale, 80 * scale, 135 * scale, y1, dashed=True)
+
+    # 标注
+    d.text((30 * scale, (h - 30 * scale)), "c(a), g(a|S): cost and marginal gain used for ordering",
+           font=f11, fill=(110, 110, 110), anchor="lm")
+    img.save(path)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="docs/figures")
@@ -239,6 +313,7 @@ def main() -> int:
     try:
         png_line_chart(BUDGET_CURVE, out / "fig2-budget-recall.png")
         png_bar_chart(ABLATION, out / "fig3-ablation.png")
+        png_pipeline(out / "fig1-pipeline.png")
     except ImportError:
         print("提示：当前解释器没有 Pillow，跳过 PNG（Word 插图需要它）")
     for name in ("fig2-budget-recall.svg", "fig2-budget-recall.png",
