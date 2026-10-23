@@ -5,33 +5,34 @@
 **ORCID:** 0009-0003-7912-3918
 ## Abstract
 
-Retrieval-augmented generation treats the amount of retrieved context as a fixed
-hyperparameter, although real budgets are finite and query difficulty varies by orders of
-magnitude. We formulate retrieval-depth selection as **budget-constrained submodular
-maximization**. Each retrieval action — taking another chunk, switching to hybrid retrieval,
-rewriting the query, adding a second hop — carries a cost $c(a)$ and a marginal quality gain
-$g(a\mid S)$, and a policy is a subset of actions under a budget $B$. Under diminishing
-returns, the quality function is monotone submodular, so greedy selection by gain-per-cost
-inherits the classical guarantee: $1-1/e$ under a cardinality budget, $(1-1/e)/2$ under a
-cost budget, and $1-1/e$ again once cross-tier enumeration is allowed. The same view yields
-two directly implementable consequences: whether query rewriting pays off is governed by the
-shadow price of the budget rather than by a fixed rule, and the optimal cascade is a chain of
-confidence thresholds whose cutoffs fall as that price rises.
+Retrieval-augmented generation typically treats the amount of retrieved context as a fixed
+hyperparameter, yet inference budgets are finite and query difficulty varies by orders of magnitude.
+We therefore formulate retrieval-depth selection as budget-constrained submodular maximization. Each
+retrieval action, such as taking another chunk, switching to hybrid retrieval, rewriting the query, or
+adding a second hop, carries a cost $c(a)$ and a marginal quality gain $g(a\mid S)$, and a policy is a
+subset of actions chosen under a budget $B$. Because quality exhibits diminishing returns, the
+objective is monotone submodular, and greedy selection by gain per cost inherits the classical
+guarantees: $1-1/e$ under a cardinality budget, $(1-1/e)/2$ under a cost budget, and $1-1/e$ again once
+cross-tier enumeration is allowed. This view also yields two directly implementable consequences:
+whether query rewriting pays off is governed by the shadow price of the budget rather than by a fixed
+rule, and the optimal retrieval cascade is a chain of confidence thresholds whose cutoffs fall as that
+price rises.
 
-We build a reproducible system from this framework. On a 200-query retrieval benchmark with
-bge-m3 embeddings, it attains **0.960** recall at an average context cost of **126 tokens**,
-compared with 0.925 at 179 tokens for a corrective-retrieval baseline and 0.910 at 115 tokens
-for dense retrieval; all differences are significant under paired bootstrap and McNemar tests
-($p<0.05$), and the advantage survives repeated subsampling. On 500 end-to-end queries the
-system matches fixed top-3 containment (0.912 vs 0.920, within paired noise) at roughly half
-the prompt cost (474 vs 972 tokens). Recall reaches 0.995 and 1.000 on two LongBench retrieval
-subsets. On three multi-hop generation benchmarks, retrieval improves answer accuracy
-consistently for both a hosted large model and a locally deployed 4B model. Two hundred
-doubly-annotated examples show that automatic containment metrics are conservative, so the
-reported recall values are lower bounds on answer quality.
+We build a reproducible system from this framework. On a 200-query retrieval benchmark with bge-m3
+embeddings, it attains 0.960 recall at an average context cost of 126 tokens, compared with 0.925 at
+179 tokens for a corrective-retrieval baseline and 0.910 at 115 tokens for dense retrieval. All
+differences are significant under paired bootstrap and McNemar tests ($p<0.05$), and the advantage
+survives repeated subsampling. On 500 end-to-end queries, the system matches fixed top-3 containment
+(0.912 versus 0.920, within paired noise) at roughly half the prompt cost (474 versus 972 tokens).
+Recall reaches 0.995 and 1.000 on two LongBench retrieval subsets. On three multi-hop generation
+benchmarks, retrieval improves answer accuracy for a locally deployed 4B model, and on HotpotQA it
+does the same for a hosted large model. Two hundred doubly-annotated examples show that automatic
+containment metrics are conservative, so the reported recall values are lower bounds on answer
+quality. Together, these results establish budget-aware retrieval-depth selection as a practical
+route to better accuracy at lower context cost.
 
-**Keywords**: retrieval-augmented generation; context budget; submodular maximization;
-adaptive retrieval; cost-aware inference
+**Keywords:** retrieval-augmented generation; context budget; submodular maximization; adaptive
+retrieval; cost-aware inference; large language models
 
 ## 1. Introduction
 
