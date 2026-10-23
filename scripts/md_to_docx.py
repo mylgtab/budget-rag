@@ -23,6 +23,44 @@ INLINE_BOLD = re.compile(r"\*\*(.+?)\*\*")
 INLINE_CODE = re.compile(r"`([^`]+)`")
 
 
+STRUCT = re.compile(r"^(#{1,3} |\||- |\d+\. |!\[|>|\$\$|```)")
+
+
+def merge_paragraphs(lines: list[str]) -> list[str]:
+    """Markdown 的软换行应合并成一个段落，否则 Word 里会一行一顿，且跨行 **粗体** 失效。"""
+    out: list[str] = []
+    buf: list[str] = []
+    in_code = False
+
+    def flush() -> None:
+        if buf:
+            out.append(" ".join(s.strip() for s in buf if s.strip()))
+            buf.clear()
+
+    for raw in lines:
+        line = raw.rstrip()
+        if line.strip().startswith("```"):
+            flush()
+            in_code = not in_code
+            out.append(line)
+            continue
+        if in_code:
+            flush()
+            out.append(line)
+            continue
+        if not line.strip():
+            flush()
+            out.append("")
+            continue
+        if STRUCT.match(line.strip()):
+            flush()
+            out.append(line)
+            continue
+        buf.append(line)
+    flush()
+    return out
+
+
 def set_cjk_font(doc: Document) -> None:
     style = doc.styles["Normal"]
     style.font.name = "Times New Roman"
@@ -72,7 +110,7 @@ def main() -> int:
     ap.add_argument("--out", default="docs/paper-draft.docx")
     args = ap.parse_args()
 
-    lines = (ROOT / args.src).read_text(encoding="utf-8").splitlines()
+    lines = merge_paragraphs((ROOT / args.src).read_text(encoding="utf-8").splitlines())
     doc = Document()
     set_cjk_font(doc)
 
