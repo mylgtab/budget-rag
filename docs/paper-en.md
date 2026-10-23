@@ -468,25 +468,30 @@ difficulty and are not used as a comparison basis.
 
 ### 6.5 The Benefit of Retrieval Is Model-Agnostic
 
-Twenty questions per dataset, same 800-token budget:
+One hundred questions per dataset, the same 800-token budget, local Qwen3-4B generation; brackets are
+bootstrap 95% intervals.
 
-| Dataset | Model | With retrieval | Without | Span hit |
+| Dataset | With retrieval | 95% CI | Without | McNemar p |
 |---|---|---|---|---|
-| HotpotQA | DeepSeek-V4.1-Flash | **0.500** | 0.200 | 0.60 |
-| HotpotQA | Qwen3-4B | **0.450** | 0.100 | 0.60 |
-| 2WikiMultiHopQA | Qwen3-4B | **0.150** | 0.000 | 0.70 |
-| MuSiQue | Qwen3-4B | **0.250** | 0.000 | 0.65 |
-| TriviaQA | Qwen3-4B | 0.100 | **0.300** | 0.15 |
+| HotpotQA | **0.400** | [0.300, 0.500] | 0.120 | <0.0001 |
+| 2WikiMultiHopQA | **0.250** | [0.170, 0.330] | 0.090 | 0.0009 |
+| MuSiQue | **0.140** | [0.080, 0.210] | 0.000 | 0.0001 |
+| TriviaQA | 0.090 | [0.040, 0.150] | **0.190** | 0.0020 |
+| HotpotQA (DeepSeek-V4.1-Flash) | **0.520** | [0.420, 0.620] | 0.230 | <0.0001 |
 
-The first four rows support the claim: retrieval raises accuracy by 0.15–0.45, in the same
-direction for a large hosted model and a small local one.
+The standard deviations over five 2/3 subsamples are 0.007, 0.051, 0.034 and 0.019 respectively, so the
+ordering does not depend on which questions are drawn.
 
-The fifth row is a boundary condition, reported as measured. TriviaQA questions are largely
-commonsense, so the model answers from parameters (0.30); the corpus consists of twenty-odd
-distractor passages and an 800-token budget covers about 11% of it, so retrieved fragments pull the
-model off course (0.10). This agrees with the motivation for the gate in Section 6.8: **whether to
-retrieve is itself a decision**, not a default. Our gate only decides *whether to rewrite*; leaving
-*whether to retrieve* to future work (Section 8).
+The first four rows—including the hosted large model—support the claim: on multi-hop tasks retrieval
+raises accuracy from 0–0.23 to 0.14–0.52, and the improvement is significant in every case; the direction
+is the same for the large and the small model, so the conclusion does not depend on the generator.
+
+**The fourth row is a significant negative effect, reported as measured.** TriviaQA questions are
+largely commonsense, so the model answers from its parameters; the corpus consists of twenty-odd
+distractor passages and an 800-token budget covers about 11% of it, so the retrieved fragments pull the
+model off course—an effect that is significant at n = 100 (0.090 vs 0.190, p = 0.002). This says that
+**whether to retrieve is itself a decision**, complementary to our gate, which only decides whether to
+rewrite. Upgrading the gate into a "retrieve or not" decision is the natural next step (Section 8).
 
 ### 6.6 Human Annotation
 
