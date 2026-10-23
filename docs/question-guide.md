@@ -40,6 +40,26 @@
 `Does X support Y?` 这种猜中概率 50%，区分度低。
 优先用：**What / Which / How many / How long / Why / What happens if**。
 
+
+### 6. 一个答案只答一件事，别用 and 拼两样
+
+原文：`This page contains the SAML Sign-in URL and x509 Certificate.`
+
+| | 写法 |
+|---|---|
+| ✅ 好 | 问 `Which certificate must be pasted into the form?` → 答 `x509 Certificate` |
+| ❌ 差 | 问 `Which two items does the page show?` → 答 `SAML Sign-in URL and x509 Certificate` |
+
+理由：复合答案容易被判「答对一半算错」，而且校验器只检查整串是否出现。
+
+## 找不到答案时怎么办
+
+1. 在 `出题参考-原文摘录.docx` 里用 **Ctrl+F** 搜你想到的关键词
+2. 看原文是怎么措辞的，把答案改成**原文的写法**
+3. 如果这条候选句实在挖不出题，**跳过它**，从文档别处找——每篇只要 3–4 题
+
+答案一定在文档里，但**不一定在候选句里**：候选句只是提示「这段有料」。
+
 ## 好例子（原文 → 问题 → 答案）
 
 | 原文 | 问题 | 答案 |
