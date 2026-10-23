@@ -36,64 +36,60 @@ retrieval; cost-aware inference; large language models
 
 ## 1. Introduction
 
-Retrieval-augmented generation (RAG) has become the default way to ground language models in
-external, updatable evidence [1]. In most systems the retrieval depth is a
-hyperparameter: a fixed number of passages is retrieved and concatenated into the context
-[2,3]. That default made sense when context
-was cheap—retrieving a few more passages cost almost nothing. The cost has since moved
-elsewhere. Position-sensitivity experiments show double-digit accuracy differences depending on
-where the same evidence lands in the context [4], so "retrieve more" is no
-longer equivalent to "answer better"; both *how much* to retrieve and *where to put it* have
-become resources that must be allocated rather than tuned. A subtler cost is reporting: most
-work reports Recall@$k$ at a fixed $k$, while $k$, chunk size and routing depth differ across
-methods, so quality–cost curves cannot be stitched together—an apparent recall gain may simply
-be more tokens spent. We therefore treat the comparison protocol as part of the method and
-report Recall@budget throughout (Section 6.1).
+Retrieval-augmented generation (RAG) has become a common way to ground language models in external,
+updatable evidence [1]. Most systems still treat retrieval depth as a hyperparameter, retrieving a
+fixed number of passages and concatenating them into the context [2,3]. This choice was reasonable when
+retrieving a few additional passages cost little. Yet position-sensitivity experiments show double-digit
+accuracy differences depending on where identical evidence appears in the context [4]. Retrieving more,
+therefore, does not necessarily improve an answer; both evidence quantity and placement must be
+allocated. A related issue is how retrieval methods are compared. Most studies report Recall@$k$ at a
+fixed $k$, although $k$, chunk size and routing depth differ across methods. Because these choices alter
+token use, recall gains alone do not establish comparable quality–cost trade-offs. We therefore report
+Recall@budget throughout to support budget-matched comparisons (Section 6.1).
 
-Existing work answers "how much to retrieve" along four lines: adaptive retrieval decides
-*whether* and *how many steps* to retrieve (Section 2.1); corrective retrieval handles
-retrieval that went wrong (Section 2.2); cost-aware retrieval treats evidence acquisition as a
-bill (Section 2.3); and compression, reranking and rewriting change the unit price, ordering and
-candidate pool of what has already been fetched (Section 2.4). What these lines share is that
-the budget itself stays exogenous: a classifier picks a depth, an evaluator triggers a repair,
-a selector picks among priced evidence—but none of them answers "given this budget, which step
-deserves the next unit of money." Cost-aware RAG's finding that static selectors are brittle
-suggests that **the allocation policy itself deserves a model**.
+Existing work addresses retrieval depth through four complementary lines (Sections 2.1–2.4). Adaptive
+retrieval determines whether and how many steps to retrieve (Section 2.1). Corrective retrieval responds
+when retrieval has failed (Section 2.2). Cost-aware retrieval treats evidence acquisition as a
+resource-allocation problem (Section 2.3). Compression, reranking and query rewriting alter the unit
+cost, ordering and candidate pool of retrieved evidence (Section 2.4). Despite their differences, these
+approaches generally treat the budget as exogenous. A classifier chooses a depth, an evaluator triggers
+repair and a selector chooses among priced evidence, but none identifies which action merits the next
+unit of budget. Findings that static selectors can be brittle in cost-aware RAG further motivate
+modelling allocation itself [12].
 
-We cast retrieval-depth selection as **budget-constrained set selection**. Every executable
-retrieval action—taking another chunk, switching to hybrid retrieval, rewriting the query,
-adding a cross-hop retrieval—is an element with cost $c(a)$ and marginal gain $g(a\mid S)$; a
-policy is a subset $S$ chosen under budget $B$. Under the empirically testable assumption of
-diminishing returns, the quality function is monotone submodular, so the classical approximation
-guarantees apply to density-ordered greedy selection. Two consequences fall out that can be
-implemented directly: whether rewriting pays off depends on the shadow price of the budget
-rather than on a fixed rule, and the optimal cascade is a chain of confidence thresholds.
+We cast retrieval-depth selection as a problem of budget-constrained set selection. Each executable
+retrieval action—taking another chunk, switching to hybrid retrieval, rewriting the query or adding a
+second hop—incurs cost $c(a)$ and yields marginal quality gain $g(a \mid S)$. A policy is a subset $S$ of
+actions chosen under budget $B$. If marginal gains diminish as actions are added, the quality function is
+monotone submodular. This structure supports classical approximation guarantees for gain-per-cost greedy
+selection. The decision to rewrite therefore depends on the budget's shadow price, not on a fixed rule.
+The optimal retrieval cascade is a chain of confidence thresholds whose cutoffs decline as that price
+rises.
 
-We implement the framework as a running system and evaluate it on a 200-query retrieval
-benchmark and a 500-query end-to-end benchmark. Against five baselines under a common budget,
-the system reaches **0.960** recall at an average context cost of **126 tokens**, versus 0.925
-at 179 tokens for a corrective-retrieval approximation and 0.910 at 115 tokens for dense
-retrieval; paired bootstrap and McNemar tests show the differences are significant ($p<0.05$).
-On 500 end-to-end queries it matches fixed top-3 containment (0.912 vs 0.920) at roughly half
-the prompt cost (474 vs 972 tokens). Recall reaches 0.995 and 1.000 on two LongBench retrieval
-subsets, and on three multi-hop generation benchmarks the improvement from retrieval holds for
-both a hosted large model and a locally deployed 4B model. Two hundred doubly-annotated
-examples indicate that automatic metrics are conservative, so the reported recall is a lower
-bound on answer quality.
+We implement this framework in a running system and evaluate it on retrieval and end-to-end benchmarks.
+Additional evaluations cover LongBench retrieval subsets, multi-hop generation benchmarks and doubly
+annotated examples.
 
 Our contributions are threefold.
 
-1. We unify chunk selection, hybrid retrieval, query rewriting and cross-hop retrieval into a
-   single priced action set and state its approximation bound: under diminishing returns the
-   quality function is monotone submodular; density greedy attains $1-1/e$ under a cardinality
-   budget and $(1-1/e)/2$ under a cost budget, recovering $1-1/e$ with cross-tier enumeration
-   (Sections 3 and 5).
-2. We derive a closed-form rewriting threshold $\tau^*(\lambda)$ and verify its direction
-   empirically: raising the unit-price coefficient from 0.25 to 2 moves $\tau^*$ from 0.25 to 0,
-   as Propositions 2 and 4 predict (Section 6.7).
-3. We report 0.960 recall at 126 tokens on a 200-query benchmark, show that the result does not
-   degrade across corpora or generator models, and use 200 doubly-annotated examples to show
-   that the reported recall is a lower bound (Sections 6.2–6.6).
+1. We unify chunk selection, hybrid retrieval, query rewriting and second hop retrieval in one priced
+   action set. Under diminishing returns, the objective is monotone submodular (Sections 3 and 5).
+   Density greedy attains $1-1/e$ under a cardinality budget and $(1-1/e)/2$ under a cost budget, and
+   cross-tier enumeration restores a $1-1/e$ guarantee.
+
+2. We derive the closed-form rewriting threshold $\tau^*(\lambda)$ (Propositions 2 and 4; Section 6.7).
+   As predicted, raising the unit-price coefficient from 0.25 to 2 lowers $\tau^*$ from 0.25 to 0.
+
+3. On a 200-query retrieval benchmark, the system achieves 0.960 recall at an average context cost of
+   126 tokens, against five baselines evaluated under a common budget. An approximation of corrective
+   retrieval yields 0.925 recall at 179 tokens, and dense retrieval yields 0.910 at 115 tokens. Paired
+   bootstrap and McNemar tests show that the reported differences are significant ($p<0.05$). On 500
+   end-to-end queries, the system matches fixed top-3 containment (0.912 versus 0.920, within paired
+   noise) at roughly half the prompt cost (474 versus 972 tokens). Recall reaches 0.995 and 1.000 on two
+   LongBench retrieval subsets. Retrieval improves answer accuracy on three multi-hop generation
+   benchmarks for a locally deployed 4B model, and on HotpotQA for a hosted large model. An evaluation of
+   200 doubly annotated examples suggests that automatic containment metrics are conservative, making
+   reported recall a lower bound on answer quality.
 
 ## 2. Related Work
 
@@ -159,7 +155,7 @@ detect–branch–correct structure.
 
 This line acknowledges that retrieval fails, at the price of writing correction as a conditional
 branch: whether to correct is decided by the evaluator's verdict, independently of whether the
-correction is worth its cost. We fold the corrective actions (rewriting, cross-hop retrieval,
+correction is worth its cost. We fold the corrective actions (rewriting, second-hop retrieval,
 reranking) into the same action set and decide by gain-to-cost ratio—picked automatically when the
 budget is loose, skipped automatically when it is tight, with no separate correction stage. The two
 compose: a CRAG-style evaluator can serve as a prior for $g(a\mid S)$ in our action set—the evaluator
@@ -235,7 +231,7 @@ real billing.
 We join the two: submodular ordering decides which action to buy next, and the threshold decides when
 to stop. We do not reprove the approximation bound—Proposition 1 cites the budgeted result directly
 (Section 5); the increment is to replace the selected "elements" with "actions": chunks, hybrid
-retrieval, rewriting, reranking and cross-hop retrieval share one definition of cost and gain.
+retrieval, rewriting, reranking and second-hop retrieval share one definition of cost and gain.
 Proposition 3 extends the threshold form to retrieval actions: when action costs increase and gains
 decrease monotonically with confidence, the optimal policy is again a chain of confidence thresholds,
 with thresholds moving monotonically with the budget. The difference from FrugalGPT is the direction
@@ -259,7 +255,7 @@ Taken together, prior work advances four questions—whether to retrieve, whethe
 whether evidence is expensive, and whether context can be deleted—and they share an unstated
 assumption: **retrieval behaviour can be chosen independently of the budget**. We supply that layer,
 writing the budget as an explicit constraint and the shadow price as an observable quantity, with the
-policy derived from their ratio. Which tier, whether to rewrite, whether to cross-hop and who gets
+policy derived from their ratio. Which tier, whether to rewrite, whether to second hop and who gets
 packed first are then answered by one ordering rule: actions appear as the budget allows and disappear
 as it tightens, with no per-combination stage design.
 
@@ -541,7 +537,7 @@ the hard subset. Since rewriting dominates latency, what the gate saves is exact
 scales inversely with batch difficulty; reporting a gate benefit without the trigger rate can make
 the same method look like opposite conclusions on two batches.
 
-Third, the extension point is the action set alone. Adding an action (reranking, cross-hop
+Third, the extension point is the action set alone. Adding an action (reranking, second hop
 retrieval, a compressor) only requires stating its cost $c(a)$ and marginal gain $g(a\mid S)$; the
 ordering rule and the approximation bound are unchanged. The reranking experiment illustrates the
 usage: with a pool of 8 and a 300-token budget the gain is 0.0 pt, whereas with a pool of 30 and a
