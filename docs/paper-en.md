@@ -3,6 +3,13 @@
 > English manuscript, work in progress. Chinese master: `paper-draft.md`.
 > Translated so far: Abstract, Section 1. Sections 2–8 pending.
 
+**Author:** [Given Family] ¹  
+**Affiliation:** ¹ [School of ...], Zhangjiakou University, Zhangjiakou 075000, Hebei, China  
+**Corresponding author:** [email]  
+**ORCID:** [0000-0000-0000-0000]
+
+> 投稿前把方括号内容换成真实信息；学院英文名请向辅导员确认，不要直译。
+
 ## Abstract
 
 Retrieval-augmented generation treats the amount of retrieved context as a fixed
