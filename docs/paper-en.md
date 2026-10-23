@@ -601,7 +601,7 @@ results are small (Section 6.5), so transfer to production corpora needs an addi
 set. **Baselines**: the Adaptive-RAG and CRAG entries are behavioural approximations—a heuristic
 router and an off-the-shelf relevance evaluator (Section 6.1)—not reproductions of the fine-tuned
 models of the original papers, so the comparison is evidence at the same order of magnitude rather
-than an exact replication. **Cost**: figures are converted from public unit prices and exclude
+than an exact replication (Appendix C documents what was and was not reproduced). **Cost**: figures are converted from public unit prices and exclude
 batch discounts, cache hits and operations overhead (Section 7.3), which makes them suitable for
 relative comparison only. **Token estimates**: tiktoken over-counts Chinese relative to actual
 billing (Section 7.3), so the true context cost at equal recall is lower than reported. None of these
@@ -638,6 +638,45 @@ https://github.com/mylgtab/budget-rag (v1.0.0). A stranger can reproduce the mai
 thirty minutes: clone, `pip install -e .`, `make check`. The repository ships small data snapshots so
 reproduction does not depend on external mirrors, and CI rebuilds and queries the Docker image on
 every push.
+
+## Appendix C. Reproduction Notes for the Baselines
+
+The two adaptive baselines in this paper are behavioural approximations rather than exact
+reproductions. We state what was reproduced, and why we stopped there, so that readers can judge the
+scope of the evidence.
+
+**What the official code requires.** The official Adaptive-RAG repository ships four components: an
+Elasticsearch retrieval service, a separate LLM serving process, execution scripts for the three
+strategies (zero, single, multi), and a T5 classifier over three complexity labels
+(`classifier/run_classifier.py`, classes A/B/C). Its dependencies are pinned to an older environment
+(`torch>=1.7,<2.0`, a fixed transformers commit, `elasticsearch==7.9.1`, conda with Python 3.8), and
+training the T5-large classifier does not fit on the 8 GB GPU used here.
+
+**What we reproduced.** The core of the official classifier is that complexity labels are generated
+automatically from the outcomes of running the three strategies. We follow the same construction on
+our own benchmark—recording the smallest action that retrieves the answer as the complexity class
+(one chunk / five hybrid chunks / requires rewriting)—which yields a 222/52/17/9 split, and train two
+classifiers on it (TF-IDF and BERT, accuracy 0.747 and 0.702). The label construction and the
+discrimination task therefore match the original; the model scale and environment do not.
+
+**On the CRAG side** we likewise reproduce the behaviour: an off-the-shelf model judges whether the
+retrieved context suffices (good / partial / bad), and a `bad` verdict triggers a rewritten query and
+a second retrieval, mirroring the original correct / incorrect / ambiguous branches. The original uses
+a fine-tuned lightweight evaluator; we use a general-purpose model.
+
+**What was not reproduced, and why.** The Elasticsearch retrieval service and the LLM serving process
+require separate service deployments and Linux scripts, and fine-tuning T5-large requires more memory
+than is available. On the single Windows machine used for this work neither could be completed. The
+comparison in Section 6.2 should therefore be read as evidence at the same order of magnitude, not as
+a digit-for-digit match to the original paper.
+
+**The conclusion from this level of reproduction is still informative.** With the label construction
+matching the original, text-based classifiers (0.747 / 0.702) remain below the score-based gate
+(0.960): the gap comes from the *source of the signal*, not from model scale or implementation detail.
+Swapping in the original T5-large would be expected to raise classifier accuracy while leaving that
+conclusion unchanged.
+
+---
 
 ## References
 
