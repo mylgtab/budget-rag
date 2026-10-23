@@ -281,3 +281,33 @@ $env:RAG_EMBED_KEY='<你的 SiliconFlow key>'
 
 **待定**
 - `D:\chaojiniuniu`（8.7 GB 的 VMware 镜像）是什么，确认后可删
+
+## 2026-10-23 晚：论文进入可投稿状态
+
+**中英双稿完成**
+
+| 文件 | 规模 | 状态 |
+|---|---|---|
+| `docs/paper-en.md` | 682 行 / ~7.2k 词 | 8 章 + 附录 A/B + 25 条数字引用 + 声明 |
+| `docs/paper-draft.md` | 639 行 | 中文母本，同步更新 |
+| `docs/paper-en.docx` | 160 段 / 6 表 / 3 图 | 桌面「论文-英文版-终稿.docx」 |
+
+**作者信息**（已填入）：Qiaomu Li；School of Mathematics and Information Science,
+Zhangjiakou University；通讯 lqm050509@gmail.com；ORCID 0009-0003-7912-3918。
+
+**工具链**
+- `scripts/convert_citations.py`：作者-年 → MDPI 数字引用（按首次出现编号）
+- `scripts/md_to_docx.py`：Markdown → Word（合并软换行、图片居中、跳过内部章节）
+- `scripts/make_paper_figures.py`：三张图（SVG + PNG）
+- `scripts/bench_ci.py`：外部基准的 bootstrap CI / 子采样 / McNemar
+
+**投稿信息**
+- 首选 Applied Sciences（MDPI）：https://susy.mdpi.com/user/register
+- 备选 Electronics（同系统）
+- 二轮 FCS：https://www.editorialmanager.com/fcs/
+- Cover letter 草稿：`docs/cover-letter.md`
+
+**尚未做（审稿风险项）**
+1. 已发表方法为行为近似（CRAG / Adaptive-RAG），非原版复现；Self-RAG 未做
+2. 外部生成基准样本量小（见 6.5 节），多种子只覆盖主表
+3. 英文需一次人工通读
