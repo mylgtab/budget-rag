@@ -262,3 +262,22 @@ $env:RAG_EMBED_KEY='<你的 SiliconFlow key>'
 | 覆盖率（CI） | 90%，门槛 80% |
 
 工程侧 1.0.0 条件已满足；剩余为论文投稿。
+
+## 2026-10-23 进展
+
+**论文**
+- 中英双稿：`docs/paper-draft.md`（637 行，母本）+ `docs/paper-en.md`（摘要/引言/3/4/5 节）
+- 三张图齐备：`fig1-pipeline`（英文系统总览）、`fig2-budget-recall`（预算曲线）、`fig3-ablation`（消融）
+- Word 版 `docs/paper-draft.docx` 含 3 张内联图（385 段、6 表）
+- 生成脚本：`scripts/make_paper_figures.py`（零依赖 SVG + Pillow 出 PNG）
+
+**工程**
+- CI 六 job 全绿；覆盖率 90%，门槛 80%
+- 复现验收：克隆 4.7 MB → 安装 → 65 测试 → 评测正常
+
+**待用户执行（需管理员）**
+- 双击 `D:\_pycleanup\清理残留和WeGame.bat`：清 13 条 HKLM 残留登记 + 卸载 WeGame
+  （HKCU 的 9 条已清完）
+
+**待定**
+- `D:\chaojiniuniu`（8.7 GB 的 VMware 镜像）是什么，确认后可删
