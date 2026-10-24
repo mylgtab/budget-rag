@@ -295,8 +295,9 @@ against 0.647 at a 300-token budget). The system therefore selects granularity p
 level when `ctx < 500` **and** the corpus is short-sentence, fixed blocks otherwise.
 
 Chunks are accumulated in descending retrieval score until the selected chunks reach the token
-budget $B$, and then the loop stops. There is **no fixed $k$ truncation**—this is what makes the
-budget, rather than the count, the first-class quantity.
+budget $B$, and then the loop stops, with no fixed $k$ truncation. Section 6.9 qualifies this design:
+on real corpora the truncation behaves like a well-chosen fixed $k$, and the operational difference
+appears only when the depth is chosen per query from the score margin.
 
 ### 4.2 Cascade Routing
 
@@ -449,7 +450,7 @@ approximation, [0.925, 0.932]: the advantage does not depend on which questions 
 | Budget 300 → 100 | −6.1 pt | Budget matters, but must be allocated by difficulty |
 | $\alpha$ 0.2 → 0.5 | −1.7 pt | The default weight is not optimal for this corpus |
 
-Figure 3 summarizes the ablation: dropping hybrid retrieval costs the most (−6.8 pt), followed by
+These numbers come from the controlled synthetic setting of Section 6.2. Figure 3 summarizes the ablation: dropping hybrid retrieval costs the most (−6.8 pt), followed by
 tightening the budget (−6.1 pt), so the gains come mainly from semantic matching and budget
 allocation, with the gate as a refinement (−3.6 pt).
 
