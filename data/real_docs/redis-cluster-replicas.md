@@ -1,0 +1,31 @@
+The command provides a list of replica nodes replicating from the specified
+master node. The list is provided in the same format used by CLUSTER NODES (please refer to its documentation for the specification of the format).
+
+The command will fail if the specified node is not known or if it is not
+a master according to the node table of the node receiving the command.
+
+Note that if a replica is added, moved, or removed from a given master node,
+and we ask CLUSTER REPLICAS to a node that has not yet received the
+configuration update, it may show stale information. However eventually
+(in a matter of seconds if there are no network partitions) all the nodes
+will agree about the set of nodes associated with a given master.
+
+## Required arguments
+
+node-id
+
+The ID of the master node to list the replicas of.
+
+## Redis Software and Redis Cloud compatibility
+
+| RedisSoftware | RedisCloud | Notes |
+|:----------------------|:-----------------|:------|
+| &#x274c; Standard&#x274c; Active-Active | &#x274c; Standard&#x274c; Active-Active | |
+
+## Return information
+
+Array reply: a list of replica nodes replicating from the specified master node provided in the same format used by CLUSTER NODES .
+
+-tab-sep-
+
+Array reply: a list of replica nodes replicating from the specified master node provided in the same format used by CLUSTER NODES .

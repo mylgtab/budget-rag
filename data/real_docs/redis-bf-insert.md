@@ -1,0 +1,92 @@
+Creates a new Bloom filter if the key does not exist using the specified error rate, capacity, and expansion, then adds all specified items to the Bloom Filter.
+
+This command is similar to BF.MADD , except that the error rate, capacity, and expansion can be specified. It is a sugarcoated combination of BF.RESERVE and BF.MADD .
+
+## Required arguments
+
+key
+
+is key name for a Bloom filter to add items to.
+
+If key does not exist, a new Bloom filter is created.
+
+ITEMS item...
+
+One or more items to add.
+
+## Optional arguments
+
+NOCREATE
+
+Indicates that the filter should not be created if it does not already exist.
+If the filter does not yet exist, an error is returned rather than creating it automatically.
+This may be used where a strict separation between filter creation and filter addition is desired.
+It is an error to specify NOCREATE together with either CAPACITY or ERROR .
+
+CAPACITY capacity
+
+Specifies the desired capacity for the filter to be created.
+This parameter is ignored if the filter already exists.
+If the filter is automatically created and this parameter is absent, then the module-level capacity is used.
+See BF.RESERVE for more information about the impact of this value.
+
+ERROR error
+ 
+Specifies the error ratio of the newly created filter if it does not yet exist.
+If the filter is automatically created and error is not specified then the module-level error rate is used.
+See BF.RESERVE for more information about the format of this value.
+
+NONSCALING
+
+Prevents the filter from creating additional sub-filters if initial capacity is reached.
+Non-scaling filters require slightly less memory than their scaling counterparts. The filter returns an error when capacity is reached.
+
+EXPANSION expansion
+
+When capacity is reached, an additional sub-filter is created.
+The size of the new sub-filter is the size of the last sub-filter multiplied by expansion , specified as a positive integer.
+
+If the number of elements to be stored in the filter is unknown, use an expansion of 2 or more to reduce the number of sub-filters.
+Otherwise, use an expansion of 1 to reduce memory consumption. The default value is 2 .
+
+## Examples
+
+Add three items to a filter, then create the filter with default parameters if it does not already exist.
+
+redis> BF.INSERT filter ITEMS foo bar baz
+1) (integer) 1
+2) (integer) 1
+3) (integer) 1
+
+Add one item to a filter, then create the filter with a capacity of 10000 if it does not already exist.
+
+redis> BF.INSERT filter CAPACITY 10000 ITEMS hello
+1) (integer) 1
+
+Add two items to a filter, then return error if the filter does not already exist.
+
+redis> BF.INSERT filter NOCREATE ITEMS foo bar
+1) (integer) 0
+2) (integer) 0
+
+## Redis Software and Redis Cloud compatibility
+
+| RedisSoftware | RedisCloud | Notes |
+|:----------------------|:-----------------|:------|
+| &#x2705; Supported | &#x2705; Flexible & Annual&#x2705; Free & Fixed | |
+
+## Return information
+
+One of the following: where each element is one of these options:
+* Array reply, where each element is one of the following options:
+ * Integer reply 1 for successfully adding an item, or 0 if there's a probability that the item was already added to the filter.
+ * Simple string reply when the item cannot be added because the filter is full.
+* Simple error reply when the number of arguments or key type is wrong, and also when NOCREATE is specified and key does not exist.
+
+-tab-sep-
+
+One of the following: where each element is one of these options:
+* Array reply, where each element is one of the following options:
+ * Boolean reply true for successfully adding an item, or false if there's a probability that the item was already added to the filter.
+ * Simple string reply when the item cannot be added because the filter is full.
+* Simple error reply when the number of arguments or key type is wrong, and also when NOCREATE is specified and key does not exist.

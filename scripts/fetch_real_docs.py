@@ -1,9 +1,6 @@
-"""抓取 Docker / Redis / Kubernetes 官方文档作为真实检索语料。
+"""抓取多项目官方文档，构建约 500 篇的真实检索语料（含同域干扰）。
 
-只取 content 下的正文页（跳过导航、模板、partials），清洗成纯文本，
-保留标题层级，输出到 data/real_docs/<project>/<slug>.md。
-
-python scripts/fetch_real_docs.py --per-repo 15
+python scripts/fetch_real_docs.py --target 500
 """
 
 from __future__ import annotations
@@ -15,71 +12,55 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TREES = ROOT / "data" / "_trees"
 OUT = ROOT / "data" / "real_docs"
+TREES = ROOT / "data" / "_trees"
+TREES2 = ROOT / "data" / "_trees2"
 
-REPOS = {
-    "docker": {
-        "repo": "docker/docs",
-        "prefixes": ("content/manuals/", "content/get-started/", "content/build/"),
-        "skip": ("index.md", "_index.md", "partials/", "includes/", "faq.md"),
-    },
-    "redis": {
-        "repo": "redis/docs",
-        "prefixes": ("content/develop/data-types/", "content/develop/use-cases/", "content/develop/clients/"),
-        "skip": ("index.md", "_index.md", "partials/", "includes/"),
-    },
-    "kubernetes": {
-        "repo": "kubernetes/website",
-        "prefixes": ("content/en/docs/concepts/",),
-        "skip": ("index.md", "_index.md", "partials/", "includes/", "tools/reference"),
-    },
-}
+# (项目, 仓库, 树文件, 前缀白名单, 目标篇数)
+CONFIG = [
+    ("docker", "docker/docs", TREES / "docker_docs.json",
+     ("content/manuals/", "content/get-started/", "content/build/", "content/reference/"), 120),
+    ("redis", "redis/docs", TREES / "redis_docs.json",
+     ("content/commands/", "content/develop/", "content/operate/"), 100),
+    ("kubernetes", "kubernetes/website", TREES / "kubernetes_website.json",
+     ("content/en/docs/concepts/", "content/en/docs/tasks/", "content/en/docs/reference/"), 150),
+    ("grafana", "grafana/grafana", TREES2 / "grafana.json",
+     ("docs/sources/",), 100),
+    ("prometheus", "prometheus/prometheus", TREES2 / "prometheus.json",
+     ("docs/",), 30),
+]
 
-MIN_BYTES = 3500
-MAX_BYTES = 16000
+SKIP = ("index.md", "_index.md", "partials/", "includes/", "release-notes", "changelog",
+        "/_", "templates/", "snippets/", "menu", "nav")
+MIN_BYTES, MAX_BYTES = 3000, 20000
 
 
 def fetch_raw(repo: str, path: str) -> str | None:
     url = f"https://raw.githubusercontent.com/{repo}/main/{path}"
-    try:
-        out = subprocess.run(
-            ["curl.exe", "-sS", "--ssl-no-revoke", "--max-time", "25", url],
-            capture_output=True, check=False,
-        )
-    except FileNotFoundError:
-        out = subprocess.run(
-            ["curl", "-sS", "--max-time", "25", url], capture_output=True, check=False,
-        )
-    if out.returncode != 0 or not out.stdout:
+    r = subprocess.run(["curl.exe", "-sS", "--ssl-no-revoke", "--max-time", "25", url],
+                       capture_output=True)
+    if r.returncode != 0 or not r.stdout:
         return None
     try:
-        return out.stdout.decode("utf-8")
+        return r.stdout.decode("utf-8")
     except UnicodeDecodeError:
         return None
 
 
 def clean_markdown(text: str) -> str:
-    # YAML front matter
     if text.startswith("---"):
         parts = text.split("---", 2)
         if len(parts) >= 3:
             text = parts[2]
-    # Hugo/MDX shortcodes
     text = re.sub(r"\{\{[<%].*?[>%]\}\}", "", text, flags=re.S)
-    text = re.sub(r"^import .*$", "", text, flags=re.M)
-    text = re.sub(r"^export .*$", "", text, flags=re.M)
-    # HTML 块与注释
+    text = re.sub(r"^import .*$|^export .*$", "", text, flags=re.M)
     text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
     text = re.sub(r"<[^>]+>", "", text)
-    # 代码块压成一行占位（保留可执行信息但不占大量 token）
     text = re.sub(r"```.*?```", "[code example]", text, flags=re.S)
-    # 图片与链接保留文字
     text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)
     text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
-    # 表格分隔行
     text = re.sub(r"^\|[-:\s|]+\|$", "", text, flags=re.M)
-    # 折叠多余空行
+    text = text.replace("**", " ").replace("`", " ")
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
@@ -87,54 +68,54 @@ def clean_markdown(text: str) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--per-repo", type=int, default=15)
+    ap.add_argument("--target", type=int, default=500)
     args = ap.parse_args()
 
     OUT.mkdir(parents=True, exist_ok=True)
+    existing = {p.name for p in OUT.glob("*.md")}
     manifest = []
+    total = len(existing)
+    print(f"已有 {total} 篇\n")
 
-    for project, cfg in REPOS.items():
-        tree_file = TREES / (cfg["repo"].replace("/", "_") + ".json")
+    for project, repo, tree_file, prefixes, quota in CONFIG:
+        if not tree_file.exists():
+            print(f"跳过 {project}: 缺 {tree_file.name}")
+            continue
         tree = json.loads(tree_file.read_text(encoding="utf-8-sig"))
         blobs = [
             t for t in tree.get("tree", [])
-            if t.get("type") == "blob"
-            and t["path"].endswith(".md")
-            and any(t["path"].startswith(p) for p in cfg["prefixes"])
-            and not any(s in t["path"] for s in cfg["skip"])
+            if t.get("type") == "blob" and t["path"].endswith(".md")
+            and any(t["path"].startswith(p) for p in prefixes)
+            and not any(s in t["path"] for s in SKIP)
             and MIN_BYTES <= t.get("size", 0) <= MAX_BYTES
         ]
-        blobs.sort(key=lambda t: (-t.get("size", 0), t["path"]))
-        picked: list[dict] = []
-        seen_slug: set[str] = set()
+        blobs.sort(key=lambda t: (t["path"].count("/"), t["path"]))
+        got = 0
         for b in blobs:
-            if len(picked) >= args.per_repo:
+            if got >= quota or total >= args.target:
                 break
             slug = re.sub(r"[^a-z0-9]+", "-", b["path"].rsplit("/", 1)[-1][:-3].lower()).strip("-")
-            if slug in seen_slug:
+            name = f"{project}-{slug}.md"
+            if name in existing:
                 continue
-            raw = fetch_raw(cfg["repo"], b["path"])
+            raw = fetch_raw(repo, b["path"])
             if not raw:
                 continue
             body = clean_markdown(raw)
-            if len(body) < 1200:
+            if len(body) < 1500:
                 continue
-            seen_slug.add(slug)
-            dest = OUT / f"{project}-{slug}.md"
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_text(body, encoding="utf-8")
-            picked.append({"project": project, "path": b["path"], "slug": slug,
-                           "bytes_src": b["size"], "bytes_clean": len(body.encode("utf-8")),
-                           "chars": len(body)})
-            print(f"  {project}/{slug:<40} {len(body):>6} 字符  ← {b['path']}")
-        manifest.extend(picked)
-        print(f"--- {project}: 取 {len(picked)} 篇")
+            (OUT / name).write_text(body, encoding="utf-8")
+            existing.add(name)
+            manifest.append({"project": project, "file": name, "path": b["path"], "chars": len(body)})
+            got += 1
+            total += 1
+        print(f"{project:<12} 新增 {got:>3}（累计 {total}）")
 
-    (OUT / "manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-    total_chars = sum(m["chars"] for m in manifest)
-    print(f"\n合计 {len(manifest)} 篇，{total_chars:,} 字符（≈{total_chars // 4:,} token 量级）")
-    print(f"清单: {OUT / 'manifest.json'}")
+    mf = OUT / "manifest.json"
+    old = json.loads(mf.read_text(encoding="utf-8")) if mf.exists() else []
+    mf.write_text(json.dumps(old + manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+    chars = sum(p.stat().st_size for p in OUT.glob("*.md"))
+    print(f"\n总计 {total} 篇，约 {chars/1024/1024:.1f} MB")
     return 0
 
 

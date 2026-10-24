@@ -1,4 +1,8 @@
-"""索引存储：分块 + 向量 + BM25，支持落盘成 index.json。"""
+"""索引存储：分块 + 向量 + BM25，支持落盘（JSON + 向量二进制）。
+
+大语料（数万块）下向量检索必须走 numpy 矩阵乘，纯 Python 逐条算余弦会慢到不可用。
+向量单独存成 .npz，JSON 只留文本，索引体积从数百 MB 降到几十 MB。
+"""
 
 from __future__ import annotations
 
@@ -8,8 +12,13 @@ from pathlib import Path
 
 from .bm25 import BM25
 from .chunking import chunk_text, split_sentences
-from .embedding import Embedder, cosine
+from .embedding import Embedder, cosine, tokenize
 from .tokens import count_tokens
+
+try:  # 大语料必需；缺失时退回纯 Python
+    import numpy as np
+except Exception:  # pragma: no cover
+    np = None
 
 
 @dataclass
@@ -27,16 +36,19 @@ class Store:
         self.mode = mode
         self.chunks: list[Chunk] = []
         self._bm25: BM25 | None = None
+        self._vecs = None         # 原始向量矩阵 (N, d)，惰性归一化
+        self._mat_key = 0         # 块数变化时失效
 
+    # ---- 建索引 ----
     def add_document(self, name: str, text: str) -> int:
-        if self.mode == "sentence":          # 每条事实单独一块，块更小更准
+        if self.mode == "sentence":
             parts = [s for s in split_sentences(text) if len(s) >= 4]
         else:
             parts = chunk_text(text, self.size, self.overlap)
         vecs = self.embedder.embed(parts)
         for i, (part, vec) in enumerate(zip(parts, vecs)):
             self.chunks.append(Chunk(doc=name, idx=i, text=part, vec=vec))
-        self._bm25 = None
+        self._invalidate()
         return len(parts)
 
     def add_documents(self, docs: dict[str, str]) -> int:
@@ -58,8 +70,31 @@ class Store:
             idx = counters.get(name, 0)
             counters[name] = idx + 1
             self.chunks.append(Chunk(doc=name, idx=idx, text=text, vec=vec))
-        self._bm25 = None
+        self._invalidate()
         return len(pending)
+
+    def _invalidate(self) -> None:
+        self._bm25 = None
+        self._vecs = None
+
+    @property
+    def matrix(self):
+        """归一化向量矩阵，按需构建；没有 numpy 时返回 None。"""
+        if np is None:
+            return None
+        if self._mat_key != len(self.chunks):
+            self._vecs = None
+        if self._vecs is None:
+            dim = next((len(c.vec) for c in self.chunks if c.vec), 0)
+            mat = np.zeros((len(self.chunks), dim), dtype=np.float32)
+            for i, c in enumerate(self.chunks):
+                if c.vec:
+                    mat[i, : len(c.vec)] = c.vec
+            self._vecs = mat
+        norms = np.linalg.norm(self._vecs, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        self._mat_key = len(self.chunks)
+        return self._vecs / norms
 
     @property
     def bm25(self) -> BM25:
@@ -67,47 +102,59 @@ class Store:
             self._bm25 = BM25([c.text for c in self.chunks])
         return self._bm25
 
+    # ---- 检索 ----
     def search_bm25(self, query: str, k: int) -> list[tuple[Chunk, float]]:
         return [(self.chunks[i], s) for i, s in self.bm25.top_k(query, k)]
 
+    def _vec_scores(self, qv: list[float]):
+        """返回每个块的余弦分数（numpy 数组或 Python 列表）。"""
+        mat = self.matrix
+        if mat is None or not qv:
+            return [cosine(qv, c.vec) for c in self.chunks]
+        q = np.asarray(qv, dtype=np.float32)
+        n = float(np.linalg.norm(q))
+        if n == 0:
+            return np.zeros(len(self.chunks), dtype=np.float32)
+        return mat @ (q / n)
+
     def search_vector(self, query: str, k: int) -> list[tuple[Chunk, float]]:
         qv = self.embedder.embed([query])[0]
-        scored = [(c, cosine(qv, c.vec)) for c in self.chunks]
-        scored.sort(key=lambda x: x[1], reverse=True)
-        return scored[:k]
+        return self.search_vector_precomputed(qv, k)
 
     def search_vector_precomputed(self, qv: list[float], k: int) -> list[tuple[Chunk, float]]:
-        scored = [(c, cosine(qv, c.vec)) for c in self.chunks]
-        scored.sort(key=lambda x: x[1], reverse=True)
-        return scored[:k]
+        scores = self._vec_scores(qv)
+        n = len(scores)
+        k = max(1, min(k, n))
+        if np is not None and hasattr(scores, "argpartition"):
+            idx = np.argpartition(-scores, k - 1)[:k]
+            idx = idx[np.argsort(-scores[idx])]
+            return [(self.chunks[int(i)], float(scores[int(i)])) for i in idx]
+        pairs = list(zip(self.chunks, scores))
+        pairs.sort(key=lambda x: x[1], reverse=True)
+        return pairs[:k]
 
     def search_hybrid_precomputed(self, query: str, qv: list[float], k: int, alpha: float = 0.2) -> list[tuple[Chunk, float]]:
-        """混合检索，但查询向量预先算好（省 API 调用）。"""
-        bm = self.search_bm25(query, len(self.chunks))
-        ve = {id(c): cosine(qv, c.vec) for c in self.chunks}
+        """混合检索，查询向量预先算好（省 API 调用）。"""
+        bm = self.bm25.top_k(query, len(self.chunks))      # [(块下标, 分数)]
+        scores = self._vec_scores(qv)
         bmax = max((s for _, s in bm), default=0.0) or 1.0
-        vmax = max(ve.values(), default=0.0) or 1.0
-        fused = [(c, alpha * s / bmax + (1 - alpha) * ve.get(id(c), 0.0) / vmax) for c, s in bm]
+        vmax = float(max(scores)) if len(scores) else 1.0
+        vmax = vmax or 1.0
+        fused = [(self.chunks[i], alpha * s / bmax + (1 - alpha) * float(scores[i]) / vmax)
+                 for i, s in bm]
         fused.sort(key=lambda x: x[1], reverse=True)
         return fused[:k]
 
     def search_hybrid(self, query: str, k: int, alpha: float = 0.2) -> list[tuple[Chunk, float]]:
         """BM25 与向量分数各自归一化后加权融合。"""
-        bm = self.search_bm25(query, len(self.chunks))
-        ve = {id(c): s for c, s in self.search_vector(query, len(self.chunks))}
-        bmax = max((s for _, s in bm), default=0.0) or 1.0
-        vmax = max(ve.values(), default=0.0) or 1.0
-        fused = [(c, alpha * s / bmax + (1 - alpha) * ve.get(id(c), 0.0) / vmax) for c, s in bm]
-        fused.sort(key=lambda x: x[1], reverse=True)
-        return fused[:k]
+        qv = self.embedder.embed([query])[0]
+        return self.search_hybrid_precomputed(query, qv, k, alpha)
 
     def search_bm25_prf(self, query: str, k: int, fb_docs: int = 5, fb_terms: int = 8) -> list[tuple[Chunk, float]]:
         """伪相关反馈：先用原始查询粗召回，再从结果里挑高权重词扩查询，二次检索。
 
         纯词法操作，不调用模型，零成本。
         """
-        from .embedding import tokenize
-
         first = self.search_bm25(query, fb_docs)
         if not first:
             return []
@@ -139,13 +186,24 @@ class Store:
 
     # ---- 持久化 ----
     def save(self, path: str | Path) -> None:
-        payload = [
-            {"doc": c.doc, "idx": c.idx, "text": c.text, "vec": [round(v, 6) for v in c.vec]}
-            for c in self.chunks
-        ]
-        Path(path).write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        """文本存 JSON，向量存同名 .npz；读取时两者自动配对。"""
+        path = Path(path)
+        payload = [{"doc": c.doc, "idx": c.idx, "text": c.text} for c in self.chunks]
+        path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        if np is not None:
+            mat = self._vecs
+            if mat is None and any(c.vec for c in self.chunks):
+                mat = np.asarray([c.vec for c in self.chunks], dtype=np.float32)
+            if mat is not None and mat.size:
+                np.savez_compressed(path.with_suffix(".npz"), vec=mat)
 
     def load(self, path: str | Path) -> None:
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
-        self.chunks = [Chunk(**d) for d in data]
-        self._bm25 = None
+        path = Path(path)
+        data = json.loads(path.read_text(encoding="utf-8"))
+        vec_file = path.with_suffix(".npz")
+        self.chunks = [Chunk(doc=d["doc"], idx=d["idx"], text=d["text"], vec=d.get("vec", []))
+                       for d in data]
+        self._invalidate()
+        if vec_file.exists() and np is not None:
+            self._vecs = np.load(vec_file)["vec"].astype(np.float32)
+            self._mat_key = len(self.chunks)
