@@ -43,3 +43,9 @@
 {"question": "Which command shows which user the container process runs as?", "answers": ["ps aux"], "doc": "kubernetes-user-namespaces.md"}
 {"question": "Which UID range can a configuration knob extend?", "answers": ["0-65535"], "doc": "kubernetes-user-namespaces.md"}
 {"question": "What does the kubelet guarantee about UID mappings on a node?", "answers": ["no two pods on the same node use the same mapping"], "doc": "kubernetes-user-namespaces.md"}
+{"question": "Which permissions are required to enable SSO with Microsoft Entra?", "answers": ["Cloud Application Administrator permissions"], "doc": "docker-connect.md"}
+{"question": "Which value must be pasted into Docker to finish the integration?", "answers": ["x509 Certificate"], "doc": "docker-connect.md"}
+{"question": "How long can TXT record verification take at most?", "answers": ["72 hours"], "doc": "docker-connect.md"}
+{"question": "What does this policy prevent developers from using?", "answers": ["arbitrary public registries"], "doc": "docker-examples.md"}
+{"question": "What kind of downloads does the development-friendly baseline block?", "answers": ["HTTP downloads"], "doc": "docker-examples.md"}
+{"question": "What do build targets let a policy apply?", "answers": ["different validation levels"], "doc": "docker-examples.md"}
