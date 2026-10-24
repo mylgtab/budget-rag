@@ -88,7 +88,7 @@ Our contributions are threefold.
    noise) at roughly half the prompt cost (474 versus 972 tokens). Recall reaches 0.995 and 1.000 on two
    LongBench retrieval subsets. These figures come from the controlled synthetic setting. On 312
    official documentation pages and on BEIR scifact, deciding retrieval depth from the score margin
-   matches fixed-k quality with 5–27% fewer context tokens, whereas sentence-level indexing and gated
+   matches fixed-k quality with 7–21% fewer context tokens, whereas sentence-level indexing and gated
    rewriting do not transfer to English documentation (Section 6.9). Retrieval improves answer accuracy on three multi-hop generation
    benchmarks for a locally deployed 4B model, and on HotpotQA for a hosted large model. An evaluation of
    200 doubly annotated examples suggests that automatic containment metrics are conservative, making
@@ -566,8 +566,8 @@ keeps hit@k at 0.703 with 5% fewer tokens; a large corpus flattens score margins
 judged easy and the saving shrinks.
 
 Three revised conclusions. First, the transferable gain is **difficulty-adaptive depth**: at equal
-recall or hit rate it saves 5%-27% of context, the saving tracking how many queries can be answered confidently
-(27% on scifact, 7% on nfcorpus, 5% on fiqa, where a 57k-document corpus flattens the score margins). Second, **token-based truncation alone carries
+recall or hit rate it saves 7%-21% of context under a single calibrated knob, the saving tracking how many queries can be
+answered confidently (21% on scifact, 7% on nfcorpus, 7% on fiqa, where a 57k-document corpus flattens the score margins). Second, **token-based truncation alone carries
 no advantage**: on the internal benchmark fixed k=8 reaches the same recall as budget-300 truncation
 (294 vs 318 tokens), so the difference comes from deciding how many chunks each query needs, not from
 stopping at a token count. Third, **sentence-level indexing and gated rewriting do not transfer**: on
@@ -675,8 +675,8 @@ four enters the abstract. Three further boundaries emerged when the corpus was e
 the 0.960 figure of Section 6.2 is a controlled synthetic setting; on real documentation the system ties
 a hybrid retriever (0.937) and the transferable gain is the 7–27% context saving of Section 6.9.
 **Adaptive threshold**: tau is a single global constant tuned per corpus (0.12 on scifact, 0.20 on
-nfcorpus), and per-query calibration is left open. **Public benchmarks**: only two BEIR subsets were
-run, so the saving should be read as a range (7–27%), not a universal value.
+nfcorpus), and per-query calibration is left open. **Public benchmarks**: three BEIR subsets were run, so the saving should be read as a range (7–21%), not a
+universal value.
 
 <!-- Appendices to be translated. -->
 
