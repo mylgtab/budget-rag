@@ -32,12 +32,12 @@ class _StubStore:
 
 class TestAdaptiveDepth(unittest.TestCase):
     def test_high_confidence_takes_few(self):
-        store = _StubStore([1.0, 0.95, 0.9, 0.85] + [0.5] * 6)   # 间隔 0.05 < tau 0.25 → 多取
+        store = _StubStore([1.0, 0.95, 0.9, 0.85] + [0.5] * 6)   # 间隔 0.05 > tau 0.02 → 少取
         got = adaptive_depth(store, "q", tau=0.02, k_easy=2, k_hard=8)
         self.assertEqual(len(got), 2)
 
     def test_low_confidence_takes_many(self):
-        store = _StubStore([1.0, 0.5] + [0.4] * 8)                # 间隔 0.5 > tau → 少取
+        store = _StubStore([1.0, 0.98] + [0.5] * 8)               # 间隔 0.02 < tau → 多取
         got = adaptive_depth(store, "q", tau=0.25, k_easy=2, k_hard=8)
         self.assertEqual(len(got), 8)
 
