@@ -88,7 +88,7 @@ Our contributions are threefold.
    noise) at roughly half the prompt cost (474 versus 972 tokens). Recall reaches 0.995 and 1.000 on two
    LongBench retrieval subsets. These figures come from the controlled synthetic setting. On 312
    official documentation pages and on BEIR scifact, deciding retrieval depth from the score margin
-   matches fixed-k quality with 7–27% fewer context tokens, whereas sentence-level indexing and gated
+   matches fixed-k quality with 5–27% fewer context tokens, whereas sentence-level indexing and gated
    rewriting do not transfer to English documentation (Section 6.9). Retrieval improves answer accuracy on three multi-hop generation
    benchmarks for a locally deployed 4B model, and on HotpotQA for a hosted large model. An evaluation of
    200 doubly annotated examples suggests that automatic containment metrics are conservative, making
@@ -555,11 +555,13 @@ Prometheus 14; 1.9M characters, 16,823 chunks) and adds two BEIR subsets for pub
 | **Adaptive tau=0.12 (k=3/10)** | **0.7086** | **0.850** | **2393 (-27%)** |
 
 **BEIR nfcorpus (150 queries)**: adaptive tau=0.20 (k=4/10) yields nDCG 0.3725, hit 0.740 and 3218
-tokens, 7% below fixed k=10.
+tokens, 7% below fixed k=10. **BEIR fiqa (300 queries, 57,638 documents)**: adaptive tau=0.12 (k=4/10)
+keeps hit@k at 0.703 with 5% fewer tokens; a large corpus flattens score margins, so few queries are
+judged easy and the saving shrinks.
 
 Three revised conclusions. First, the transferable gain is **difficulty-adaptive depth**: at equal
-recall or hit rate it saves 7%-27% of context, with the saving tracking document length (27% on
-scifact's long abstracts, 7% on nfcorpus's short ones). Second, **token-based truncation alone carries
+recall or hit rate it saves 5%-27% of context, the saving tracking how many queries can be answered confidently
+(27% on scifact, 7% on nfcorpus, 5% on fiqa, where a 57k-document corpus flattens the score margins). Second, **token-based truncation alone carries
 no advantage**: on the internal benchmark fixed k=8 reaches the same recall as budget-300 truncation
 (294 vs 318 tokens), so the difference comes from deciding how many chunks each query needs, not from
 stopping at a token count. Third, **sentence-level indexing and gated rewriting do not transfer**: on
