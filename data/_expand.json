@@ -1,0 +1,434 @@
+[
+ [
+  "docker-2-x-windows.md",
+  "docker/for-win#4348 * Docker Desktop now supports a configurable user timeout for VMs on slower machines."
+ ],
+ [
+  "docker-3-x-mac.md",
+  "Compose V2 beta : Docker Desktop now includes the beta version of Compose V2, which supports the docker compose command as part of the Docker CLI."
+ ],
+ [
+  "docker-3-x-mac.md",
+  "Compose V2 beta : Docker Desktop now includes the beta version of Compose V2, which supports the docker compose command as part of the Docker CLI."
+ ],
+ [
+  "docker-3-x-mac.md",
+  "Fixes docker/for-mac#5770 - Docker Desktop now allows files to be modified inside a host directory which is a nested mountpoint in a container."
+ ],
+ [
+  "docker-3-x-mac.md",
+  "Compose V2 beta : Docker Desktop now includes the beta version of Compose V2, which supports the docker compose command as part of the Docker CLI."
+ ],
+ [
+  "docker-3-x-windows.md",
+  "Compose V2 beta : Docker Desktop now includes the beta version of Compose V2, which supports the docker compose command as part of the Docker CLI."
+ ],
+ [
+  "docker-3-x-windows.md",
+  "Compose V2 beta : Docker Desktop now includes the beta version of Compose V2, which supports the docker compose command as part of the Docker CLI."
+ ],
+ [
+  "docker-3-x-windows.md",
+  "Fixes docker/for-win#11472 - Docker Desktop now allows the WSL 2 integration agent to start even when /etc/wsl.conf is malformed."
+ ],
+ [
+  "docker-3-x-windows.md",
+  "Compose V2 beta : Docker Desktop now includes the beta version of Compose V2, which supports the docker compose command as part of the Docker CLI."
+ ],
+ [
+  "docker-about.md",
+  "Fair use is defined as up to 8 compute hours per named user per day, totaled across all user sessions."
+ ],
+ [
+  "docker-activity-logs.md",
+  "The API returns events from the last 3 months, up to 31 days per request."
+ ],
+ [
+  "docker-activity-logs.md",
+  "Docker Home keeps activity logs for 90 days, and you can query up to 30 days at a time."
+ ],
+ [
+  "docker-activity-logs.md",
+  "On the calendar, you can select dates in the 30 days leading up to the end date."
+ ],
+ [
+  "docker-archive-mac.md",
+  "(See docker/for-mac#1037) - For systems running APFS on SSD on High Sierra, use raw format VM disks by default."
+ ],
+ [
+  "docker-archive-mac.md",
+  "For example this allows IPv4 servers to work even if IPv6 is broken."
+ ],
+ [
+  "docker-archive-windows.md",
+  "Fixes for-win/#1130 - Increased timeout for virtual machine boot startup to 2 minutes."
+ ],
+ [
+  "docker-archive-windows.md",
+  "For example this allows IPv4 servers to work even if IPv6 is broken."
+ ],
+ [
+  "docker-configuration.md",
+  "Most models support between 2,048 and 8,192 > tokens by default."
+ ],
+ [
+  "docker-configuration.md",
+  "As a rough guide, each additional 1,000 tokens > requires approximately 100-500 MB of additional memory, depending on the model size."
+ ],
+ [
+  "docker-create-account.md",
+  "Your username: - Must be between 4 and 30 characters long - Can only contain letters and numbers."
+ ],
+ [
+  "docker-create-account.md",
+  "Your username: - Must be between 4 and 30 characters long - Can only contain letters and numbers."
+ ],
+ [
+  "docker-dependent-images.md",
+  "Compose v2 uses BuildKit to optimise builds and build images in parallel and requires an explicit declaration."
+ ],
+ [
+  "docker-errors.md",
+  "A missing required header returns HTTP 428, and a stale etag returns HTTP 412."
+ ],
+ [
+  "docker-errors.md",
+  "For example, sandbox.processes.run(input, { timeoutMs: 300_000 }) waits up to five minutes."
+ ],
+ [
+  "docker-expressions.md",
+  "The v1 build argument is set to \"higher\" if the variable FOO is greater than 5, otherwise it is set to \"lower\"."
+ ],
+ [
+  "docker-expressions.md",
+  "The v2 build argument is set to \"yes\" if the IS_FOO variable is true, otherwise it is set to \"no\"."
+ ],
+ [
+  "docker-garbage-collection.md",
+  "Find \"stale\" cache records that haven't been used in the past 48 hours, and delete records until there's maximum 5GB of \"stale\" cache left."
+ ],
+ [
+  "docker-garbage-collection.md",
+  "Remove ephemeral, unused build cache older than 48 hours if it exceeds 13.8% of defaultKeepStorage , or at minimum 512MB."
+ ],
+ [
+  "docker-gettingstarted.md",
+  "It maps port 8000 on the host to port 5000 on the container where Flask listens by default."
+ ],
+ [
+  "docker-gettingstarted.md",
+  "With interval: 5s and retries: 5 , Compose will wait up to 25 seconds before giving up."
+ ],
+ [
+  "docker-inference-engines.md",
+  "Ensure you have: - Docker Desktop 4.54 or later (minimum version for vLLM support) - NVIDIA GPU with updated drivers - WSL2 enabled 2."
+ ],
+ [
+  "docker-inheritance.md",
+  "The BUILDKIT_CONTEXT_KEEP_GIT_DIR argument is set to 0 in the app-dev target and 1 in the _common target."
+ ],
+ [
+  "docker-inheritance.md",
+  "The BUILDKIT_CONTEXT_KEEP_GIT_DIR argument in the app-release target is set to 1, not 0, because the _common target appears last in the inherits list."
+ ],
+ [
+  "docker-local.md",
+  "It is refused when the destination requires an HTTP, SOCKS5, system, or PAC-selected proxy, because those proxies can't carry UDP."
+ ],
+ [
+  "docker-mcp-gateway.md",
+  "Scopes that the protected resource says it requires 4."
+ ],
+ [
+  "docker-metrics-exporter.md",
+  "For this reason, the metrics endpoint has a 60-minute cache by default, which means a scraping interval of 60 minutes or higher is recommended."
+ ],
+ [
+  "docker-metrics-exporter.md",
+  "If you set the scrape interval to less than 60 minutes, you will see the same data in the metrics for multiple scrapes during that time window."
+ ],
+ [
+  "docker-multi-platform.md",
+  "Docker Desktop and Docker Engine 29.0+ use the containerd image store by default, which supports multi-platform images out of the box."
+ ],
+ [
+  "docker-multi-platform.md",
+  "The application is a simple HTTP server that listens on port 8080 and returns the architecture of the container."
+ ],
+ [
+  "docker-port-publishing.md",
+  "By default, for both IPv4 and IPv6, the Docker daemon blocks access to ports that have not been published."
+ ],
+ [
+  "docker-resource-saver.md",
+  "The default time is set to 5 minutes, but this can be adjusted to suit your needs."
+ ],
+ [
+  "docker-security-announcements.md",
+  "Versions 0.28.0 up to but not including 0.42.0 on macOS are affected."
+ ],
+ [
+  "docker-security-announcements.md",
+  "Versions 0.37.0 up to but not including 0.42.0 are affected."
+ ],
+ [
+  "docker-security-announcements.md",
+  "Versions of this library up to but not including 1.10.0 are affected by this vulnerability."
+ ],
+ [
+  "docker-security.md",
+  "Docker supports Entra ID (formerly Azure AD) and identity providers that support SAML 2.0."
+ ],
+ [
+  "docker-services.md",
+  "HOST:CONTAINER should always be specified as a (quoted) string, to avoid conflicts with YAML base-60 float."
+ ],
+ [
+  "docker-troubleshooting.md",
+  "The Docker data disk at /var/lib/docker is independent and defaults to 10 GB."
+ ],
+ [
+  "grafana-whats-new-in-v10-0.md",
+  "However, we still support the use of react-router v5 for plugins that need to support a minimum Grafana version earlier than v10."
+ ],
+ [
+  "grafana-whats-new-in-v8-2.md",
+  "The plugin catalog is now on by default in Grafana 8.2."
+ ],
+ [
+  "kubernetes-addons.md",
+  "* Romana is a Layer 3 networking solution for pod networks that also supports the NetworkPolicy API."
+ ],
+ [
+  "kubernetes-api-eviction.md",
+  "If the Pod you want to evict isn't part of a workload that has a PodDisruptionBudget, the API server always returns 200 OK and allows the eviction."
+ ],
+ [
+  "kubernetes-api-eviction.md",
+  "If the API server allows the eviction, the Pod is deleted as follows: 1."
+ ],
+ [
+  "kubernetes-cri.md",
+  "For Kubernetes v1.26 and later, the kubelet requires that the container runtime supports the v1 CRI API."
+ ],
+ [
+  "kubernetes-deprecation-policy.md",
+  "The Widget resource continues to exist and function in releases up to and including X+8."
+ ],
+ [
+  "kubernetes-deprecation-policy.md",
+  "Returns a Warning header (as defined in RFC7234, Section 5.5) in the API response."
+ ],
+ [
+  "kubernetes-garbage-collection.md",
+  "For example, you can set the configuration field to 12h45m , which means 12 hours and 45 minutes."
+ ],
+ [
+  "kubernetes-node-pressure-eviction.md",
+  "The kubelet updates the node conditions based on the configured --node-status-update-frequency , which defaults to 10s ."
+ ],
+ [
+  "kubernetes-node-pressure-eviction.md",
+  "The default eviction-minimum-reclaim is 0 for all resources."
+ ],
+ [
+  "kubernetes-observability.md",
+  "kubectl top supports both metrics.k8s.io/v1 and metrics.k8s.io/v1beta1 ."
+ ],
+ [
+  "kubernetes-pod-level-resource-managers.md",
+  "main-app requires an exclusive 3 CPUs and metrics-sidecar requires an exclusive 1 CPU."
+ ],
+ [
+  "kubernetes-system-traces.md",
+  "By default, Kubernetes components export traces using the grpc exporter for OTLP on the IANA OpenTelemetry port, 4317."
+ ],
+ [
+  "prometheus-basics.md",
+  "http_requests_total @ start() rate(http_requests_total[5m] @ end()) Note that the @ modifier allows a query to look ahead of its evaluation time."
+ ],
+ [
+  "prometheus-feature-flags.md",
+  "Currently, Prometheus supports start timestamps on the * PrometheusProto * OpenMetrics1.0.0 From the above, Prometheus recommends PrometheusProto ."
+ ],
+ [
+  "prometheus-feature-flags.md",
+  "The number of concurrent rule evaluations can be configured with --rules.max-concurrent-evals , which is set to 4 by default."
+ ],
+ [
+  "prometheus-feature-flags.md",
+  "This must be used if you would like to send metadata using the new remote write 2.0."
+ ],
+ [
+  "prometheus-feature-flags.md",
+  "The default response limit (100) is silently clamped to this maximum, so an operator setting a smaller cap does not break no- limit requests."
+ ],
+ [
+  "prometheus-http-sd.md",
+  "Prometheus supports TLS authentication, basic authentication, OAuth2, and authorization headers."
+ ],
+ [
+  "prometheus-migration.md",
+  "In Prometheus v2 the remote write http client would default to use http2."
+ ],
+ [
+  "prometheus-migration.md",
+  "In order to parallelize multiple remote write queues across multiple sockets its preferable to not default to http2."
+ ],
+ [
+  "prometheus-migration.md",
+  "Effectively Prometheus 3 requires Alertmanager 0.16.0 or later."
+ ],
+ [
+  "prometheus-prometheus.md",
+  "If neither this flag nor \"storage.tsdb.retention.size\" is set, the retention time defaults to 15d."
+ ],
+ [
+  "prometheus-storage.md",
+  "The samples in the chunks directory are organized into one or more segment files, each up to 512 MB by default."
+ ],
+ [
+  "prometheus-storage.md",
+  "Compaction will create larger blocks containing data spanning up to 10% of the retention time, or 31 days, whichever is smaller."
+ ],
+ [
+  "prometheus-storage.md",
+  "If neither this flag nor storage.tsdb.retention.size is set, the retention time defaults to 15d ."
+ ],
+ [
+  "prometheus-storage.md",
+  "This flag was introduced in 2.11.0 and enabled by default in 2.20.0."
+ ],
+ [
+  "prometheus-storage.md",
+  "At present, we recommend setting the retention size to, at most, 80-85% of your allocated Prometheus disk space."
+ ],
+ [
+  "redis-acl-genpass.md",
+  "By default it emits 256 bits (so 64 hex characters)."
+ ],
+ [
+  "redis-acl-genpass.md",
+  "By default it contains 64 bytes, representing 256 bits of data."
+ ],
+ [
+  "redis-acl-genpass.md",
+  "By default it contains 64 bytes, representing 256 bits of data."
+ ],
+ [
+  "redis-amr.md",
+  "For example, a value of 0.1 will add or subtract up to 10% of the delay time."
+ ],
+ [
+  "redis-autopipeline.md",
+  "Automatic pipelining requires github.com/redis/go-redis/v9 v9.22.0 or later."
+ ],
+ [
+  "redis-autopipeline.md",
+  "Defaults to 1, which gives a single ordered stream."
+ ],
+ [
+  "redis-autopipeline.md",
+  "Defaults to 0, meaning a single shard, which funnels every caller into one queue so batches stay deep."
+ ],
+ [
+  "redis-bf-reserve.md",
+  "* 1% error rate requires 7 hash functions and 9.585 bits per item."
+ ],
+ [
+  "redis-bf-reserve.md",
+  "* 0.1% error rate requires 10 hash functions and 14.378 bits per item."
+ ],
+ [
+  "redis-bf-reserve.md",
+  "* 0.01% error rate requires 14 hash functions and 19.170 bits per item."
+ ],
+ [
+  "redis-bf-scandump.md",
+  "This command returns successive (iter, data) pairs until (0, NULL) to indicate completion."
+ ],
+ [
+  "redis-bitfield.md",
+  "The supported encodings are up to 64 bits for signed integers, and up to 63 bits for unsigned integers."
+ ],
+ [
+  "redis-bitmaps.md",
+  "Since strings are binary safe blobs and their maximum length is 512 MB, they are suitable to set up to 2^32 different bits."
+ ],
+ [
+  "redis-bitmaps.md",
+  "The SETBIT command takes as its first argument the bit number, and as its second argument the value to set the bit to, which is 1 or 0."
+ ],
+ [
+  "redis-bitop.md",
+  "The BITOP command supports eight bitwise operations: AND , OR , XOR , NOT , DIFF , DIFF1 , ANDOR , and ONE ."
+ ],
+ [
+  "redis-bitpos.md",
+  "By default, the range is interpreted as a range of bytes and not a range of bits, so start=0 and end=2 means to look at the first three bytes."
+ ],
+ [
+  "redis-bitpos.md",
+  "In contrast, an existing empty string (a key holding \"\") contains no bits at all, so searching for either 0 or 1 always returns -1."
+ ],
+ [
+  "redis-bitpos.md",
+  "So if the string is three bytes set to the value 0xff the command BITPOS key 0 will return 24, since up to bit 23 all the bits are 1."
+ ],
+ [
+  "redis-bitpos.md",
+  "If a clear bit isn't found in the specified range, the function returns -1 as the user specified a clear range and there are no 0 bits in that range."
+ ],
+ [
+  "redis-bitpos.md",
+  "So if the string is three bytes set to the value 0xff the command BITPOS key 0 will return 24, since up to bit 23 all the bits are 1."
+ ],
+ [
+  "redis-bitpos.md",
+  "If a clear bit isn't found in the specified range, the function returns -1 as the user specified a clear range and there are no 0 bits in that range."
+ ],
+ [
+  "redis-bloom-filter.md",
+  "* 1% error rate requires 7 hash functions and 9.585 bits per item."
+ ],
+ [
+  "redis-bloom-filter.md",
+  "* 0.1% error rate requires 10 hash functions and 14.378 bits per item."
+ ],
+ [
+  "redis-bloom-filter.md",
+  "* 0.01% error rate requires 14 hash functions and 19.170 bits per item."
+ ],
+ [
+  "redis-cf-add.md",
+  "Adding items requires up to 2 memory accesses per sub-filter ."
+ ],
+ [
+  "redis-cf-insertnx.md",
+  "Adding items requires up to 2 memory accesses per sub-filter ."
+ ],
+ [
+  "redis-cf-reserve.md",
+  "The filter will likely not fill up to 100% of it's capacity."
+ ],
+ [
+  "redis-cf-scandump.md",
+  "This command returns successive (iter, data) pairs until (0, NULL) indicates completion."
+ ],
+ [
+  "redis-client-side-caching.md",
+  "For example MGET name:1 name:2 is cached separately from MGET name:2 name:1 because the server returns the values in the order you specify."
+ ],
+ [
+  "redis-cluster-nodes.md",
+  "Starting from argument number 9, but there may be up to 16384 entries in total (limit never reached)."
+ ],
+ [
+  "redis-handle-replies.md",
+  "This type supports all reply formats defined in the RESP2 and RESP3 protocols, so its content varies greatly between calls."
+ ],
+ [
+  "redis-prob.md",
+  "They can count up to 2^64 items with less than 1% standard error using a maximum 12KB of memory."
+ ]
+]

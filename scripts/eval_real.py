@@ -30,6 +30,10 @@ def hit(chunks, answers) -> int:
     return int(any(norm(a) in text for a in answers))
 
 
+def take_k(ranked, k: int):
+    return [c for c, _ in ranked[:k]]
+
+
 def take_budget(ranked, budget: int):
     picked, used = [], 0
     for chunk, _score in ranked:
@@ -65,8 +69,9 @@ def main() -> int:
     store: Store = rag.store
     print(f"语料 {len({c.doc for c in store.chunks})} 篇 / {len(store.chunks)} 块\n")
 
-    methods = {"BM25": [], "Dense": [], "Hybrid": [], "Ours": [], "Adaptive": []}
-    tokens_used = {"BM25": [], "Dense": [], "Hybrid": [], "Ours": [], "Adaptive": []}
+    methods = {"BM25": [], "Dense": [], "Hybrid": [], "Ours": [], "Adaptive": [],
+               "Hybrid-k3": [], "Hybrid-k5": [], "Hybrid-k8": [], "Dense-k5": []}
+    tokens_used = {k: [] for k in methods}
 
     for i, it in enumerate(items, 1):
         q, gold = it["question"], it["answers"]
@@ -96,6 +101,15 @@ def main() -> int:
         picked = take_budget(store.search_hybrid(q, 200), budget_i)
         methods["Adaptive"].append(hit(picked, gold))
         tokens_used["Adaptive"].append(sum(count_tokens(c.text) for c in picked))
+
+        # 固定 k 基线：系统常用的做法，按条数取满
+        for kk in (3, 5, 8):
+            pk = take_k(store.search_hybrid(q, 200), kk)
+            methods[f"Hybrid-k{kk}"].append(hit(pk, gold))
+            tokens_used[f"Hybrid-k{kk}"].append(sum(count_tokens(c.text) for c in pk))
+        pk = take_k(store.search_vector(q, 200), 5)
+        methods["Dense-k5"].append(hit(pk, gold))
+        tokens_used["Dense-k5"].append(sum(count_tokens(c.text) for c in pk))
 
         out = rag.query(q, ctx_tokens=b)
         tr = out["trace"]

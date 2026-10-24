@@ -49,3 +49,95 @@
 {"question": "What does this policy prevent developers from using?", "answers": ["arbitrary public registries"], "doc": "docker-examples.md"}
 {"question": "What kind of downloads does the development-friendly baseline block?", "answers": ["HTTP downloads"], "doc": "docker-examples.md"}
 {"question": "What do build targets let a policy apply?", "answers": ["different validation levels"], "doc": "docker-examples.md"}
+{"question": "How many compute hours per named user per day does fair use allow?", "answers": ["8 compute hours"], "doc": "docker-about.md"}
+{"question": "How far back does the activity log API return events?", "answers": ["3 months"], "doc": "docker-activity-logs.md"}
+{"question": "How long does Docker Home keep activity logs?", "answers": ["90 days"], "doc": "docker-activity-logs.md"}
+{"question": "What token range do most models support by default?", "answers": ["2,048 and 8,192"], "doc": "docker-configuration.md"}
+{"question": "How much extra memory does each additional 1,000 tokens require?", "answers": ["100-500 MB"], "doc": "docker-configuration.md"}
+{"question": "What length must a Docker username have?", "answers": ["between 4 and 30 characters"], "doc": "docker-create-account.md"}
+{"question": "Which HTTP status is returned for a missing required header?", "answers": ["HTTP 428"], "doc": "docker-errors.md"}
+{"question": "Which HTTP status is returned for a stale etag?", "answers": ["HTTP 412"], "doc": "docker-errors.md"}
+{"question": "Which host port is mapped to container port 5000?", "answers": ["8000"], "doc": "docker-gettingstarted.md"}
+{"question": "How long does Compose wait with interval 5s and 5 retries?", "answers": ["25 seconds"], "doc": "docker-gettingstarted.md"}
+{"question": "Which port does the example HTTP server listen on?", "answers": ["8080"], "doc": "docker-multi-platform.md"}
+{"question": "Which Docker Engine version uses the containerd image store by default?", "answers": ["29.0"], "doc": "docker-multi-platform.md"}
+{"question": "What is the default Resource Saver timeout?", "answers": ["5 minutes"], "doc": "docker-resource-saver.md"}
+{"question": "Which authentication standard must identity providers support?", "answers": ["SAML 2.0"], "doc": "docker-security.md"}
+{"question": "What is the default size of the Docker data disk?", "answers": ["10 GB"], "doc": "docker-troubleshooting.md"}
+{"question": "What is the minimum Docker Desktop version for vLLM support?", "answers": ["4.54"], "doc": "docker-inference-engines.md"}
+{"question": "After how many hours is build cache considered stale?", "answers": ["48 hours"], "doc": "docker-garbage-collection.md"}
+{"question": "What is the maximum size kept by the garbage collection example?", "answers": ["5GB"], "doc": "docker-garbage-collection.md"}
+{"question": "How long is the metrics endpoint cache by default?", "answers": ["60-minute"], "doc": "docker-metrics-exporter.md"}
+{"question": "How should port mappings be specified to avoid YAML float conflicts?", "answers": ["as a (quoted) string"], "doc": "docker-services.md"}
+{"question": "Which proxy types cause the traffic to be refused?", "answers": ["HTTP, SOCKS5, system, or PAC-selected proxy"], "doc": "docker-local.md"}
+{"question": "How many releases after deprecation does a resource continue to work?", "answers": ["X+8"], "doc": "kubernetes-deprecation-policy.md"}
+{"question": "Which value format sets garbage collection to 12 hours 45 minutes?", "answers": ["12h45m"], "doc": "kubernetes-garbage-collection.md"}
+{"question": "What is the default eviction-minimum-reclaim for all resources?", "answers": ["0"], "doc": "kubernetes-node-pressure-eviction.md"}
+{"question": "Which API groups does kubectl top support?", "answers": ["metrics.k8s.io/v1 and metrics.k8s.io/v1beta1"], "doc": "kubernetes-observability.md"}
+{"question": "How many exclusive CPUs does main-app require?", "answers": ["3 CPUs"], "doc": "kubernetes-pod-level-resource-managers.md"}
+{"question": "What is the default number of concurrent rule evaluations?", "answers": ["4"], "doc": "prometheus-feature-flags.md"}
+{"question": "What is the default response limit?", "answers": ["100"], "doc": "prometheus-feature-flags.md"}
+{"question": "Which Alertmanager version does Prometheus 3 require?", "answers": ["0.16.0 or later"], "doc": "prometheus-migration.md"}
+{"question": "What is the default retention time when neither flag is set?", "answers": ["15d"], "doc": "prometheus-prometheus.md"}
+{"question": "What is the default maximum size of a segment file?", "answers": ["512 MB"], "doc": "prometheus-storage.md"}
+{"question": "What fraction of disk space should the retention size be at most?", "answers": ["80-85%"], "doc": "prometheus-storage.md"}
+{"question": "In which version was the retention flag enabled by default?", "answers": ["2.20.0"], "doc": "prometheus-storage.md"}
+{"question": "How many bits does ACL GENPASS emit by default?", "answers": ["256 bits"], "doc": "redis-acl-genpass.md"}
+{"question": "How many hash functions does a 1% error rate require?", "answers": ["7 hash functions"], "doc": "redis-bf-reserve.md"}
+{"question": "How many hash functions does a 0.1% error rate require?", "answers": ["10 hash functions"], "doc": "redis-bf-reserve.md"}
+{"question": "What is the maximum width for unsigned integers in BITFIELD?", "answers": ["63 bits"], "doc": "redis-bitfield.md"}
+{"question": "What is the maximum length of a Redis string?", "answers": ["512 MB"], "doc": "redis-bitmaps.md"}
+{"question": "How many bitwise operations does BITOP support?", "answers": ["eight"], "doc": "redis-bitop.md"}
+{"question": "By default, how is the BITPOS range interpreted?", "answers": ["as a range of bytes"], "doc": "redis-bitpos.md"}
+{"question": "What does BITPOS return when a clear bit is not found?", "answers": ["-1"], "doc": "redis-bitpos.md"}
+{"question": "How many memory accesses does adding an item require?", "answers": ["2 memory accesses"], "doc": "redis-cf-add.md"}
+{"question": "Are MGET calls with different key orders cached together?", "answers": ["cached separately"], "doc": "redis-client-side-caching.md"}
+{"question": "What is the maximum number of entries in a cluster?", "answers": ["16384"], "doc": "redis-cluster-nodes.md"}
+{"question": "What is the maximum memory HyperLogLog uses?", "answers": ["12KB"], "doc": "redis-prob.md"}
+{"question": "Which protocol versions does the reply type support?", "answers": ["RESP2 and RESP3"], "doc": "redis-handle-replies.md"}
+{"question": "Which go-redis version does automatic pipelining require?", "answers": ["v9.22.0"], "doc": "redis-autopipeline.md"}
+{"question": "How much jitter does a jitter value of 0.1 add?", "answers": ["up to 10%"], "doc": "redis-amr.md"}
+{"question": "Which value is used when FOO is greater than 5?", "answers": ["higher"], "doc": "docker-expressions.md"}
+{"question": "Which build engine does Compose v2 use to parallelise builds?", "answers": ["BuildKit"], "doc": "docker-dependent-images.md"}
+{"question": "How long is the virtual machine boot timeout now?", "answers": ["2 minutes"], "doc": "docker-archive-windows.md"}
+{"question": "Which VM disk format is used by default on APFS SSD systems?", "answers": ["raw format"], "doc": "docker-archive-mac.md"}
+{"question": "Which command does Compose V2 support?", "answers": ["docker compose"], "doc": "docker-3-x-mac.md"}
+{"question": "Which ports does the Docker daemon block by default?", "answers": ["ports that have not been published"], "doc": "docker-port-publishing.md"}
+{"question": "Which value does BUILDKIT_CONTEXT_KEEP_GIT_DIR have in the app-dev target?", "answers": ["0"], "doc": "docker-inheritance.md"}
+{"question": "How many days of logs can be queried at a time?", "answers": ["30 days"], "doc": "docker-activity-logs.md"}
+{"question": "Which OSI layer does Romana operate at?", "answers": ["Layer 3"], "doc": "kubernetes-addons.md"}
+{"question": "Which CRI API version does the kubelet require from v1.26?", "answers": ["v1 CRI API"], "doc": "kubernetes-cri.md"}
+{"question": "Which header warns that an API is deprecated?", "answers": ["Warning header"], "doc": "kubernetes-deprecation-policy.md"}
+{"question": "Which protocol did remote write default to in Prometheus v2?", "answers": ["http2"], "doc": "prometheus-migration.md"}
+{"question": "How much data can a compacted block span at most?", "answers": ["10% of the retention time, or 31 days"], "doc": "prometheus-storage.md"}
+{"question": "How does BF.SCANDUMP signal completion?", "answers": ["(0, NULL)"], "doc": "redis-bf-scandump.md"}
+{"question": "What percentage of capacity may a cuckoo filter not reach?", "answers": ["100%"], "doc": "redis-cf-reserve.md"}
+{"question": "How many hash functions does a 0.01% error rate require?", "answers": ["14 hash functions"], "doc": "redis-bloom-filter.md"}
+{"question": "Which Redis version supports client-side caching?", "answers": ["v7.4"], "doc": "redis-connect.md"}
+{"question": "Which Node.js client replaced ioredis?", "answers": ["node-redis"], "doc": "redis-migration.md"}
+{"question": "Where is the number of results stored in a vector search reply?", "answers": ["first element"], "doc": "redis-vecsearch.md"}
+{"question": "Which option must be true for hash documents when creating an index?", "answers": ["OnHash"], "doc": "redis-queryjson.md"}
+{"question": "What is the index range of Redis arrays?", "answers": ["0 to 2⁶⁴−1"], "doc": "redis-arrays.md"}
+{"question": "How many predicate forms do array queries support?", "answers": ["Four"], "doc": "redis-arrays.md"}
+{"question": "Which predicate form matches a substring?", "answers": ["MATCH"], "doc": "redis-arrays.md"}
+{"question": "Can sorted set members repeat?", "answers": ["unique, non-repeating"], "doc": "redis-sorted-sets.md"}
+{"question": "How many commands operate on groups of bits?", "answers": ["three"], "doc": "redis-bitmaps.md"}
+{"question": "Which language is Qt written for?", "answers": ["C++"], "doc": "redis-qt-integration.md"}
+{"question": "Where is Docker Scout integrated?", "answers": ["Docker Desktop and the Docker CLI"], "doc": "docker-scan.md"}
+{"question": "How are Docker hardened packages built?", "answers": ["from source"], "doc": "docker-hardened-packages.md"}
+{"question": "How many label operators are supported?", "answers": ["Three"], "doc": "kubernetes-labels.md"}
+{"question": "What does Helm manage?", "answers": ["packages of pre-configured Kubernetes resources"], "doc": "kubernetes-management.md"}
+{"question": "How many forms of node heartbeats are there?", "answers": ["two"], "doc": "kubernetes-nodes.md"}
+{"question": "Which UID range can be extended by a configuration knob?", "answers": ["0-65535"], "doc": "kubernetes-user-namespaces.md"}
+{"question": "Which YAML pitfall should be avoided when specifying ports?", "answers": ["base-60 float"], "doc": "docker-services.md"}
+{"question": "How much memory does each additional 1,000 tokens need?", "answers": ["100-500 MB"], "doc": "docker-configuration.md"}
+{"question": "What is the daily fair-use limit per named user?", "answers": ["8 compute hours"], "doc": "docker-about.md"}
+{"question": "Which container port does the Flask app listen on?", "answers": ["5000"], "doc": "docker-gettingstarted.md"}
+{"question": "What does the example HTTP server return?", "answers": ["architecture of the container"], "doc": "docker-multi-platform.md"}
+{"question": "Which authentication methods does HTTP service discovery support?", "answers": ["TLS authentication, basic authentication, OAuth2, and authorization headers"], "doc": "prometheus-http-sd.md"}
+{"question": "What is the maximum default response limit?", "answers": ["100"], "doc": "prometheus-feature-flags.md"}
+{"question": "What is the recommended maximum retention size relative to disk space?", "answers": ["80-85%"], "doc": "prometheus-storage.md"}
+{"question": "What is the default retention time if no retention flag is set?", "answers": ["15d"], "doc": "prometheus-prometheus.md"}
+{"question": "What is the maximum width for signed integers in BITFIELD?", "answers": ["64 bits"], "doc": "redis-bitfield.md"}
+{"question": "What is the maximum total number of cluster entries?", "answers": ["16384"], "doc": "redis-cluster-nodes.md"}
+{"question": "What is the maximum memory used by HyperLogLog counting?", "answers": ["12KB"], "doc": "redis-prob.md"}
