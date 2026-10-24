@@ -519,6 +519,50 @@ rewrite trigger rate of the batch: 38% on the full 500 questions (saving 62% of 
 difficulty, so its latency saving is not unconditional; the default threshold of 0.25 should move
 with the shadow price of the budget (Section 6.7).
 
+### 6.9 Real Documents and Public Benchmarks
+
+The main table above rests on sixteen synthetic technical notes, which is small. This section replaces
+the corpus with 312 official documentation pages (Docker 147, Redis 89, Kubernetes 43, Grafana 19,
+Prometheus 14; 1.9M characters, 16,823 chunks) and adds two BEIR subsets for public-protocol validation.
+
+**Internal benchmark (143 questions, document-level recall)**
+
+| Method | Recall | mean tokens |
+|---|---|---|
+| BM25 | 0.811 | 318 |
+| Dense (bge-m3) | 0.923 | 320 |
+| Hybrid (alpha=0.2) | **0.937** | 318 |
+| Ours (budget-300 truncation) | 0.937 | 318 |
+| Fixed k=8 | 0.930 | 294 |
+| **Ours (difficulty-adaptive, k=4/10)** | **0.930** | **251** |
+
+**BEIR scifact (300 queries, document level)**
+
+| Method | nDCG@10 | hit@k | mean tokens |
+|---|---|---|---|
+| Fixed k=10 | 0.7101 | 0.850 | 3264 |
+| Fixed k=8 | 0.7071 | 0.843 | 2615 |
+| **Adaptive tau=0.12 (k=3/10)** | **0.7086** | **0.850** | **2393 (-27%)** |
+
+**BEIR nfcorpus (150 queries)**: adaptive tau=0.20 (k=4/10) yields nDCG 0.3725, hit 0.740 and 3218
+tokens, 7% below fixed k=10.
+
+Three revised conclusions. First, the transferable gain is **difficulty-adaptive depth**: at equal
+recall or hit rate it saves 7%-27% of context, with the saving tracking document length (27% on
+scifact's long abstracts, 7% on nfcorpus's short ones). Second, **token-based truncation alone carries
+no advantage**: on the internal benchmark fixed k=8 reaches the same recall as budget-300 truncation
+(294 vs 318 tokens), so the difference comes from deciding how many chunks each query needs, not from
+stopping at a token count. Third, **sentence-level indexing and gated rewriting do not transfer**: on
+English documentation the sentence index scores 0.647 against 0.922 for fixed blocks, and gated
+rewriting 0.902 against 0.922, so those claims must be restricted to short-sentence Chinese corpora
+where question and document wording diverge.
+
+The claim of this paper is therefore revised: **on heterogeneous loads where a single k is hard to
+preset, deciding retrieval depth from the retrieval-score margin saves substantial context at no
+measurable loss of quality.** The high recall observed on the synthetic corpus is a controlled-setting
+result and is not claimed to generalize.
+
+
 ## 7. Discussion
 
 ### 7.1 Budget as an Interface, Not a Hyperparameter
