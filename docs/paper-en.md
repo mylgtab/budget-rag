@@ -18,8 +18,8 @@ whether query rewriting pays off is governed by the shadow price of the budget r
 rule, and the optimal retrieval cascade is a chain of confidence thresholds whose cutoffs fall as that
 price rises.
 
-We build a reproducible system from this framework. On a 200-query retrieval benchmark with bge-m3
-embeddings, it attains 0.960 recall at an average context cost of 126 tokens, compared with 0.925 at
+We build a reproducible system from this framework. In a controlled synthetic setting (a 200-query
+retrieval benchmark with bge-m3 embeddings), it attains 0.960 recall at an average context cost of 126 tokens, compared with 0.925 at
 179 tokens for a corrective-retrieval baseline and 0.910 at 115 tokens for dense retrieval. All
 differences are significant under paired bootstrap and McNemar tests ($p<0.05$), and the advantage
 survives repeated subsampling. On 500 end-to-end queries, the system matches fixed top-3 containment
