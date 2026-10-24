@@ -18,7 +18,7 @@
 | ✅ 好 | `Which port does the metrics service listen on?` |
 | ❌ 差 | `Which port is the Prometheus server accessible on?`（照抄原文短语） |
 
-### 2. 答案必须是原文里**逐字出现**的片段，不超过 8 个词（英文）/ 12 个字（中文）
+### 2. 答案必须是原文里**逐字出现**的片段，不超过 12 个词（英文）/ 12 个字（中文）
 
 程序用字符串匹配判定对错，所以答案要能在文档里原样搜到。
 
