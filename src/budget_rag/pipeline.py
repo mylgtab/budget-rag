@@ -52,6 +52,29 @@ class Trace:
         }
 
 
+
+def adaptive_depth(
+    store: Store,
+    query: str,
+    tau: float = 0.05,
+    k_easy: int = 4,
+    k_hard: int = 10,
+    hybrid: bool = True,
+) -> list:
+    """按 top1/top2 的相对间隔决定取几块：有把握就少取，没把握多取。
+
+    这是论文 6.9 节的自适应策略；固定 k 的毛病是简单题浪费、难题不够。
+    """
+    pool = max(k_easy, k_hard)
+    ranked = store.search_hybrid(query, pool) if hybrid else store.search_bm25(query, pool)
+    if len(ranked) < 2:
+        return ranked[:k_easy]
+    s1, s2 = ranked[0][1], ranked[1][1]
+    margin = (s1 - s2) / s1 if s1 else 0.0
+    k = k_easy if margin > tau else k_hard
+    return ranked[:k]
+
+
 class RAG:
     def __init__(self, settings: Settings | None = None, answerer=None) -> None:
         self.s = settings or Settings.from_env()
@@ -91,7 +114,8 @@ class RAG:
         name = "sentence" if ctx_tokens <= self.s.auto_threshold else "fixed"
         return name, self.stores[name]
 
-    def query(self, question: str, budget: float | None = None, ctx_tokens: int | None = None) -> dict:
+    def query(self, question: str, budget: float | None = None, ctx_tokens: int | None = None,
+              adaptive: bool = False, tau: float = 0.05, k_easy: int = 4, k_hard: int = 10) -> dict:
         t0 = time.perf_counter()
         route = decide(
             question,
@@ -115,7 +139,11 @@ class RAG:
         if rewritten:
             search_query = f"{question} {rewritten}"            # 原始 + 改写，扩查询
 
-        hits = store.search_to_budget(search_query, want_tokens, hybrid=route.hybrid)
+        if adaptive:
+            hits = adaptive_depth(store, search_query, tau=tau, k_easy=k_easy,
+                                  k_hard=k_hard, hybrid=True)
+        else:
+            hits = store.search_to_budget(search_query, want_tokens, hybrid=route.hybrid)
         fallback_price = self.s.price_strong if route.hybrid else self.s.price_cheap
 
         contexts = [c.text for c, _ in hits]
