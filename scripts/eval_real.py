@@ -65,8 +65,8 @@ def main() -> int:
     store: Store = rag.store
     print(f"语料 {len({c.doc for c in store.chunks})} 篇 / {len(store.chunks)} 块\n")
 
-    methods = {"BM25": [], "Dense": [], "Hybrid": [], "Ours": []}
-    tokens_used = {"BM25": [], "Dense": [], "Hybrid": [], "Ours": []}
+    methods = {"BM25": [], "Dense": [], "Hybrid": [], "Ours": [], "Adaptive": []}
+    tokens_used = {"BM25": [], "Dense": [], "Hybrid": [], "Ours": [], "Adaptive": []}
 
     for i, it in enumerate(items, 1):
         q, gold = it["question"], it["answers"]
@@ -83,6 +83,19 @@ def main() -> int:
         picked = take_budget(store.search_hybrid(q, 200), b)
         methods["Hybrid"].append(hit(picked, gold))
         tokens_used["Hybrid"].append(sum(count_tokens(c.text) for c in picked))
+
+        # 自适应预算：top1/top2 间隔大 → 认为简单，用紧预算；否则用宽预算
+        ranked = store.search_hybrid(q, 20)
+        if len(ranked) >= 2:
+            s1, s2 = ranked[0][1], ranked[1][1]
+            margin = (s1 - s2) / s1 if s1 else 0.0
+        else:
+            margin = 1.0
+        tight, wide, tau = min(b, 120), max(b, 800), 0.25
+        budget_i = tight if margin > tau else wide
+        picked = take_budget(store.search_hybrid(q, 200), budget_i)
+        methods["Adaptive"].append(hit(picked, gold))
+        tokens_used["Adaptive"].append(sum(count_tokens(c.text) for c in picked))
 
         out = rag.query(q, ctx_tokens=b)
         tr = out["trace"]

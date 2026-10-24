@@ -56,7 +56,15 @@ class RAG:
     def __init__(self, settings: Settings | None = None, answerer=None) -> None:
         self.s = settings or Settings.from_env()
         self.embedder = build_embedder(self.s)
-        self.answerer = answerer or OfflineAnswerer()
+        if answerer is None:
+            # 有 API key 时默认用在线答题器（可改写）；否则离线兜底
+            if getattr(self.s, "api_key", ""):
+                from .llm import LLMAnswerer
+
+                answerer = LLMAnswerer(self.s)
+            else:
+                answerer = OfflineAnswerer()
+        self.answerer = answerer
 
         mode = self.s.chunk_mode
         if mode == "auto":                       # 双索引：句级 + 固定块
