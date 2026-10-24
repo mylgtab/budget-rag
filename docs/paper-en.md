@@ -555,7 +555,13 @@ Prometheus 14; 1.9M characters, 16,823 chunks) and adds two BEIR subsets for pub
 | **Adaptive tau=0.12 (k=3/10)** | **0.7086** | **0.850** | **2393 (-27%)** |
 
 **BEIR nfcorpus (150 queries)**: adaptive tau=0.20 (k=4/10) yields nDCG 0.3725, hit 0.740 and 3218
-tokens, 7% below fixed k=10. **BEIR fiqa (300 queries, 57,638 documents)**: adaptive tau=0.12 (k=4/10)
+tokens, 7% below fixed k=10. The threshold need not be tuned per corpus. Setting tau to the (1 - rho) quantile of the run's own
+margin distribution turns the knob into "the fraction of queries we are willing to treat as easy":
+on scifact, rho = 0.3 gives tau = 0.149, keeps nDCG@10 at 0.7095 and hit@k at 0.850, and uses 2589
+tokens instead of 3264 (21% saving); on nfcorpus only rho = 0.1 is safe (7% saving), because its
+margins are flatter and reclassifying more queries as easy costs accuracy.
+
+**BEIR fiqa (300 queries, 57,638 documents)**: adaptive tau=0.12 (k=4/10)
 keeps hit@k at 0.703 with 5% fewer tokens; a large corpus flattens score margins, so few queries are
 judged easy and the saving shrinks.
 

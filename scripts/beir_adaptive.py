@@ -46,8 +46,15 @@ def main() -> int:
     bm25 = BM25([docs[d] for d in order])
     s = Settings.from_env()
     emb = build_embedder(s) if args.embed == "real" else HashEmbedder(s.embed_dim)
-    mat = np.asarray(emb.embed([docs[d] for d in order]), dtype=np.float32)
-    mat /= np.maximum(np.linalg.norm(mat, axis=1, keepdims=True), 1e-9)
+    cache = path / f"emb_{args.embed}.npz"
+    if cache.exists():
+        mat = np.load(cache)["vec"]
+        print(f"  复用向量缓存 {cache.name} {mat.shape}")
+    else:
+        mat = np.asarray(emb.embed([docs[d] for d in order]), dtype=np.float32)
+        np.savez_compressed(cache, vec=mat)
+        print(f"  向量已缓存 {cache.name} {mat.shape}")
+    mat = mat / np.maximum(np.linalg.norm(mat, axis=1, keepdims=True), 1e-9)
 
     fused_cache = []
     for qid in qids:
@@ -60,6 +67,22 @@ def main() -> int:
         fused_cache.append((qid, fused))
         if len(fused_cache) % 25 == 0:
             print(f"  {len(fused_cache)}/{len(qids)}")
+
+    def margins() -> list[float]:
+        out = []
+        for qid, fused in fused_cache:
+            idx = np.argsort(-fused)[:2]
+            s1 = float(fused[idx[0]])
+            s2 = float(fused[idx[1]]) if len(idx) > 1 else 0.0
+            out.append((s1 - s2) / s1 if s1 else 0.0)
+        return out
+
+    def quantile_tau(easy_frac: float) -> float:
+        """令 easy_frac 比例的查询被判为简单：τ 取间隔分布的 1-easy_frac 分位。"""
+        ms = np.sort(np.asarray(margins(), dtype=np.float32))
+        if len(ms) == 0:
+            return 0.0
+        return float(ms[min(len(ms) - 1, int((1 - easy_frac) * len(ms)))])
 
     def evaluate(k_easy: int, k_hard: int, tau: float):
         ndcgs, toks, r10 = [], [], []
@@ -93,10 +116,19 @@ def main() -> int:
     for r in rows[:10]:
         print(f"{r['tau']:>6.2f}{r['k_easy']:>7}{r['k_hard']:>7}{r['ndcg10']:>9.4f}{r['hit']:>7.3f}{r['tokens']:>8.0f}")
 
+    print("\n按「简单题比例」标定（无需按数据集调 τ）")
+    print(f"{'easy_frac':>10}{'tau':>9}{'nDCG@10':>10}{'hit':>7}{'token':>8}")
+    quant = []
+    for easy_frac in (0.1, 0.2, 0.3, 0.4, 0.5):
+        tau = quantile_tau(easy_frac)
+        ndcg, hit, tok = evaluate(3, 10, tau)
+        quant.append({"easy_frac": easy_frac, "tau": tau, "ndcg10": ndcg, "hit": hit, "tokens": tok})
+        print(f"{easy_frac:>10.1f}{tau:>9.3f}{ndcg:>10.4f}{hit:>7.3f}{tok:>8.0f}")
+
     out = ROOT / "results" / f"beir_adaptive_{args.dataset}.json"
     out.parent.mkdir(exist_ok=True)
-    out.write_text(json.dumps({"fixed_k10": base, "fixed_k8": base8, "sweep": rows},
-                              ensure_ascii=False, indent=2), encoding="utf-8")
+    out.write_text(json.dumps({"fixed_k10": base, "fixed_k8": base8, "sweep": rows,
+                               "quantile": quant}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n写入 {out}")
     return 0
 
