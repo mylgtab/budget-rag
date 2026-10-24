@@ -86,7 +86,10 @@ Our contributions are threefold.
    bootstrap and McNemar tests show that the reported differences are significant ($p<0.05$). On 500
    end-to-end queries, the system matches fixed top-3 containment (0.912 versus 0.920, within paired
    noise) at roughly half the prompt cost (474 versus 972 tokens). Recall reaches 0.995 and 1.000 on two
-   LongBench retrieval subsets. Retrieval improves answer accuracy on three multi-hop generation
+   LongBench retrieval subsets. These figures come from the controlled synthetic setting. On 312
+   official documentation pages and on BEIR scifact, deciding retrieval depth from the score margin
+   matches fixed-k quality with 7–27% fewer context tokens, whereas sentence-level indexing and gated
+   rewriting do not transfer to English documentation (Section 6.9). Retrieval improves answer accuracy on three multi-hop generation
    benchmarks for a locally deployed 4B model, and on HotpotQA for a hosted large model. An evaluation of
    200 doubly annotated examples suggests that automatic containment metrics are conservative, making
    reported recall a lower bound on answer quality.
@@ -285,9 +288,11 @@ additive and order-independent.
 
 Long documents are indexed at two granularities (Figure 1): **sentence level** (split on
 punctuation, roughly 15–40 tokens) and **fixed blocks** (sliding window, 200 tokens with 40
-overlap by default). Sentence-level indexing is cheaper under tight budgets because it never
-drags unrelated sentences in; fixed blocks are more coherent when the budget is generous. The
-system picks automatically: sentence level when `ctx < 500`, fixed blocks otherwise.
+overlap by default). Sentence-level indexing never drags unrelated sentences in, which pays off on
+short-sentence corpora such as the Chinese technical notes of Section 6.2; fixed blocks keep a
+coherent window and, as Section 6.9 shows, are decisively better on English documentation (0.922
+against 0.647 at a 300-token budget). The system therefore selects granularity per corpus: sentence
+level when `ctx < 500` **and** the corpus is short-sentence, fixed blocks otherwise.
 
 Chunks are accumulated in descending retrieval score until the selected chunks reach the token
 budget $B$, and then the loop stops. There is **no fixed $k$ truncation**—this is what makes the
@@ -398,9 +403,13 @@ system comparisons; five 2/3 subsamples for robustness.
 **Hardware.** i7-13650HX, 16 GB RAM, RTX 4060 Laptop 8 GB. API models run over the network, the
 local model on the GPU; all retrieval and statistics run on the CPU.
 
-### 6.2 Main Results
+### 6.2 Main Results (Controlled Synthetic Setting)
 
-The proposed system is stronger at equal or lower budget.
+This subsection reports the controlled setting: a 500-question synthetic benchmark over sixteen
+technical notes, where every method sees the same corpus and budget. Section 6.9 repeats the
+comparison on 312 official documentation pages and on BEIR, and revises two of the claims made here.
+
+Under this controlled setting the proposed system is stronger at equal or lower budget.
 
 | Method | Recall | 95% CI | tokens |
 |---|---|---|---|
@@ -568,6 +577,13 @@ result and is not claimed to generalize.
 ### 7.1 Budget as an Interface, Not a Hyperparameter
 
 Writing the budget as a constraint rather than a tuned $k$ buys three transferable properties.
+
+The strongest transferable finding is narrower than the original framing. On 312 documentation pages
+and BEIR scifact, truncating by tokens buys nothing over a well-chosen fixed $k$ (294 versus 318
+tokens at equal recall). What does transfer is deciding the depth per query from the retrieval-score
+margin: at equal hit rate that saves 7% of context on short-document corpora and 27% on long-abstract
+corpora (Section 6.9). The mechanism is therefore "how many chunks does *this* query need", not "stop
+at a token count".
 First, the shadow price becomes a readable configuration value: $\lambda$ is the quality obtained
 per additional unit of budget, and it translates "how many chunks" into "is this unit still worth
 it". Section 6.7 shows the observable consequence—when the unit-price coefficient rises from 0.25 to
@@ -636,7 +652,7 @@ because the label depends on what was retrieved, not only on how the question is
 
 ## 8. Limitations
 
-The conclusions have four boundaries. **Corpus**: the main evidence is 500 synthetic technical
+The conclusions have seven boundaries. **Corpus**: the main evidence is 500 synthetic technical
 questions; cross-corpus validation covers retrieval only (Section 6.4) and the multi-hop generation
 results are small (Section 6.5), so transfer to production corpora needs an additional validation
 set. **Baselines**: the Adaptive-RAG and CRAG entries are behavioural approximations—a heuristic
@@ -646,7 +662,12 @@ than an exact replication (Appendix C documents what was and was not reproduced)
 batch discounts, cache hits and operations overhead (Section 7.3), which makes them suitable for
 relative comparison only. **Token estimates**: tiktoken over-counts Chinese relative to actual
 billing (Section 7.3), so the true context cost at equal recall is lower than reported. None of these
-four enters the abstract, and none changes the main conclusions of Section 6.
+four enters the abstract. Three further boundaries emerged when the corpus was enlarged. **Main table**:
+the 0.960 figure of Section 6.2 is a controlled synthetic setting; on real documentation the system ties
+a hybrid retriever (0.937) and the transferable gain is the 7–27% context saving of Section 6.9.
+**Adaptive threshold**: tau is a single global constant tuned per corpus (0.12 on scifact, 0.20 on
+nfcorpus), and per-query calibration is left open. **Public benchmarks**: only two BEIR subsets were
+run, so the saving should be read as a range (7–27%), not a universal value.
 
 <!-- Appendices to be translated. -->
 
