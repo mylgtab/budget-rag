@@ -12,6 +12,12 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from budget_rag.store import Store  # noqa: E402
 
+try:
+    import numpy as _np
+    HAS_NUMPY = True
+except Exception:  # pragma: no cover
+    HAS_NUMPY = False
+
 
 class FakeEmbedder:
     """确定性向量：按词哈希，维度 64。"""
@@ -39,6 +45,7 @@ def make_store() -> Store:
     return s
 
 
+@unittest.skipUnless(HAS_NUMPY, "需要 numpy")
 class TestVectorizedStore(unittest.TestCase):
     def test_vector_search_returns_best_first(self):
         s = make_store()

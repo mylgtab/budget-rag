@@ -2,6 +2,7 @@ fastapi>=0.110
 uvicorn>=0.29
 pydantic>=2.6
 httpx>=0.27
+numpy>=1.24
 
 # 可选：装了就自动用真 tokenizer；CI 不装也能跑，会退回字面估算
 # tiktoken>=0.7
