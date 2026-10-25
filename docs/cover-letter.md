@@ -39,8 +39,8 @@ the conformal protocol holds empirical coverage within 0.015 of nominal at 120â€
 targets 0.80/0.85/0.90. On four BEIR subsets the adaptive rule saves 1â€“24% of context at equal nDCG@10
 (and none on an adversarial benchmark, which we report). We also reproduce the official Adaptive-RAG complexity classifier from its released
 labels (43.3% validation accuracy at reduced model scale) and route with it on our benchmark:
-it is a strong low-budget baseline (0.844 at 66 tokens) but is dominated once high recall is
-required, which is precisely the gap the quality-target interface fills.
+its operating point (0.844 at 160 tokens) sits between fixed top-3 and top-5, and it cannot reach
+the high-recall regime at any budget, which is precisely the gap the quality-target interface fills.
 
 **Reproducibility.** All code, evaluation sets and scripts are released under the MIT license
 (https://github.com/mylgtab/budget-rag, v1.0.0). A stranger can reproduce the main table in about

@@ -657,8 +657,8 @@ The resulting operating points, including the official classifier of Section 6.1
 
 | Policy | Recall | mean tokens | mean latency (ms) |
 |---|---|---|---|
-| Official classifier (faithful) | 0.638 | 56 | 74 |
-| Official classifier (adapted) | 0.844 | 66 | 74 |
+| Official classifier (faithful) | 0.638 | 150 | 74 |
+| Official classifier (adapted) | 0.844 | 160 | 74 |
 | BM25 top-8 | 0.801 | 318 | 16 |
 | Dense bge-m3 top-8 | 0.887 | 318 | 45 |
 | **Ours (adaptive k=4/10)** | **0.900** | **244** | 72 |
@@ -666,10 +666,9 @@ The resulting operating points, including the official classifier of Section 6.1
 
 Latency here is retrieval only; the classifier adds 21 ms of CPU inference and nothing else. Every
 policy therefore lands between 16 and 74 ms, an order of magnitude below the 898 ms of generation, so
-latency does not create a second binding constraint. What the table does show is that the classifier
-and our rule occupy opposite ends of the token-recall trade-off: the classifier is cheapest (56-66
-tokens), our rule is the most accurate per token at the high-recall end (244 tokens for 0.900), and
-fixed-depth retrievers pay 318 tokens for either.
+latency does not create a second binding constraint. On the token-recall plane the learned classifier
+is an interior point (0.844 at 160 tokens) rather than an extreme: fixed top-3 is cheaper and top-5
+more accurate, while our gate and fixed top-8 occupy the high-recall end at 244 and 318 tokens.
 
 
 
@@ -788,19 +787,46 @@ takes no context, B (single-hop) retrieves five passages, C (multi-hop) retrieve
 
 | Method | Recall | mean tokens |
 |---|---|---|
-| Official classifier (faithful: A = no retrieval) | 0.638 | 56 |
-| Official classifier (adapted: A = top-1 passage) | 0.844 | 66 |
+| Official classifier (faithful: A = no retrieval) | 0.638 | 150 |
+| Official classifier (adapted: A = top-1 passage) | 0.844 | 160 |
 | Hybrid top-3 | 0.824 | 108 |
 | **Ours (difficulty-adaptive, k=4/10)** | **0.900** | **244** |
 | Hybrid top-8 | 0.904 | 289 |
 
-The classifier assigns 83 questions to A, 189 to B and 29 to C, and it is a genuinely strong
-low-budget baseline: at 66 tokens it reaches 0.844, better than fixed top-3 at 108. It is however
-dominated once high recall is required, because an A prediction removes the evidence outright, and
-its routing is fixed -- there is no knob that trades tokens for a target recall. That is precisely the
-interface Section 6.10 provides and this baseline lacks, which is why the two are complementary rather
-than competing: the classifier picks a cheap operating point, the conformal protocol certifies a
-target quality at whatever budget that costs.
+The classifier assigns 83 questions to A, 189 to B and 29 to C. Its operating points sit between
+fixed-depth retrieval points: 0.844 at 160 tokens falls between top-3 (0.824 at 108) and top-5 (0.890
+at 180), so it neither dominates fixed depth nor reaches the high-recall regime, where an A prediction
+removes the evidence outright. Its routing is also fixed: there is no knob that trades tokens for a
+target recall. That is precisely the interface Section 6.10 provides and this baseline lacks, which is
+why the two are complementary rather than competing -- the classifier picks one operating point from a
+learned prior, the conformal protocol certifies a target quality at whatever budget that costs.
+
+### 6.17 Per-Query Thresholds: Tested, No Gain
+
+The depth rule of Section 6.6 uses one global threshold tau on the normalised margin
+gamma = (s1 - s2) / s1, which has to be re-tuned when the corpus changes (0.12 on scifact, 0.20 on
+nfcorpus). A per-query rule would remove that constant, so we tested the obvious one: stop where the
+query's own score list drops sharply. Concretely, take the smallest k with
+(s_k - s_{k+1}) / s1 >= delta, capped at k = 10, and sweep delta.
+
+| delta | recall | mean tokens | saving vs k=8 | mean k |
+|---|---|---|---|---|
+| 0.02 | 0.870 | 188 | 35% | 5.3 |
+| 0.03 | 0.887 | 242 | 16% | 6.8 |
+| 0.05 | 0.894 | 309 | -7% | 8.6 |
+| 0.10 | 0.910 | 354 | -23% | 9.8 |
+
+No setting beats the global threshold. The closest point, delta = 0.03, saves 16% of context but
+loses 1.7 recall points (0.887 against 0.904 at fixed k = 8), whereas the global rule reaches 0.900
+at 244 tokens, a loss of only 0.4 points. Above delta = 0.05 the rule simply stops early almost
+never and costs more than fixed depth.
+
+The reason is visible in the definition: hybrid scores are already normalised per query, so the
+absolute gap (s1 - s2)/s1 is a comparable statistic across queries, while the *incremental* drop
+between adjacent chunks adds noise -- one flat pair of scores is enough to trigger or suppress a cut.
+We therefore keep the global threshold and report the per-query variant as a negative result; the
+recalibration cost stays a stated limitation rather than being papered over by a rule that does not
+work.
 
 ---
 
@@ -898,7 +924,8 @@ four enters the abstract. Three further boundaries emerged when the corpus was e
 the 0.960 figure of Section 6.2 is a controlled synthetic setting; on real documentation the system ties
 a hybrid retriever (0.910) and the transferable gain is the 1–24% context saving of Section 6.9.
 **Adaptive threshold**: tau is a single global constant tuned per corpus (0.12 on scifact, 0.20 on
-nfcorpus), and per-query calibration is left open. **Public benchmarks**: four BEIR subsets were run and one of them (arguana) shows no saving at
+nfcorpus). A per-query rule was tested and fails (Section 6.17), so recalibration remains a manual
+step. **Public benchmarks**: four BEIR subsets were run and one of them (arguana) shows no saving at
 all, so the gain is corpus-dependent (1–24%) rather than universal.
 
 <!-- Appendices to be translated. -->

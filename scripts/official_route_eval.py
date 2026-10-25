@@ -79,10 +79,9 @@ def main() -> int:
                 continue
             used, hit = 0, 0
             for chunk, _ in store.search_hybrid(it["question"], k):
-                used += max(1, count_tokens(chunk.text))
+                used += max(1, count_tokens(chunk.text))   # 整个上下文都计入，不提前停
                 if any(norm(a) in norm(chunk.text) for a in it["answers"]):
                     hit = 1
-                    break
             hits += hit
             toks += used
             budget_hits.append(hit)

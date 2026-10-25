@@ -77,6 +77,16 @@ def draw_panel_a(d, x0, y0, w, h, data):
             r = 3 * SCALE
             d.ellipse([p[0] - r, p[1] - r, p[0] + r, p[1] + r], fill=COLORS[name])
 
+    # 官方分类器的两个运行点（6.16 节）
+    cls_color = (176, 58, 58)
+    for label, b, v in (("faithful", 150, 0.638), ("adapted", 160, 0.844)):
+        x, y = sx(b), sy(v)
+        r = 4 * SCALE
+        d.polygon([(x, y - r), (x + r, y), (x, y + r), (x - r, y)],
+                  fill=(255, 255, 255), outline=cls_color, width=2 * SCALE)
+        d.text((x + 8 * SCALE, y + (10 * SCALE if label == "adapted" else -10 * SCALE)), label,
+               font=f_tick, fill=cls_color, anchor="lm")
+
     # 图例
     for i, name in enumerate(CURVES):
         lx = x0 + w - 210 * SCALE + (i % 2) * 100 * SCALE
@@ -133,7 +143,7 @@ def main() -> int:
     draw_panel_a(d, 60 * SCALE, 40 * SCALE, panel_w, panel_h, data)
     draw_panel_b(d, 660 * SCALE, 40 * SCALE, 380 * SCALE, panel_h)
 
-    d.text((110 * SCALE, 10 * SCALE), "A  budget-recall curves (143 questions, 312 docs)",
+    d.text((110 * SCALE, 10 * SCALE), "A  budget-recall curves (301 questions, 312 docs)",
            font=font(12), fill=(30, 30, 30))
     d.text((730 * SCALE, 10 * SCALE), "B  reach rate vs safety margin (hybrid)",
            font=font(12), fill=(30, 30, 30))
