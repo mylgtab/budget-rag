@@ -841,6 +841,35 @@ for the global margin threshold on either the internal benchmark or the public o
 
 
 
+### 6.18 Is the Margin a Sufficient Statistic? An Empirical Test
+
+The threshold rule of Section 6.6 treats gamma as a difficulty signal, but says nothing about *why*
+it should work. The assumption it needs is that the marginal value of another chunk decreases as
+gamma grows: confident queries gain little from depth, uncertain ones gain a lot. That is a
+statement about the score distribution, and it can be tested before it is proved.
+
+We split the 301 questions into gamma quartiles and compare recall at k = 4 and k = 10 within each
+quartile.
+
+| gamma quartile | n | recall k=4 | recall k=10 | delta (10-4) |
+|---|---|---|---|---|
+| Q1 (gamma <= 0.023) | 75 | 0.760 | 0.853 | 0.093 |
+| Q2 | 75 | 0.840 | 0.907 | 0.067 |
+| Q3 | 75 | 0.880 | 0.893 | 0.013 |
+| Q4 (gamma > 0.117) | 76 | 0.974 | 0.987 | 0.013 |
+
+The marginal gain is monotone decreasing in gamma: 0.093, 0.067, 0.013, 0.013. Queries the margin
+calls confident gain almost nothing from six more chunks, and queries it calls uncertain gain most.
+The empirical premise of the threshold rule therefore holds on this corpus.
+
+We are careful about what this does and does not establish. It does **not** prove that gamma is a
+sufficient statistic: a statistic can predict the average gain within a bin while failing to order
+queries inside it, and the argument says nothing about the adversarial case of Section 6.9, where
+the relation reverses. What it does show is that the assumption behind the threshold is not
+vacuous, that its strength is roughly the shape one would assume, and that a formal treatment --
+deriving marginal value from a Plackett-Luce or exponential-family model and bounding the threshold
+rule's suboptimality -- has an empirically falsifiable target to aim at.
+
 ---
 
 ## 7. Discussion

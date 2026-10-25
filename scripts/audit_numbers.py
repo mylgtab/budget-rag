@@ -86,6 +86,8 @@ EXPECT = [
     ("real corpus docs", "312"),
     ("real corpus chunks", "16,823"),
     ("question count", "301"),
+    ("margin Q1 delta", "0.093"),
+    ("margin Q3 delta", "0.013"),
 ]
 
 # 不应再出现的旧数字（正则）
