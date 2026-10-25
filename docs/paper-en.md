@@ -615,6 +615,20 @@ under bge-large-en the gap widens (-0.029 at 0.90) and under BM25 the high targe
 what keeps it honest there. Third, a saturating-curve variant with a safety margin reaches a similar
 reach rate but needs a hand-tuned margin and gives no guarantee, so the conformal form is preferred.
 
+The guarantee holds across the range rather than at three points. Sweeping alpha from 0.05 to 0.50
+moves nominal coverage from 0.95 to 0.50, and empirical coverage tracks it within 0.045: 0.922 at
+0.95, 0.898 at 0.90, 0.856 at 0.85, 0.820 at 0.80, 0.722 at 0.70 and 0.545 at 0.50 (Figure 5). The one
+systematic gap is the far tail: at nominal 0.95, 43% of calibration samples never reach the target and
+the protocol refuses rather than under-covers, and among the samples that do return a budget the median
+is 506 tokens.
+
+![Figure 5. Coverage diagnostic](figures/fig5-conformal.png)
+
+**Figure 5.** Empirical coverage against nominal coverage for the conformal protocol on the hybrid
+retriever, sweeping alpha from 0.05 to 0.50. The grey diagonal is nominal = empirical; vertical bars
+mark the 5th percentile of coverage across 100 random splits; labels give the median budget and the
+refusal rate.
+
 ![Figure 4. Calibration curves and reach rate](figures/fig4-calibration.png)
 
 **Figure 4.** (A) Recall against context budget for four retrievers on the 143-question benchmark; the
