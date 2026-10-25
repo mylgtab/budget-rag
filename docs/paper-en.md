@@ -643,6 +643,27 @@ end-to-end latency SLA tight enough to exclude rewriting outright. The scalar bu
 simplification of the problem but the correct model for this operating regime, and we state the
 conditions under which it would have to be extended.
 
+### 6.12 The Exchange Rate between Retrieval Time and Context Length
+
+Section 6.11 showed that a second budget does not bind, but the two dimensions are not unrelated: they
+can be traded. At equal recall, a stronger retriever needs less context. On the 143-question benchmark,
+reaching 0.80 recall costs BM25 325 tokens at 17 ms but hybrid retrieval 87 tokens at 77 ms, so 60 ms
+of retrieval time buys 238 tokens, an exchange rate of **4.0 tokens per millisecond**; at a 0.90 target
+the same swap saves 810 tokens, or **13.4 tokens per millisecond**.
+
+Whether the trade is worth it depends on what a token costs downstream. Measuring prompt prefill
+directly with a local Ollama deployment (`prompt_eval_duration`, randomised prompts to defeat prefix
+caching) gives 195 ms for 100 prompt tokens, 570 ms for 300, 1194 ms for 600 and 2125 ms for 1000, a
+slope of **2.15 ms per token** on CPU. The net gain from swapping to the stronger retriever is then 512
+ms at a 0.80 target and 1743 ms at 0.90, against 57 ms of extra retrieval: a factor of 4 to 17.
+
+The break-even condition is r * p > 1, where r is the exchange rate in tokens per millisecond and p is
+the prefill cost per token. On this machine 4.0 * 2.15 = 8.6, so the swap always pays. On a GPU where
+prefill costs about 0.1 ms per token the product falls to 0.4 at a 0.80 target, so the swap stops
+paying there but remains profitable at 0.90 (1.34). The trade is therefore computable rather than
+qualitative, and it explains the conclusion of Section 6.11 from the other side: retrieval time is so
+cheap relative to context that spending it is almost always right.
+
 ---
 
 ## 7. Discussion
