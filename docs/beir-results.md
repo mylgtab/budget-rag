@@ -139,3 +139,18 @@ fiqa 上即使 ρ=0.1，nDCG 也掉 0.008、hit 掉 0.003——**5.7 万文档�
 | fiqa | 0.1 | 0.120 | 0.4418 → 0.4342 | 0.703 → 0.700 | 7% |
 
 **最终区间：统一标定下省 7%–21%；按语料单独调 τ 时最高 27%（scifact）。**
+
+## 五、四子集统一口径（2026-10-25 重跑，全部查询、无抽样）
+
+| 数据集 | 固定 k=8 nDCG@10 | token | 自适应 nDCG@10 | token | 节省 |
+|---|---|---|---|---|---|
+| scifact | 0.7071 | 2615 | 0.7062 | 1991 | 24% |
+| nfcorpus | 0.3504 | 2747 | 0.3486 | 2571 | 6% |
+| fiqa | 0.4356 | 1999 | 0.4350 | 1978 | 1% |
+| arguana | 0.3931 | 1879 | 0.3959 | 2177 | −16% |
+
+- 规则：自适应取「nDCG@10 与固定 k=8 相差 ≤0.002 的最省 token 配置」
+- **arguana 失败**：对抗构造语料上分数间隔不再按难度排序，每个配置都更费 —— 论文如实报告
+- scidocs 跑了但不计入：长文档被 embedding 端点截断，绝对 nDCG 对所有方法同等偏低
+
+复现：`python scripts/fetch_beir.py --datasets arguana scidocs && python scripts/beir_adaptive.py --dataset arguana --embed real --limit 0`

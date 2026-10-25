@@ -92,7 +92,7 @@ Our contributions are threefold.
    noise) at roughly half the prompt cost (474 versus 972 tokens). Recall reaches 0.995 and 1.000 on two
    LongBench retrieval subsets. These figures come from the controlled synthetic setting. On 312
    official documentation pages and on BEIR scifact, deciding retrieval depth from the score margin
-   matches fixed-k quality with 7–21% fewer context tokens, whereas sentence-level indexing and gated
+   matches fixed-k quality with 1–24% fewer context tokens on three of four public BEIR subsets, whereas sentence-level indexing and gated
    rewriting do not transfer to English documentation (Section 6.9). Retrieval improves answer accuracy on three multi-hop generation
    benchmarks for a locally deployed 4B model, and on HotpotQA for a hosted large model. An evaluation of
    200 doubly annotated examples suggests that automatic containment metrics are conservative, making
@@ -537,7 +537,7 @@ with the shadow price of the budget (Section 6.7).
 
 The main table above rests on sixteen synthetic technical notes, which is small. This section replaces
 the corpus with 312 official documentation pages (Docker 147, Redis 89, Kubernetes 43, Grafana 19,
-Prometheus 14; 1.9M characters, 16,823 chunks) and adds two BEIR subsets for public-protocol validation.
+Prometheus 14; 1.9M characters, 16,823 chunks) and adds four BEIR subsets for public-protocol validation.
 
 **Internal benchmark (301 questions, document-level recall)**
 
@@ -550,26 +550,28 @@ Prometheus 14; 1.9M characters, 16,823 chunks) and adds two BEIR subsets for pub
 | Fixed k=8 | 0.904 | 289 |
 | **Ours (difficulty-adaptive, k=4/10)** | **0.900** | **244** |
 
-**BEIR scifact (300 queries, document level)**
+**BEIR (public protocol, document level)**
 
-| Method | nDCG@10 | hit@k | mean tokens |
-|---|---|---|---|
-| Fixed k=10 | 0.7101 | 0.850 | 3264 |
-| Fixed k=8 | 0.7071 | 0.843 | 2615 |
-| **Adaptive tau=0.12 (k=3/10)** | **0.7086** | **0.850** | **2393 (-27%)** |
+We run four BEIR subsets through the same pipeline (bge-m3 embeddings, hybrid alpha = 0.2, chunk size
+200) and use fixed k = 8 as the reference; the adaptive configuration is the cheapest one whose
+nDCG@10 stays within 0.002 of that baseline. All queries are used, without subsampling.
 
-**BEIR nfcorpus (150 queries)**: adaptive tau=0.20 (k=4/10) yields nDCG 0.3725, hit 0.740 and 3218
-tokens, 7% below fixed k=10. The threshold need not be tuned per corpus. Setting tau to the (1 - rho) quantile of the run's own
-margin distribution turns the knob into "the fraction of queries we are willing to treat as easy":
-on scifact, rho = 0.3 gives tau = 0.149, keeps nDCG@10 at 0.7095 and hit@k at 0.850, and uses 2589
-tokens instead of 3264 (21% saving); on nfcorpus only rho = 0.1 is safe (7% saving), because its
-margins are flatter and reclassifying more queries as easy costs accuracy.
+| Dataset | Fixed k=8 nDCG@10 | tokens | Adaptive nDCG@10 | tokens | Saving |
+|---|---|---|---|---|---|
+| scifact | 0.7071 | 2615 | 0.7062 | 1991 | 24% |
+| nfcorpus | 0.3504 | 2747 | 0.3486 | 2571 | 6% |
+| fiqa | 0.4356 | 1999 | 0.4350 | 1978 | 1% |
+| arguana | 0.3931 | 1879 | 0.3959 | 2177 | -16% |
 
-**BEIR fiqa (300 queries, 57,638 documents)**: adaptive tau=0.12 (k=4/10)
-keeps hit@k at 0.703 with 5% fewer tokens; a large corpus flattens score margins, so few queries are
-judged easy and the saving shrinks.
+The saving is largest where the corpus is small and the margin distribution is bimodal (scifact),
+shrinks as the corpus grows and margins flatten (fiqa has 57,638 documents), and reverses on
+arguana, an adversarially constructed benchmark where every adaptive setting we tried spent more
+tokens for an offsetting gain. The margin signal therefore orders queries by difficulty on natural
+corpora but not on adversarially built ones. We report that failure instead of tuning tau per dataset
+to hide it. scidocs was also run but is excluded: its documents are long enough that the embedding
+endpoint truncates them, which depresses absolute nDCG for every method equally.
 
-**Significance on real documentation.** At a 300-token budget the paired comparison on the 301
+**Significance on real documentation.** At a 300-token budget the paired comparison on the 301 At a 300-token budget the paired comparison on the 301
 questions is mixed, and we report it as such. Hybrid beats BM25 decisively (36 wins, 3 losses,
 McNemar p < 0.0001, surviving Holm correction for three comparisons) and also beats dense bge-large
 (25 wins, 8 losses, p = 0.0046, Holm-adjusted 0.0091), but ties dense bge-m3 (11 wins, 4 losses,
@@ -792,8 +794,8 @@ Writing the budget as a constraint rather than a tuned $k$ buys three transferab
 The strongest transferable finding is narrower than the original framing. On 312 documentation pages
 and BEIR scifact, truncating by tokens buys nothing over a well-chosen fixed $k$ (294 versus 318
 tokens at equal recall). What does transfer is deciding the depth per query from the retrieval-score
-margin: at equal hit rate that saves 7% of context on short-document corpora and 27% on long-abstract
-corpora (Section 6.9). The mechanism is therefore "how many chunks does *this* query need", not "stop
+margin: at equal hit rate that saves 1-24% of context on natural corpora, and nothing on an
+adversarial one (Section 6.9). The mechanism is therefore "how many chunks does *this* query need", not "stop
 at a token count".
 First, the shadow price becomes a readable configuration value: $\lambda$ is the quality obtained
 per additional unit of budget, and it translates "how many chunks" into "is this unit still worth
@@ -875,10 +877,10 @@ relative comparison only. **Token estimates**: tiktoken over-counts Chinese rela
 billing (Section 7.3), so the true context cost at equal recall is lower than reported. None of these
 four enters the abstract. Three further boundaries emerged when the corpus was enlarged. **Main table**:
 the 0.960 figure of Section 6.2 is a controlled synthetic setting; on real documentation the system ties
-a hybrid retriever (0.910) and the transferable gain is the 7–21% context saving of Section 6.9.
+a hybrid retriever (0.910) and the transferable gain is the 1–24% context saving of Section 6.9.
 **Adaptive threshold**: tau is a single global constant tuned per corpus (0.12 on scifact, 0.20 on
-nfcorpus), and per-query calibration is left open. **Public benchmarks**: three BEIR subsets were run, so the saving should be read as a range (7–21%), not a
-universal value.
+nfcorpus), and per-query calibration is left open. **Public benchmarks**: four BEIR subsets were run and one of them (arguana) shows no saving at
+all, so the gain is corpus-dependent (1–24%) rather than universal.
 
 <!-- Appendices to be translated. -->
 
