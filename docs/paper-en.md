@@ -569,6 +569,13 @@ margins are flatter and reclassifying more queries as easy costs accuracy.
 keeps hit@k at 0.703 with 5% fewer tokens; a large corpus flattens score margins, so few queries are
 judged easy and the saving shrinks.
 
+**Significance on real documentation.** At a 300-token budget the paired comparison on the 143
+questions is mixed, and we report it as such. Hybrid beats BM25 decisively (18 wins, 0 losses,
+McNemar p < 0.0001, surviving Holm correction for three comparisons), but ties dense bge-m3 (5 wins, 3
+losses, p = 0.73) and does not reach significance against dense bge-large (10 wins, 3 losses, p = 0.09,
+Holm-adjusted 0.18). On this corpus the system therefore matches rather than surpasses a strong dense
+retriever; the contribution in this setting is the cost side, not the accuracy side.
+
 Three revised conclusions. First, the transferable gain is **difficulty-adaptive depth**: at equal
 recall or hit rate it saves 7%-21% of context under a single calibrated knob, the saving tracking how many queries can be
 answered confidently (21% on scifact, 7% on nfcorpus, 7% on fiqa, where a 57k-document corpus flattens the score margins). Second, **token-based truncation alone carries
@@ -673,6 +680,40 @@ prefill costs about 0.1 ms per token the product falls to 0.4 at a 0.80 target, 
 paying there but remains profitable at 0.90 (1.34). The trade is therefore computable rather than
 qualitative, and it explains the conclusion of Section 6.11 from the other side: retrieval time is so
 cheap relative to context that spending it is almost always right.
+
+### 6.13 How the Questions Were Written, and How Much They Overlap the Sources
+
+The 143 questions come from two sources: six were written by the author in Chinese and translated, the
+remainder were drafted from the documentation and then checked by the author against the source
+passage, with the answer required to appear verbatim in the document. Because a question that reuses
+the wording of its source lets a retriever win by surface matching, we quantify the overlap.
+
+For every question we compute the fraction of its 4-grams that occur in the source document, and the
+longest run of words shared with it. Median 4-gram coverage is **0.000** (mean 0.042); only 2 of 143
+questions (1.4%) exceed 0.50; the longest shared run is 2 words at the median and 7 at the maximum. As
+a control, using the answer-bearing source sentence itself as the query yields median coverage
+**1.000**. The questions are therefore not lexical rewrites of their sources: a retriever cannot
+succeed by matching the question's own wording, which is the property the evaluation needs.
+
+### 6.14 Where the Errors Come From
+
+At a 300-token budget the hybrid retriever misses 9 of the 143 questions. In every one of those nine
+cases the answer span **does exist** in the target document, so the failures are ranking failures
+rather than data errors: the correct passage was in the corpus but did not make it into the budget.
+The misses concentrate on short, low-signal answers -- a bare number (`0.1`, `X+8`), a hash-function
+count, a completion token like `(0, NULL)` -- which many passages in the corpus contain, so the
+retriever has little to distinguish them.
+
+On the multi-hop generation benchmarks the failure mode is different: across 300 questions every output
+was non-empty, and the errors are **wrong-entity substitutions** rather than refusals. For example the
+comparison question "which case was brought first, Miller v. California or Gates v. Collier" is answered
+with the second case, and "where was the wife of Francis I Rakoczi born" is answered with the place she
+lived. Retrieval hit the answer span 0.51-0.69 of the time while accuracy was 0.14-0.52, so roughly
+half of the remaining gap is lost on the generation side, not in retrieval.
+
+The practical reading is that neither more context nor a larger budget fixes these two failure modes:
+the first needs better ranking of short answers, the second better entity disambiguation and two-hop
+evidence composition.
 
 ---
 
