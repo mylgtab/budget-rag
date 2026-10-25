@@ -653,6 +653,25 @@ generation takes 898 ms at p50 (Section 6.8). Retrieval therefore accounts for a
 end-to-end latency, and the three cost dimensions are collinear in this setting: money is a fixed
 multiple of tokens, prefill latency is close to linear in context length, and the spread across
 retrievers (16-70 ms) is too small to move a latency budget.
+The resulting operating points, including the official classifier of Section 6.16, are:
+
+| Policy | Recall | mean tokens | mean latency (ms) |
+|---|---|---|---|
+| Official classifier (faithful) | 0.638 | 56 | 74 |
+| Official classifier (adapted) | 0.844 | 66 | 74 |
+| BM25 top-8 | 0.801 | 318 | 16 |
+| Dense bge-m3 top-8 | 0.887 | 318 | 45 |
+| **Ours (adaptive k=4/10)** | **0.900** | **244** | 72 |
+| Hybrid top-8 | 0.910 | 318 | 73 |
+
+Latency here is retrieval only; the classifier adds 21 ms of CPU inference and nothing else. Every
+policy therefore lands between 16 and 74 ms, an order of magnitude below the 898 ms of generation, so
+latency does not create a second binding constraint. What the table does show is that the classifier
+and our rule occupy opposite ends of the token-recall trade-off: the classifier is cheapest (56-66
+tokens), our rule is the most accurate per token at the high-recall end (244 tokens for 0.900), and
+fixed-depth retrievers pay 318 tokens for either.
+
+
 
 The only action with a distinct cost vector is query rewriting, which adds both tokens and about
 870 ms of latency. On this corpus it also lowers recall (0.874 against 0.910), so it is dominated in
