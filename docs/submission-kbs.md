@@ -59,6 +59,15 @@ greedy inherits the classical guarantees. Two implementable consequences follow:
 threshold governed by the shadow price of the budget, and an optimal cascade that is a chain of
 confidence thresholds. Experiments verify both directions.
 
+**New since the first draft.** The evaluation now runs on 312 official documentation pages (16,823
+chunks) and on three BEIR subsets (scifact, nfcorpus, fiqa). On real documentation the system matches a
+hybrid retriever at equal budget, and the transferable gain is a **7-21% reduction in context tokens**
+from margin-based adaptive depth; on BEIR scifact the reduction reaches 27%. We also add a calibration
+protocol that turns a **quality target** into a budget: twenty labelled questions predict the required
+budget within 1.1-1.6x of the oracle and meet the target 76-93% of the time, while unreachable targets
+are refused. A measurement of the latency-token exchange rate (4.0-13.4 tokens per millisecond of
+retrieval, against 2.15 ms per token of prefill on CPU) shows when that trade pays.
+
 **Results.** Against five baselines under a common budget, the system reaches 0.960 recall at 126
 tokens, versus 0.925 at 179 for an approximation of corrective retrieval and 0.910 at 115 for dense
 retrieval (paired bootstrap and McNemar, p < 0.05). On 500 end-to-end queries it matches fixed top-3

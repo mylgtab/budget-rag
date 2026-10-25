@@ -337,3 +337,28 @@ Zhangjiakou University；通讯 lqm050509@gmail.com；ORCID 0009-0003-7912-3918�
 摘要补 BEIR 一句并标注受控设定。中英双稿、Word 8 表 3 图。
 
 **修掉的 bug**：`RAG()` 之前永远用 OfflineAnswerer，API key 不生效 → 门控改写从未真正运行。
+
+## 2026-10-25：一致性修订 + 两个新小节 + 图 4
+
+**新增**
+- 6.10 质量目标 → 预算的校准协议（20 条标注，达标率 76–93%，不可达拒绝）
+- 6.11 第二维为什么不咬合（检索 16–70 ms vs 生成 898 ms，检索仅占 7.2%）
+- 6.12 检索时间与上下文的交换率（4.0–13.4 token/ms；prefill 2.15 ms/token；净赚 4–17 倍）
+- 图 4：四检索器预算-召回曲线 + 达标率-安全边际
+
+**一致性修订**
+- 4.1 句级索引限定中文短句语料；6.2 标注受控合成设定；6.3 消融同
+- 8 局限扩到七条（主表为受控设定、τ 全局常数、仅两个 BEIR）
+- 摘要补两条结论（自适应 7–21%、质量目标→预算）
+
+**工程**
+- Store 向量化 + npz 索引（16,823 块）
+- scripts：calibrate_budget / fig4_data / fig4_calibration / pareto_multibudget /
+  exchange_rate / beir_adaptive / adaptive_sweep / github_proxy
+- 75 测试；CI 6 job 全绿
+- CI 曾因 requirements 缺 numpy 失败，已修（加 numpy + skipUnless）
+
+**环境坑**
+- 本机 DNS 把 github.com 解析到 20.205.243.166（不可达）。
+  VPN 关闭时用 `scripts/github_proxy.py` 起本地 CONNECT 代理（固定 140.82.112.3），
+  `git -c http.proxy=http://127.0.0.1:8899 push`。VPN 开启时可直连。
