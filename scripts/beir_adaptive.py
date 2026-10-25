@@ -125,10 +125,38 @@ def main() -> int:
         quant.append({"easy_frac": easy_frac, "tau": tau, "ndcg10": ndcg, "hit": hit, "tokens": tok})
         print(f"{easy_frac:>10.1f}{tau:>9.3f}{ndcg:>10.4f}{hit:>7.3f}{tok:>8.0f}")
 
+    # 逐题阈值（6.17）：按单题自己的分数断崖定 k，不调全局 τ
+    def evaluate_perquery(delta: float, k_min: int = 3, k_max: int = 10):
+        ndcgs, toks = [], []
+        for qid, fused in fused_cache:
+            idx = np.argsort(-fused)[: k_max + 1]
+            sc = fused[idx]
+            s1 = float(sc[0]) or 1e-9
+            k = k_max
+            for j in range(k_min, min(k_max, len(sc) - 1) + 1):
+                if (sc[j - 1] - sc[j]) / s1 >= delta:
+                    k = j
+                    break
+            chosen = [order[i] for i in idx[:k]]
+            rel = qrels[qid]
+            ndcgs.append(ndcg_at_k(chosen, rel, 10))
+            toks.append(sum(count_tokens(docs[d]) for d in chosen))
+        return float(np.mean(ndcgs)), float(np.mean(toks))
+
+    print("\n逐题阈值（按单题分数断崖，不调全局 τ）")
+    print(f"{'delta':>7}{'nDCG@10':>10}{'token':>8}{'相对 k=8 省':>12}")
+    perquery = []
+    for delta in (0.02, 0.03, 0.05, 0.08, 0.10):
+        ndcg, tok = evaluate_perquery(delta)
+        save = (base8[2] - tok) / base8[2] * 100
+        print(f"{delta:>7.2f}{ndcg:>10.4f}{tok:>8.0f}{save:>11.0f}%")
+        perquery.append({"delta": delta, "ndcg10": ndcg, "tokens": tok, "saving_pct": save})
+
     out = ROOT / "results" / f"beir_adaptive_{args.dataset}.json"
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps({"fixed_k10": base, "fixed_k8": base8, "sweep": rows,
-                               "quantile": quant}, ensure_ascii=False, indent=2), encoding="utf-8")
+                               "quantile": quant, "perquery": perquery},
+                              ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n写入 {out}")
     return 0
 

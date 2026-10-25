@@ -828,6 +828,13 @@ We therefore keep the global threshold and report the per-query variant as a neg
 recalibration cost stays a stated limitation rather than being papered over by a rule that does not
 work.
 
+The same rule transfers to BEIR scifact, and fails there too: delta = 0.02 saves 30% of tokens at a
+cost of 2.4 nDCG points, delta = 0.03 saves 13% at a cost of 1.8, whereas the global threshold keeps
+nDCG@10 within 0.001 of fixed k = 8 while saving 24%. The per-query drop is therefore not a substitute
+for the global margin threshold on either the internal benchmark or the public one.
+
+
+
 ---
 
 ## 7. Discussion
