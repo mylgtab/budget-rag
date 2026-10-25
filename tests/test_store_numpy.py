@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import sys
 import tempfile
 import unittest
@@ -29,7 +30,9 @@ class FakeEmbedder:
         for t in texts:
             v = [0.0] * self.dim
             for w in t.lower().split():
-                v[hash(w) % self.dim] += 1.0
+                # 用稳定哈希：Python 的 hash() 每个进程随机，会让测试在 CI 上漂移
+                idx = int(hashlib.md5(w.encode("utf-8")).hexdigest()[:8], 16) % self.dim
+                v[idx] += 1.0
             norm = sum(x * x for x in v) ** 0.5 or 1.0
             out.append([x / norm for x in v])
         return out
