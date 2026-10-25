@@ -29,7 +29,7 @@ benchmarks, retrieval improves answer accuracy for a locally deployed 4B model, 
 does the same for a hosted large model. Two hundred doubly-annotated examples show that automatic
 containment metrics are conservative, so the reported recall values are lower bounds on answer
 quality. Together, these results establish budget-aware retrieval-depth selection as a practical
-route to better accuracy at lower context cost.
+route to better accuracy at lower context cost. We further show how a quality target can be translated into a budget: with twenty labelled questions and a safety margin, the calibrated budget lands within 1.1-1.6x of the oracle and meets the target 76-93% of the time, while unreachable targets are refused rather than promised.
 
 **Keywords:** retrieval-augmented generation; context budget; submodular maximization; adaptive
 retrieval; cost-aware inference; large language models
