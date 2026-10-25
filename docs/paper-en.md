@@ -715,6 +715,38 @@ The practical reading is that neither more context nor a larger budget fixes the
 the first needs better ranking of short answers, the second better entity disambiguation and two-hop
 evidence composition.
 
+### 6.15 Order-Dependent Costs: the Guarantee Breaks, the Decisions Do Not
+
+Assumption A2 treats costs as additive and order-independent. Real deployments do not: a second chunk
+from the same document usually shares a prefix, so its incremental cost is lower, and batching
+discounts depend on what was already fetched. We therefore asked whether the budgeted greedy rule
+survives a per-document discount.
+
+**Theory first.** With "first chunk of a document at full price, later chunks at d times the price",
+the cost of a set becomes submodular rather than modular: marginal cost drops from p to d*p after the
+first chunk of a document. The bounds of Section 5 (Khuller et al.) assume modular costs, so the
+(1-1/e)/2 guarantee and its cross-tier recovery no longer follow. This is a genuine gap, not a
+technicality.
+
+**Experiment.** On the 143 questions we restricted each query to its top-12 candidates and enumerated
+all 2^12 subsets, computing the true discounted cost and the achieved recall for d in {1.0, 0.7, 0.5,
+0.3}. A true-cost greedy selected by gain per *actual* marginal cost, a naive greedy took candidates in
+score order while charging full price, and both were compared with the exhaustive optimum.
+
+The three policies agree exactly at every discount: mean recall 0.937 for all of them, greedy reaches
+the optimum on 143/143 questions, and the naive policy never exceeds the budget by more than rounding.
+The reason is the metric, not the algorithm: recall is binary per question (the answer span is either
+in the context or not), and the span sits in the single best chunk for 134 of 143 questions, so any
+policy that takes that chunk is optimal regardless of what the rest costs. Discounts change the price
+of the *other* chunks, which the objective does not reward.
+
+The practical reading is twofold. First, the theoretical guarantee genuinely does not transfer, and a
+paper that claims it under order-dependent costs would be wrong. Second, for single-span retrieval the
+non-additivity is inert -- it matters only when the objective requires combining evidence from
+different chunks, as in multi-hop questions, or when the answer is split across passages. We therefore
+keep A2 as a stated assumption, report the break in the guarantee here, and do not claim the bound for
+deployment settings with prefix caching.
+
 ---
 
 ## 7. Discussion
