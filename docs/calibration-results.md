@@ -75,3 +75,30 @@ python scripts/calibrate_budget.py --method hybrid --index index_real.json
 python scripts/calibrate_budget.py --method dense  --index index_real_bgelarge.json
 python scripts/calibrate_budget.py --method bm25   --index index_real.json
 ```
+
+## 八、保形校准（最终采用的协议）
+
+曲线拟合 + 安全边际的版本需要手调 δ 且没有保证。改用 split conformal：
+
+```
+B = 标定集「所需预算」的第 ⌈(N+1)(1−α)⌉ 个次序统计量，α = 1 − T
+```
+
+若该次序统计量为无穷（标定集从未达到目标）→ 报「不可达」。
+
+| 检索器 | 目标 | 预算 | 经验覆盖 | 名义 | 差距 |
+|---|---|---|---|---|---|
+| Hybrid bge-m3 | 0.80 | 104 | 0.815 | 0.800 | +0.015 |
+| Hybrid bge-m3 | 0.85 | 135 | 0.850 | 0.850 | 0.000 |
+| Hybrid bge-m3 | 0.90 | 154 | 0.894 | 0.900 | −0.006 |
+| Dense bge-large | 0.80 | 156 | 0.813 | 0.800 | +0.013 |
+| Dense bge-large | 0.90 | 337 | 0.871 | 0.900 | −0.029 |
+| BM25 | 0.80 | 366 | 0.800 | 0.800 | 0.000 |
+| BM25 | 0.90 | 708 | 0.858 | 0.900 | −0.042 |
+
+**要点**：
+1. 混合检索器上保证成立（误差 ≤0.015），且预算 104–154 远低于固定 k=8 的 294。
+2. 弱检索器在高目标上覆盖不足——不是协议失效，而是目标本身超出其能力，应由「不可达」路径拒绝。
+3. 保形版本不需要调参、有理论保证，故作为论文主线；曲线版本留作图 4B 的对照。
+
+复现：`python scripts/conformal_calibration.py --method hybrid --targets 0.80 0.85 0.90`

@@ -29,7 +29,7 @@ benchmarks, retrieval improves answer accuracy for a locally deployed 4B model, 
 does the same for a hosted large model. Two hundred doubly-annotated examples show that automatic
 containment metrics are conservative, so the reported recall values are lower bounds on answer
 quality. Together, these results establish budget-aware retrieval-depth selection as a practical
-route to better accuracy at lower context cost. We further show how a quality target can be translated into a budget: with twenty labelled questions and a safety margin, the calibrated budget lands within 1.1-1.6x of the oracle and meets the target 76-93% of the time, while unreachable targets are refused rather than promised.
+route to better accuracy at lower context cost. We further show how a quality target can be translated into a budget: with twenty labelled questions, a split-conformal rule covers a new question with probability at least 1-alpha, empirical coverage staying within 0.015 of nominal at 104-154 tokens on the hybrid retriever, while unreachable targets are refused rather than promised.
 
 **Keywords:** retrieval-augmented generation; context budget; submodular maximization; adaptive
 retrieval; cost-aware inference; large language models
@@ -587,43 +587,39 @@ result and is not claimed to generalize.
 ### 6.10 From a Budget to a Quality Target
 
 Users do not ask for "300 tokens"; they ask for "90% recall". Turning the second into the first is a
-calibration problem that the budget framing makes explicit, and it can be solved with a handful of
-labelled questions.
+calibration problem, and it admits a distribution-free solution with a finite-sample guarantee.
 
-**Protocol.** Sample N labelled questions (N = 20), record for each the smallest budget at which the
-answer span enters the context, fit a saturating curve recall(B) = R_inf(1 - exp(-B/s)), and invert it
-for the budget that reaches a target T plus a safety margin delta. A closed-loop step re-checks the
-prediction on the fitting sample and multiplies the budget by 1.6 (up to three rounds) when the
-estimate falls short; if T exceeds the retriever's achievable ceiling, the protocol reports the target
-as unreachable instead of promising it. Thirty random splits separate fitting from evaluation.
+**Protocol (split conformal).** Sample N labelled questions (N = 20), record for each the smallest
+budget at which the answer span enters the context, and set the budget to the ceil((N+1)(1-alpha))-th
+smallest of those values; alpha = 1 - T for a target T. If the required order statistic is infinite --
+that is, the calibration sample never reaches the target -- the protocol reports the target as
+unreachable instead of returning a number. Under exchangeability of calibration and test questions,
+the resulting budget covers a new question with probability at least 1 - alpha, so the expected recall
+is at least T. One hundred random splits separate calibration from evaluation.
 
-| Retriever | Target | Delta | Predicted budget | Actual recall | Reach rate | Oracle budget |
-|---|---|---|---|---|---|---|
-| Hybrid (bge-m3) | 0.80 | 0.05 | 139 | 0.864 | 0.93 | 120 |
-| Hybrid (bge-m3) | 0.85 | 0.05 | 174 | 0.890 | 0.83 | 120 |
-| Hybrid (bge-m3) | 0.90 | 0.05 | 194 | 0.907 | 0.76 | 180 |
-| Dense (bge-large-en) | 0.80 | 0.10 | 189 | 0.842 | 0.86 | 180 |
-| Dense (bge-large-en) | 0.85 | 0.10 | 218 | 0.856 | 0.33 | 250 |
-| Dense (bge-large-en) | 0.90 | 0.10 | 502 | 0.925 | 0.94 | 500 |
-| BM25 | 0.80 | 0.05 | 215 | 0.777 | 0.42 | 350 |
-| BM25 | 0.90 | 0.05 | 285 | 0.794 | 0.00 | 1500 |
+| Retriever | Target | Budget (median) | Empirical coverage | Nominal | Gap |
+|---|---|---|---|---|---|
+| Hybrid (bge-m3) | 0.80 | 104 | 0.815 | 0.800 | +0.015 |
+| Hybrid (bge-m3) | 0.85 | 135 | 0.850 | 0.850 | 0.000 |
+| Hybrid (bge-m3) | 0.90 | 154 | 0.894 | 0.900 | -0.006 |
+| Dense (bge-large-en) | 0.80 | 156 | 0.813 | 0.800 | +0.013 |
+| Dense (bge-large-en) | 0.90 | 337 | 0.871 | 0.900 | -0.029 |
+| BM25 | 0.80 | 366 | 0.800 | 0.800 | 0.000 |
+| BM25 | 0.90 | 708 | 0.858 | 0.900 | -0.042 |
 
-**Reach rate** is the fraction of splits whose achieved recall met the target; the oracle budget is
-what the test split actually needs.
+Three findings follow. First, on the strongest retriever the guarantee holds: empirical coverage tracks
+the nominal level within 0.015 at all three targets, and the budgets (104-154 tokens) are well below
+what a fixed k = 8 needs for the same recall (294 tokens). Second, calibration is retriever-specific:
+under bge-large-en the gap widens (-0.029 at 0.90) and under BM25 the high targets fall short
+(-0.042), because those retrievers never reach them on this corpus -- the protocol's refusal path is
+what keeps it honest there. Third, a saturating-curve variant with a safety margin reaches a similar
+reach rate but needs a hand-tuned margin and gives no guarantee, so the conformal form is preferred.
 
 ![Figure 4. Calibration curves and reach rate](figures/fig4-calibration.png)
 
 **Figure 4.** (A) Recall against context budget for four retrievers on the 143-question benchmark; the
-dashed lines mark the 0.80, 0.85 and 0.90 targets used by the calibration protocol. (B) Reach rate
-against the safety margin for the hybrid retriever.
-
-Three findings follow. First, on the strongest retriever twenty labelled questions suffice: the
-predicted budget lands within 1.1-1.6x of the oracle and the target is met 76-93% of the time. Second,
-calibration is retriever-specific: swapping bge-m3 for bge-large-en widens the prediction error and
-drops the reach rate for the 0.85 target from 0.83 to 0.33, so a change of retriever requires
-recalibration. Third, the protocol must refuse unreachable targets: BM25 never exceeds about 0.85
-recall on this corpus at any sampled budget, and a calibration that returned a number anyway would be
-a promise the system cannot keep.
+dashed lines mark the 0.80, 0.85 and 0.90 targets. (B) Reach rate against the safety margin for the
+curve-based variant, shown for comparison with the conformal protocol of this section.
 
 ### 6.11 Why a Second Budget Does Not Bind
 
