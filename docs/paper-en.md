@@ -584,6 +584,66 @@ preset, deciding retrieval depth from the retrieval-score margin saves substanti
 measurable loss of quality.** The high recall observed on the synthetic corpus is a controlled-setting
 result and is not claimed to generalize.
 
+### 6.10 From a Budget to a Quality Target
+
+Users do not ask for "300 tokens"; they ask for "90% recall". Turning the second into the first is a
+calibration problem that the budget framing makes explicit, and it can be solved with a handful of
+labelled questions.
+
+**Protocol.** Sample N labelled questions (N = 20), record for each the smallest budget at which the
+answer span enters the context, fit a saturating curve recall(B) = R_inf(1 - exp(-B/s)), and invert it
+for the budget that reaches a target T plus a safety margin delta. A closed-loop step re-checks the
+prediction on the fitting sample and multiplies the budget by 1.6 (up to three rounds) when the
+estimate falls short; if T exceeds the retriever's achievable ceiling, the protocol reports the target
+as unreachable instead of promising it. Thirty random splits separate fitting from evaluation.
+
+| Retriever | Target | Delta | Predicted budget | Actual recall | Reach rate | Oracle budget |
+|---|---|---|---|---|---|---|
+| Hybrid (bge-m3) | 0.80 | 0.05 | 139 | 0.864 | 0.93 | 120 |
+| Hybrid (bge-m3) | 0.85 | 0.05 | 174 | 0.890 | 0.83 | 120 |
+| Hybrid (bge-m3) | 0.90 | 0.05 | 194 | 0.907 | 0.76 | 180 |
+| Dense (bge-large-en) | 0.80 | 0.10 | 189 | 0.842 | 0.86 | 180 |
+| Dense (bge-large-en) | 0.85 | 0.10 | 218 | 0.856 | 0.33 | 250 |
+| Dense (bge-large-en) | 0.90 | 0.10 | 502 | 0.925 | 0.94 | 500 |
+| BM25 | 0.80 | 0.05 | 215 | 0.777 | 0.42 | 350 |
+| BM25 | 0.90 | 0.05 | 285 | 0.794 | 0.00 | 1500 |
+
+**Reach rate** is the fraction of splits whose achieved recall met the target; the oracle budget is
+what the test split actually needs.
+
+![Figure 4. Calibration curves and reach rate](figures/fig4-calibration.png)
+
+**Figure 4.** (A) Recall against context budget for four retrievers on the 143-question benchmark; the
+dashed lines mark the 0.80, 0.85 and 0.90 targets used by the calibration protocol. (B) Reach rate
+against the safety margin for the hybrid retriever.
+
+Three findings follow. First, on the strongest retriever twenty labelled questions suffice: the
+predicted budget lands within 1.1-1.6x of the oracle and the target is met 76-93% of the time. Second,
+calibration is retriever-specific: swapping bge-m3 for bge-large-en widens the prediction error and
+drops the reach rate for the 0.85 target from 0.83 to 0.33, so a change of retriever requires
+recalibration. Third, the protocol must refuse unreachable targets: BM25 never exceeds about 0.85
+recall on this corpus at any sampled budget, and a calibration that returned a number anyway would be
+a promise the system cannot keep.
+
+### 6.11 Why a Second Budget Does Not Bind
+
+Real systems are constrained by tokens, latency and money at once, so one may ask whether a scalar
+budget is an oversimplification. We measured the retrieval side directly on the 143-question benchmark:
+BM25 takes 16 ms, dense retrieval 42 ms (including query encoding) and hybrid retrieval 69 ms, while
+generation takes 898 ms at p50 (Section 6.8). Retrieval therefore accounts for at most 7.2% of
+end-to-end latency, and the three cost dimensions are collinear in this setting: money is a fixed
+multiple of tokens, prefill latency is close to linear in context length, and the spread across
+retrievers (16-70 ms) is too small to move a latency budget.
+
+The only action with a distinct cost vector is query rewriting, which adds both tokens and about
+870 ms of latency. On this corpus it also lowers recall (0.902 against 0.937), so it is dominated in
+every two-dimensional budget. A second dimension would only bind when a component carries a different
+cost shape: per-call web search fees, routing between models of different price and quality, or an
+end-to-end latency SLA tight enough to exclude rewriting outright. The scalar budget is therefore not a
+simplification of the problem but the correct model for this operating regime, and we state the
+conditions under which it would have to be extended.
+
+---
 
 ## 7. Discussion
 
