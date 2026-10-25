@@ -80,7 +80,11 @@ Our contributions are threefold.
 2. We derive the closed-form rewriting threshold $\tau^*(\lambda)$ (Propositions 2 and 4; Section 6.7).
    As predicted, raising the unit-price coefficient from 0.25 to 2 lowers $\tau^*$ from 0.25 to 0.
 
-3. On a 200-query retrieval benchmark, the system achieves 0.960 recall at an average context cost of
+3. We turn the budget into a user-facing interface: given a quality target, a calibration protocol with
+   twenty labelled questions predicts the required budget, reports a reach rate, and refuses targets
+   above what the retriever can deliver (Section 6.10).
+
+4. On a 200-query retrieval benchmark, the system achieves 0.960 recall at an average context cost of
    126 tokens, against five baselines evaluated under a common budget. An approximation of corrective
    retrieval yields 0.925 recall at 179 tokens, and dense retrieval yields 0.910 at 115 tokens. Paired
    bootstrap and McNemar tests show that the reported differences are significant ($p<0.05$). On 500
