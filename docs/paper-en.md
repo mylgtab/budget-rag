@@ -749,6 +749,38 @@ different chunks, as in multi-hop questions, or when the answer is split across 
 keep A2 as a stated assumption, report the break in the guarantee here, and do not claim the bound for
 deployment settings with prefix caching.
 
+### 6.16 Reproducing the Official Complexity Classifier
+
+The strongest criticism of a routing paper is that it never runs the routing baseline it compares with.
+Appendix C approximates the behaviour with TF-IDF and BERT classifiers; here we replace that with a
+model trained by the official recipe on the official labels.
+
+Adaptive-RAG does not release a checkpoint, but its repository ships the silver training labels
+(A/B/C complexity) that its own classifier is trained on: 3,817 training and 1,431 validation
+questions. We trained the same T5 sequence-to-sequence objective on those labels. Our run uses
+t5-small with six epochs on CPU rather than the paper's T5-large on GPU, and reaches **43.3%**
+three-way accuracy on the released validation split (the majority class alone accounts for about 40%),
+so it is a faithful mechanism reproduction at reduced model scale, not the original model.
+
+We then applied the classifier to our 301 questions and routed with the paper's own mapping: A (simple)
+takes no context, B (single-hop) retrieves five passages, C (multi-hop) retrieves ten.
+
+| Method | Recall | mean tokens |
+|---|---|---|
+| Official classifier (faithful: A = no retrieval) | 0.638 | 56 |
+| Official classifier (adapted: A = top-1 passage) | 0.844 | 66 |
+| Hybrid top-3 | 0.824 | 108 |
+| **Ours (difficulty-adaptive, k=4/10)** | **0.900** | **244** |
+| Hybrid top-8 | 0.904 | 289 |
+
+The classifier assigns 83 questions to A, 189 to B and 29 to C, and it is a genuinely strong
+low-budget baseline: at 66 tokens it reaches 0.844, better than fixed top-3 at 108. It is however
+dominated once high recall is required, because an A prediction removes the evidence outright, and
+its routing is fixed -- there is no knob that trades tokens for a target recall. That is precisely the
+interface Section 6.10 provides and this baseline lacks, which is why the two are complementary rather
+than competing: the classifier picks a cheap operating point, the conformal protocol certifies a
+target quality at whatever budget that costs.
+
 ---
 
 ## 7. Discussion
