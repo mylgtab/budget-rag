@@ -141,3 +141,161 @@
 {"question": "What is the maximum width for signed integers in BITFIELD?", "answers": ["64 bits"], "doc": "redis-bitfield.md"}
 {"question": "What is the maximum total number of cluster entries?", "answers": ["16384"], "doc": "redis-cluster-nodes.md"}
 {"question": "What is the maximum memory used by HyperLogLog counting?", "answers": ["12KB"], "doc": "redis-prob.md"}
+{"question": "How old must a query be before Grafana deletes it?", "answers": ["two weeks"], "doc": "grafana-query-management.md"}
+{"question": "What powers every data source in Grafana?", "answers": ["plugin"], "doc": "grafana-concepts.md"}
+{"question": "From which Grafana version are transformations available in the correlations editor?", "answers": ["10.3"], "doc": "grafana-correlations-editor-in-explore.md"}
+{"question": "Which feature toggle must be enabled for the new XY chart?", "answers": ["autoMigrateXYChartPanel"], "doc": "grafana-whats-new-in-v11-1.md"}
+{"question": "Which cloud partner co-created the Grafana 11.4 feature?", "answers": ["AWS"], "doc": "grafana-whats-new-in-v11-4.md"}
+{"question": "In which Grafana version is the plugin catalog on by default?", "answers": ["8.2"], "doc": "grafana-whats-new-in-v8-2.md"}
+{"question": "What do standard options change in a panel?", "answers": ["how field data is displayed"], "doc": "grafana-standard-options.md"}
+{"question": "What do labels consist of?", "answers": ["key/value pairs"], "doc": "grafana-get-started-with-explore.md"}
+{"question": "How is the hovered series shown in the tooltip series list?", "answers": ["in bold"], "doc": "grafana-tooltip-options-2.md"}
+{"question": "What must the name of a recording rule be?", "answers": ["valid metric names"], "doc": "prometheus-recording-rules.md"}
+{"question": "Which URL parameter is required when federating metrics?", "answers": ["match[]"], "doc": "prometheus-federation.md"}
+{"question": "Which volume type is recommended for production Prometheus?", "answers": ["named volume"], "doc": "prometheus-installation.md"}
+{"question": "Which URL shows the Prometheus scraping targets?", "answers": ["localhost:9090/targets"], "doc": "prometheus-getting-started.md"}
+{"question": "What is rate(http_requests_total[5m])[30m:1m] an example of?", "answers": ["nested subquery"], "doc": "prometheus-examples.md"}
+{"question": "What is a float sample?", "answers": ["simple floating point number"], "doc": "prometheus-basics.md"}
+{"question": "Which template variable holds the request path?", "answers": ["$path"], "doc": "prometheus-template-reference.md"}
+{"question": "Which key interrupts the default terminal session?", "answers": ["^C (Control-C)"], "doc": "prometheus-getting-started.md"}
+{"question": "When are changes to rule files applied?", "answers": ["only applied if all rule files are well-formatted"], "doc": "prometheus-recording-rules.md"}
+{"question": "What is a container?", "answers": ["an isolated process"], "doc": "docker-what-is-a-container.md"}
+{"question": "How is a workspace path exposed inside the sandbox?", "answers": ["mounted"], "doc": "docker-architecture.md"}
+{"question": "What is an image?", "answers": ["a ready-to-run package"], "doc": "docker-run-an-app.md"}
+{"question": "What is a Dockerfile?", "answers": ["a set of instructions for building the image"], "doc": "docker-run-an-app.md"}
+{"question": "In which Dockerfile version were build checks introduced?", "answers": ["1.8"], "doc": "docker-checks.md"}
+{"question": "What exit status does the check flag give when violations are found?", "answers": ["non-zero"], "doc": "docker-checks.md"}
+{"question": "What happens to builds that exceed the time limit?", "answers": ["automatically cancelled"], "doc": "docker-ci.md"}
+{"question": "Which sources can a Compose config come from?", "answers": ["file, environment, content, or external"], "doc": "docker-configs.md"}
+{"question": "What is the matrix attribute?", "answers": ["a map of parameter names to lists of values"], "doc": "docker-matrices.md"}
+{"question": "How are requests distributed across web1 and web2?", "answers": ["on a rotating basis"], "doc": "docker-multi-container-applications.md"}
+{"question": "Where must experimental features not be used?", "answers": ["production environments"], "doc": "docker-2-x-windows.md"}
+{"question": "Which company holds the Docker Enterprise portfolio now?", "answers": ["Mirantis"], "doc": "docker-retired.md"}
+{"question": "Does service name DNS resolution work in this network mode?", "answers": ["does not work"], "doc": "docker-networking.md"}
+{"question": "What happens to open connections to an old container?", "answers": ["they are closed"], "doc": "docker-networking.md"}
+{"question": "What does each item in the watch sequence define?", "answers": ["a rule"], "doc": "docker-develop.md"}
+{"question": "Where is the launcher token also saved?", "answers": ["Secrets"], "doc": "docker-secrets.md"}
+{"question": "Which subscription avoids the sign-in prompt?", "answers": ["Docker Business"], "doc": "docker-methods.md"}
+{"question": "Which API formats does Docker Model Runner support?", "answers": ["OpenAI, Anthropic, and Ollama"], "doc": "docker-api-reference.md"}
+{"question": "What must happen to Docker Desktop before backing up its files?", "answers": ["fully stopped"], "doc": "docker-backup-and-restore.md"}
+{"question": "Which platforms receive standalone Docker Compose?", "answers": ["Linux or Windows Server"], "doc": "docker-standalone.md"}
+{"question": "Which registries make the private-registry build feature useful?", "answers": ["private OCI registries"], "doc": "docker-builder-settings.md"}
+{"question": "Do changes made in the sandbox require a sync process?", "answers": ["no sync process"], "doc": "docker-architecture.md"}
+{"question": "Which character separates subcommands when they are blocked since Redis 7.0?", "answers": ["|"], "doc": "redis-acl-setuser.md"}
+{"question": "How is the specified password stored inside the server?", "answers": ["not stored as clear text"], "doc": "redis-acl-setuser.md"}
+{"question": "Which client pause mode is recommended since Redis 6.2?", "answers": ["WRITE"], "doc": "redis-client-pause.md"}
+{"question": "What does CLIENT PAUSE do to the Redis clients?", "answers": ["suspend all the Redis clients"], "doc": "redis-client-pause.md"}
+{"question": "Why is CF.INSERTNX slower than CF.INSERT?", "answers": ["checks whether each item exists"], "doc": "redis-cf-insertnx.md"}
+{"question": "What does CLUSTER REPLICAS list?", "answers": ["replica nodes"], "doc": "redis-cluster-replicas.md"}
+{"question": "What does a BF.MEXISTS result of 0 mean?", "answers": ["definitely not added"], "doc": "redis-bf-mexists.md"}
+{"question": "What do CLUSTER ADDSLOTS and ADDSLOTSRANGE both do?", "answers": ["assign hash slots to nodes"], "doc": "redis-cluster-addslotsrange.md"}
+{"question": "Which slot state makes a node apply special command handling?", "answers": ["migrating state"], "doc": "redis-cluster-setslot.md"}
+{"question": "BRPOP is the blocking version of which command?", "answers": ["RPOP"], "doc": "redis-brpop.md"}
+{"question": "Since which Redis version is the ban list included in gossip messages?", "answers": ["7.2.0"], "doc": "redis-cluster-forget.md"}
+{"question": "What do SUM, MIN and MAX return when no numeric elements are present?", "answers": ["nil"], "doc": "redis-arop.md"}
+{"question": "Which subcommand does BITFIELD_RO accept?", "answers": ["GET"], "doc": "redis-bitfield-ro.md"}
+{"question": "Over what period does ACL LOG count security events?", "answers": ["60 second period"], "doc": "redis-acl-log.md"}
+{"question": "Which two commands does CF.ADDNX combine?", "answers": ["CF.EXISTS and CF.ADD"], "doc": "redis-cf-addnx.md"}
+{"question": "How long does BRPOPLPUSH block when the source list is empty?", "answers": ["until timeout is reached"], "doc": "redis-brpoplpush.md"}
+{"question": "Since which Redis version can scheduled AOF rewrites be checked with INFO?", "answers": ["2.6"], "doc": "redis-bgrewriteaof.md"}
+{"question": "What does CLIENT ID return?", "answers": ["the ID of the current connection"], "doc": "redis-client-id.md"}
+{"question": "Which setting removes the full-coverage requirement before a node serves queries?", "answers": ["cluster-require-full-coverage"], "doc": "redis-cluster-info.md"}
+{"question": "Since which Redis version may ACL files contain comment lines?", "answers": ["8.8"], "doc": "redis-acl-load.md"}
+{"question": "When does ACL LOAD fail?", "answers": ["not configured to use an external ACL file"], "doc": "redis-acl-load.md"}
+{"question": "What does CLUSTER COUNT-FAILURE-REPORTS return?", "answers": ["number of active failure reports"], "doc": "redis-cluster-count-failure-reports.md"}
+{"question": "What happens when CF.INSERT targets a key that does not exist?", "answers": ["a new cuckoo filter is created"], "doc": "redis-cf-insert.md"}
+{"question": "Which options combine multiple predicates?", "answers": ["AND or OR"], "doc": "redis-argrep.md"}
+{"question": "What does ACL CAT show for a given category?", "answers": ["all the Redis commands in the specified category"], "doc": "redis-acl-cat.md"}
+{"question": "How does BF.MADD differ from BF.ADD?", "answers": ["add more than one item"], "doc": "redis-bf-madd.md"}
+{"question": "What does CLUSTER MIGRATION provide?", "answers": ["atomic slot migration"], "doc": "redis-cluster-migration.md"}
+{"question": "What does CLIENT PAUSE suspend?", "answers": ["all the Redis clients"], "doc": "redis-client-pause.md"}
+{"question": "How does BF.MEXISTS differ from BF.EXISTS?", "answers": ["more than one item can be checked"], "doc": "redis-bf-mexists.md"}
+{"question": "What does CLUSTER DELSLOTS ask a node to forget?", "answers": ["which master is serving the hash slots"], "doc": "redis-cluster-delslots.md"}
+{"question": "What does each entry in the BZMPOP elements array contain?", "answers": ["the member and its score"], "doc": "redis-bzmpop.md"}
+{"question": "What does a CF.COUNT result of 0 mean?", "answers": ["key does not exist"], "doc": "redis-cf-count.md"}
+{"question": "What happens to a replica's dataset on CLUSTER RESET?", "answers": ["flushed"], "doc": "redis-cluster-reset.md"}
+{"question": "Which epoch variables are zeroed by a HARD reset?", "answers": ["currentEpoch and configEpoch"], "doc": "redis-cluster-reset.md"}
+{"question": "Which command enables key tracking for the next command in OPTIN mode?", "answers": ["CLIENT CACHING"], "doc": "redis-client-caching.md"}
+{"question": "What does APPEND create when the key does not exist?", "answers": ["an empty string"], "doc": "redis-append.md"}
+{"question": "Which command can overwrite an existing time series?", "answers": ["SETRANGE"], "doc": "redis-append.md"}
+{"question": "For what can annotations be shown?", "answers": ["the index and descriptors"], "doc": "docker-annotations.md"}
+{"question": "Which existing concept do annotations overlap with?", "answers": ["labels"], "doc": "docker-annotations.md"}
+{"question": "What does the include top-level section define?", "answers": ["the dependency on another Compose application"], "doc": "docker-include.md"}
+{"question": "Where can Docker Desktop for Windows run besides a physical machine?", "answers": ["inside a virtual desktop"], "doc": "docker-vm-vdi.md"}
+{"question": "Which hypervisor does not support nested virtualization?", "answers": ["Citrix Hypervisor/XenServer"], "doc": "docker-vm-vdi.md"}
+{"question": "In which language are MCP access policies written?", "answers": ["Cedar"], "doc": "docker-mcp-gateway.md"}
+{"question": "Do containers modify files without affecting other containers?", "answers": ["without affecting any other containers"], "doc": "docker-persisting-container-data.md"}
+{"question": "Is hook execution timing guaranteed during entrypoint execution?", "answers": ["not assured"], "doc": "docker-lifecycle.md"}
+{"question": "What does Docker Hub provide for base images?", "answers": ["a vast library of Docker images"], "doc": "docker-base-images.md"}
+{"question": "Which base image makes image creation difficult except for small simple images?", "answers": ["FROM scratch"], "doc": "docker-base-images.md"}
+{"question": "What is the image validation feature useful for?", "answers": ["pinning critical base images to known-good versions"], "doc": "docker-validate-images.md"}
+{"question": "What does signature metadata provide?", "answers": ["cryptographic proof of the build's origin"], "doc": "docker-validate-images.md"}
+{"question": "What must be public to launch a kit from the Console?", "answers": ["both the kit and its base image"], "doc": "docker-faq.md"}
+{"question": "Which SCIM fields must be exact?", "answers": ["External Name and External Namespace"], "doc": "docker-provision-scim.md"}
+{"question": "What does USB/IP let you share over the network?", "answers": ["USB devices"], "doc": "docker-usbip.md"}
+{"question": "Which top-level element supports the profiles attribute?", "answers": ["services"], "doc": "docker-profiles.md"}
+{"question": "What happens when more than one Bake file is found?", "answers": ["all files are loaded and merged"], "doc": "docker-overrides.md"}
+{"question": "What happens to values passed as environment variables?", "answers": ["coerced into suitable types"], "doc": "docker-overrides.md"}
+{"question": "How much CPU is set in the example?", "answers": ["0.5"], "doc": "docker-overriding-container-defaults.md"}
+{"question": "Which two logins is SDK sign-in separate from?", "answers": ["docker login and sbx login"], "doc": "docker-authentication.md"}
+{"question": "What happens when the PAT is invalid or revoked?", "answers": ["authentication fails"], "doc": "docker-authentication.md"}
+{"question": "What do Compose models standardize?", "answers": ["AI model dependencies"], "doc": "docker-models-and-compose.md"}
+{"question": "Which two characters must not be separated by a space in anchors?", "answers": ["& and the *"], "doc": "docker-fragments.md"}
+{"question": "What do self-published extensions go through?", "answers": ["automated validation"], "doc": "docker-marketplace.md"}
+{"question": "How long is the subscription payment grace period?", "answers": ["15 days"], "doc": "docker-subscription-billing.md"}
+{"question": "Can subscriptions be transferred between accounts?", "answers": ["non-transferable"], "doc": "docker-subscription-billing.md"}
+{"question": "What operation do the policy conditions resemble?", "answers": ["AND operation"], "doc": "docker-intro.md"}
+{"question": "What cannot be asserted in the context of the host on Windows?", "answers": ["system privileges"], "doc": "kubernetes-windows-resource-management.md"}
+{"question": "How does Windows treat all user-mode memory allocations?", "answers": ["as virtual"], "doc": "kubernetes-windows-resource-management.md"}
+{"question": "Since which Kubernetes version is cAdvisor-based metrics collection deprecated?", "answers": ["v1.37"], "doc": "kubernetes-cri-pod-container-metrics.md"}
+{"question": "Which instance becomes the leader?", "answers": ["whose update is accepted"], "doc": "kubernetes-coordinated-leader-election.md"}
+{"question": "Which command shows dot files when listing a secret volume?", "answers": ["ls -la"], "doc": "kubernetes-secret.md"}
+{"question": "Which command shows the full backup state, error and timestamps?", "answers": ["BACKUP STATUS"], "doc": "redis-backup-status.md"}
+{"question": "Which subcommands make CLIENT REPLY send no reply?", "answers": ["OFF or SKIP"], "doc": "redis-client-reply.md"}
+{"question": "Which field lists key prefixes with notifications?", "answers": ["prefixes"], "doc": "redis-client-trackinginfo.md"}
+{"question": "How is the BZPOPMAX timeout interpreted?", "answers": ["double value"], "doc": "redis-bzpopmax.md"}
+{"question": "Which command returns the same value as BF.CARD for the number of items?", "answers": ["BF.INFO"], "doc": "redis-bf-card.md"}
+{"question": "What does BACKUP SEAL do to the live AOF?", "answers": ["Rotates the live AOF"], "doc": "redis-backup-seal.md"}
+{"question": "From where does BLPOP pop the element?", "answers": ["the head of the first list that is non-empty"], "doc": "redis-blpop.md"}
+{"question": "What does ACL GETUSER return?", "answers": ["all the rules defined for an existing ACL user"], "doc": "redis-acl-getuser.md"}
+{"question": "Which bytes are examined by BITCOUNT by default?", "answers": ["all the bytes contained in the string"], "doc": "redis-bitcount.md"}
+{"question": "How many elements does BLMOVE move when it unblocks?", "answers": ["up to count elements"], "doc": "redis-blmovem.md"}
+{"question": "What is CLUSTER KEYSLOT mainly useful for?", "answers": ["debugging and testing"], "doc": "redis-cluster-keyslot.md"}
+{"question": "Does an OK reply guarantee that the failover will succeed?", "answers": ["no guarantee"], "doc": "redis-cluster-failover.md"}
+{"question": "In which order are elements returned when start is greater than end?", "answers": ["reverse index order"], "doc": "redis-arscan.md"}
+{"question": "Where are both alternative locations checked in a cuckoo filter?", "answers": ["on all sub-filters"], "doc": "redis-cf-del.md"}
+{"question": "Which command is a good way to generate strong passwords?", "answers": ["ACL GENPASS"], "doc": "redis-auth.md"}
+{"question": "Which two commands does BF.INSERT combine?", "answers": ["BF.RESERVE and BF.MADD"], "doc": "redis-bf-insert.md"}
+{"question": "What does the specified node ID not identify?", "answers": ["the instance we are sending the command to"], "doc": "redis-cluster-replicate.md"}
+{"question": "Which command does BLMOVE behave like when the source has elements?", "answers": ["LMOVE"], "doc": "redis-blmove.md"}
+{"question": "What does a CF.MEXISTS result of true mean?", "answers": ["probably already added"], "doc": "redis-cf-mexists.md"}
+{"question": "Which subcommand filters clients by their type?", "answers": ["TYPE"], "doc": "redis-client-list.md"}
+{"question": "Where is each value inserted in a ring?", "answers": ["insert_idx % size"], "doc": "redis-arring.md"}
+{"question": "What time complexity do tracked prefixes add?", "answers": ["O(N^2)"], "doc": "redis-client-tracking.md"}
+{"question": "What do some resource errors indicate?", "answers": ["a configuration problem"], "doc": "redis-error-handling.md"}
+{"question": "What does the off flag mean in CLIENT TRACKINGINFO?", "answers": ["isn't using server assisted client side caching"], "doc": "redis-client-trackinginfo.md"}
+{"question": "Which field describes how a cluster link was established?", "answers": ["direction"], "doc": "redis-cluster-links.md"}
+{"question": "Why is BZPOPMAX a blocking command?", "answers": ["blocks the connection when there are no members to pop"], "doc": "redis-bzpopmax.md"}
+{"question": "Which error case does CF.SCANDUMP report besides invalid arguments and wrong type?", "answers": ["the key was not found"], "doc": "redis-cf-scandump.md"}
+{"question": "Which command includes empty slots in its output?", "answers": ["ARGETRANGE"], "doc": "redis-arscan.md"}
+{"question": "What can run alongside your Linux containers?", "answers": ["Wasm applications"], "doc": "docker-wasm.md"}
+{"question": "Which four resources can you monitor for a container?", "answers": ["CPU, memory, network and disk space"], "doc": "docker-container.md"}
+{"question": "How are Compose apps grouped in the grid?", "answers": ["expand/collapse control"], "doc": "docker-container.md"}
+{"question": "What does Docker Desktop support to power the Linux VM?", "answers": ["multiple Virtual Machine Managers"], "doc": "docker-vmm.md"}
+{"question": "When do init containers run?", "answers": ["before a service's main container starts"], "doc": "docker-init-containers.md"}
+{"question": "Is per-replica init container execution supported?", "answers": ["not yet supported"], "doc": "docker-init-containers.md"}
+{"question": "Which port is reserved for SSH in sandboxes?", "answers": ["2222"], "doc": "docker-sandboxes.md"}
+{"question": "What happens to the sandbox when the timer expires if Restart is chosen?", "answers": ["restart the sandbox automatically"], "doc": "docker-sandboxes.md"}
+{"question": "What is used as the project name when no Compose file is specified?", "answers": ["base name of the current directory"], "doc": "docker-project-name.md"}
+{"question": "Which notation is recommended to prevent network label conflicts?", "answers": ["reverse-DNS notation"], "doc": "docker-networks.md"}
+{"question": "What does reusing containers let you do?", "answers": ["make changes to your environment quickly"], "doc": "docker-features-uses.md"}
+{"question": "Which tool creates the Compose test environment?", "answers": ["Compose command line tool"], "doc": "docker-features-uses.md"}
+{"question": "What determines where the image content is stored?", "answers": ["the registry you use"], "doc": "docker-eu-region.md"}
+{"question": "Which port exposes the Prometheus server used by the metrics exporter?", "answers": ["9090"], "doc": "docker-metrics-exporter.md"}
+{"question": "Which legacy name does Entra ID carry?", "answers": ["Azure AD"], "doc": "docker-security.md"}
+{"question": "Which port is used to evaluate bare hostnames and IP addresses?", "answers": ["443"], "doc": "docker-local.md"}
+{"question": "Which parameter controls how much each sub-filter grows?", "answers": ["EXPANSION"], "doc": "redis-bloom-filter.md"}
+{"question": "What scrapes the two sets of metrics in the federation example?", "answers": ["separate Prometheus servers"], "doc": "prometheus-federation.md"}
+{"question": "What counts as a breaking change in a Grafana release?", "answers": ["requires users or operators to do something"], "doc": "grafana-whats-new-in-v12-0.md"}
+{"question": "What kind of policy examples does this page provide?", "answers": ["complete, working"], "doc": "docker-examples.md"}
+{"question": "What must the backup directory be before BACKUP START is used?", "answers": ["empty"], "doc": "redis-backup-start.md"}

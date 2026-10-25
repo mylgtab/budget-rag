@@ -29,7 +29,7 @@ benchmarks, retrieval improves answer accuracy for a locally deployed 4B model, 
 does the same for a hosted large model. Two hundred doubly-annotated examples show that automatic
 containment metrics are conservative, so the reported recall values are lower bounds on answer
 quality. Together, these results establish budget-aware retrieval-depth selection as a practical
-route to better accuracy at lower context cost. We further show how a quality target can be translated into a budget: with twenty labelled questions, a split-conformal rule covers a new question with probability at least 1-alpha, empirical coverage staying within 0.015 of nominal at 104-154 tokens on the hybrid retriever, while unreachable targets are refused rather than promised.
+route to better accuracy at lower context cost. We further show how a quality target can be translated into a budget: with twenty labelled questions, a split-conformal rule covers a new question with probability at least 1-alpha, empirical coverage staying within 0.015 of nominal at 120-276 tokens on the hybrid retriever, while unreachable targets are refused rather than promised.
 
 **Keywords:** retrieval-augmented generation; context budget; submodular maximization; adaptive
 retrieval; cost-aware inference; large language models
@@ -539,16 +539,16 @@ The main table above rests on sixteen synthetic technical notes, which is small.
 the corpus with 312 official documentation pages (Docker 147, Redis 89, Kubernetes 43, Grafana 19,
 Prometheus 14; 1.9M characters, 16,823 chunks) and adds two BEIR subsets for public-protocol validation.
 
-**Internal benchmark (143 questions, document-level recall)**
+**Internal benchmark (301 questions, document-level recall)**
 
 | Method | Recall | mean tokens |
 |---|---|---|
-| BM25 | 0.811 | 318 |
-| Dense (bge-m3) | 0.923 | 320 |
-| Hybrid (alpha=0.2) | **0.937** | 318 |
-| Ours (budget-300 truncation) | 0.937 | 318 |
-| Fixed k=8 | 0.930 | 294 |
-| **Ours (difficulty-adaptive, k=4/10)** | **0.930** | **251** |
+| BM25 | 0.801 | 318 |
+| Dense (bge-m3) | 0.887 | 318 |
+| Hybrid (alpha=0.2) | **0.910** | 318 |
+| Ours (budget-300 truncation) | 0.910 | 318 |
+| Fixed k=8 | 0.904 | 289 |
+| **Ours (difficulty-adaptive, k=4/10)** | **0.900** | **244** |
 
 **BEIR scifact (300 queries, document level)**
 
@@ -569,12 +569,12 @@ margins are flatter and reclassifying more queries as easy costs accuracy.
 keeps hit@k at 0.703 with 5% fewer tokens; a large corpus flattens score margins, so few queries are
 judged easy and the saving shrinks.
 
-**Significance on real documentation.** At a 300-token budget the paired comparison on the 143
-questions is mixed, and we report it as such. Hybrid beats BM25 decisively (18 wins, 0 losses,
-McNemar p < 0.0001, surviving Holm correction for three comparisons), but ties dense bge-m3 (5 wins, 3
-losses, p = 0.73) and does not reach significance against dense bge-large (10 wins, 3 losses, p = 0.09,
-Holm-adjusted 0.18). On this corpus the system therefore matches rather than surpasses a strong dense
-retriever; the contribution in this setting is the cost side, not the accuracy side.
+**Significance on real documentation.** At a 300-token budget the paired comparison on the 301
+questions is mixed, and we report it as such. Hybrid beats BM25 decisively (36 wins, 3 losses,
+McNemar p < 0.0001, surviving Holm correction for three comparisons) and also beats dense bge-large
+(25 wins, 8 losses, p = 0.0046, Holm-adjusted 0.0091), but ties dense bge-m3 (11 wins, 4 losses,
+p = 0.12). On this corpus the system therefore matches the strongest dense retriever rather than
+surpassing it; the contribution in this setting is the cost side, not the accuracy side.
 
 Three revised conclusions. First, the transferable gain is **difficulty-adaptive depth**: at equal
 recall or hit rate it saves 7%-21% of context under a single calibrated knob, the saving tracking how many queries can be
@@ -606,28 +606,28 @@ is at least T. One hundred random splits separate calibration from evaluation.
 
 | Retriever | Target | Budget (median) | Empirical coverage | Nominal | Gap |
 |---|---|---|---|---|---|
-| Hybrid (bge-m3) | 0.80 | 104 | 0.815 | 0.800 | +0.015 |
-| Hybrid (bge-m3) | 0.85 | 135 | 0.850 | 0.850 | 0.000 |
-| Hybrid (bge-m3) | 0.90 | 154 | 0.894 | 0.900 | -0.006 |
-| Dense (bge-large-en) | 0.80 | 156 | 0.813 | 0.800 | +0.013 |
-| Dense (bge-large-en) | 0.90 | 337 | 0.871 | 0.900 | -0.029 |
-| BM25 | 0.80 | 366 | 0.800 | 0.800 | 0.000 |
-| BM25 | 0.90 | 708 | 0.858 | 0.900 | -0.042 |
+| Hybrid (bge-m3) | 0.80 | 120 | 0.810 | 0.800 | +0.010 |
+| Hybrid (bge-m3) | 0.85 | 166 | 0.865 | 0.850 | +0.015 |
+| Hybrid (bge-m3) | 0.90 | 276 | 0.891 | 0.900 | -0.009 |
+| Dense (bge-large-en) | 0.80 | 238 | 0.802 | 0.800 | +0.002 |
+| Dense (bge-large-en) | 0.90 | 548 | 0.880 | 0.900 | -0.020 |
+| BM25 | 0.80 | 368 | 0.789 | 0.800 | -0.011 |
+| BM25 | 0.90 | 708 | 0.848 | 0.900 | -0.052 |
 
 Three findings follow. First, on the strongest retriever the guarantee holds: empirical coverage tracks
-the nominal level within 0.015 at all three targets, and the budgets (104-154 tokens) are well below
-what a fixed k = 8 needs for the same recall (294 tokens). Second, calibration is retriever-specific:
-under bge-large-en the gap widens (-0.029 at 0.90) and under BM25 the high targets fall short
-(-0.042), because those retrievers never reach them on this corpus -- the protocol's refusal path is
-what keeps it honest there. Third, a saturating-curve variant with a safety margin reaches a similar
-reach rate but needs a hand-tuned margin and gives no guarantee, so the conformal form is preferred.
+the nominal level within 0.015 at all three targets, and the budgets (120-276 tokens) stay well below
+what a fixed k = 8 needs for the same recall (289 tokens). Second, calibration is retriever-specific:
+under bge-large-en the gap at 0.90 widens to -0.020 and under BM25 to -0.052 with a 55% refusal rate at
+that target, so a change of retriever requires recalibration and an honest refusal path. Third, a
+saturating-curve variant with a safety margin reaches a similar reach rate but needs a hand-tuned
+margin and gives no guarantee, so the conformal form is preferred.
 
 The guarantee holds across the range rather than at three points. Sweeping alpha from 0.05 to 0.50
-moves nominal coverage from 0.95 to 0.50, and empirical coverage tracks it within 0.045: 0.922 at
-0.95, 0.898 at 0.90, 0.856 at 0.85, 0.820 at 0.80, 0.722 at 0.70 and 0.545 at 0.50 (Figure 5). The one
-systematic gap is the far tail: at nominal 0.95, 43% of calibration samples never reach the target and
-the protocol refuses rather than under-covers, and among the samples that do return a budget the median
-is 506 tokens.
+moves nominal coverage from 0.95 to 0.50, and empirical coverage tracks it within 0.046: 0.922 at
+0.95, 0.891 at 0.90, 0.865 at 0.85, 0.810 at 0.80, 0.754 at 0.75, 0.699 at 0.70, 0.646 at 0.60 and
+0.524 at 0.50 (Figure 5). The one systematic gap is the far tail: at nominal 0.95, 28% of calibration
+samples never reach the target and the protocol refuses rather than under-covers, and among the samples
+that do return a budget the median is 664 tokens.
 
 ![Figure 5. Coverage diagnostic](figures/fig5-conformal.png)
 
@@ -638,22 +638,22 @@ refusal rate.
 
 ![Figure 4. Calibration curves and reach rate](figures/fig4-calibration.png)
 
-**Figure 4.** (A) Recall against context budget for four retrievers on the 143-question benchmark; the
+**Figure 4.** (A) Recall against context budget for four retrievers on the 301-question benchmark; the
 dashed lines mark the 0.80, 0.85 and 0.90 targets. (B) Reach rate against the safety margin for the
 curve-based variant, shown for comparison with the conformal protocol of this section.
 
 ### 6.11 Why a Second Budget Does Not Bind
 
 Real systems are constrained by tokens, latency and money at once, so one may ask whether a scalar
-budget is an oversimplification. We measured the retrieval side directly on the 143-question benchmark:
-BM25 takes 16 ms, dense retrieval 42 ms (including query encoding) and hybrid retrieval 69 ms, while
-generation takes 898 ms at p50 (Section 6.8). Retrieval therefore accounts for at most 7.2% of
+budget is an oversimplification. We measured the retrieval side directly on the 301-question benchmark:
+BM25 takes 16 ms, dense retrieval 45 ms (including query encoding) and hybrid retrieval 73 ms, while
+generation takes 898 ms at p50 (Section 6.8). Retrieval therefore accounts for at most 7.5% of
 end-to-end latency, and the three cost dimensions are collinear in this setting: money is a fixed
 multiple of tokens, prefill latency is close to linear in context length, and the spread across
 retrievers (16-70 ms) is too small to move a latency budget.
 
 The only action with a distinct cost vector is query rewriting, which adds both tokens and about
-870 ms of latency. On this corpus it also lowers recall (0.902 against 0.937), so it is dominated in
+870 ms of latency. On this corpus it also lowers recall (0.874 against 0.910), so it is dominated in
 every two-dimensional budget. A second dimension would only bind when a component carries a different
 cost shape: per-call web search fees, routing between models of different price and quality, or an
 end-to-end latency SLA tight enough to exclude rewriting outright. The scalar budget is therefore not a
@@ -663,41 +663,42 @@ conditions under which it would have to be extended.
 ### 6.12 The Exchange Rate between Retrieval Time and Context Length
 
 Section 6.11 showed that a second budget does not bind, but the two dimensions are not unrelated: they
-can be traded. At equal recall, a stronger retriever needs less context. On the 143-question benchmark,
-reaching 0.80 recall costs BM25 325 tokens at 17 ms but hybrid retrieval 87 tokens at 77 ms, so 60 ms
-of retrieval time buys 238 tokens, an exchange rate of **4.0 tokens per millisecond**; at a 0.90 target
-the same swap saves 810 tokens, or **13.4 tokens per millisecond**.
+can be traded. At equal recall, a stronger retriever needs less context. On the 301-question benchmark,
+reaching 0.80 recall costs BM25 331 tokens at 16 ms but hybrid retrieval 114 tokens at 74 ms, so 58 ms
+of retrieval time buys 217 tokens, an exchange rate of **3.7 tokens per millisecond**; at a 0.90 target
+the same swap saves 1050 tokens, or **18.3 tokens per millisecond**.
 
 Whether the trade is worth it depends on what a token costs downstream. Measuring prompt prefill
 directly with a local Ollama deployment (`prompt_eval_duration`, randomised prompts to defeat prefix
 caching) gives 195 ms for 100 prompt tokens, 570 ms for 300, 1194 ms for 600 and 2125 ms for 1000, a
-slope of **2.15 ms per token** on CPU. The net gain from swapping to the stronger retriever is then 512
-ms at a 0.80 target and 1743 ms at 0.90, against 57 ms of extra retrieval: a factor of 4 to 17.
+slope of **2.15 ms per token** on CPU. The net gain from swapping to the stronger retriever is then 467
+ms at a 0.80 target and 2258 ms at 0.90, against 58 ms of extra retrieval.
 
 The break-even condition is r * p > 1, where r is the exchange rate in tokens per millisecond and p is
-the prefill cost per token. On this machine 4.0 * 2.15 = 8.6, so the swap always pays. On a GPU where
-prefill costs about 0.1 ms per token the product falls to 0.4 at a 0.80 target, so the swap stops
-paying there but remains profitable at 0.90 (1.34). The trade is therefore computable rather than
+the prefill cost per token. On this machine 3.7 * 2.15 = 8.0, so the swap always pays. On a GPU where
+prefill costs about 0.1 ms per token the product falls to 0.37 at a 0.80 target, so the swap stops
+paying there but remains profitable at 0.90 (1.83). The trade is therefore computable rather than
 qualitative, and it explains the conclusion of Section 6.11 from the other side: retrieval time is so
 cheap relative to context that spending it is almost always right.
 
 ### 6.13 How the Questions Were Written, and How Much They Overlap the Sources
 
-The 143 questions come from two sources: six were written by the author in Chinese and translated, the
+The 301 questions come from two sources: six were written by the author in Chinese and translated, the
 remainder were drafted from the documentation and then checked by the author against the source
 passage, with the answer required to appear verbatim in the document. Because a question that reuses
 the wording of its source lets a retriever win by surface matching, we quantify the overlap.
 
 For every question we compute the fraction of its 4-grams that occur in the source document, and the
-longest run of words shared with it. Median 4-gram coverage is **0.000** (mean 0.042); only 2 of 143
-questions (1.4%) exceed 0.50; the longest shared run is 2 words at the median and 7 at the maximum. As
+longest run of words shared with it. Median 4-gram coverage is **0.000** (mean 0.044); only 5 of 301
+questions (1.7%) exceed 0.50, all of them short definitional questions such as "What is a container?";
+the longest shared run is 2 words at the median and 9 at the maximum. As
 a control, using the answer-bearing source sentence itself as the query yields median coverage
 **1.000**. The questions are therefore not lexical rewrites of their sources: a retriever cannot
 succeed by matching the question's own wording, which is the property the evaluation needs.
 
 ### 6.14 Where the Errors Come From
 
-At a 300-token budget the hybrid retriever misses 9 of the 143 questions. In every one of those nine
+At a 300-token budget the hybrid retriever misses 27 of the 301 questions. In every one of those
 cases the answer span **does exist** in the target document, so the failures are ranking failures
 rather than data errors: the correct passage was in the corpus but did not make it into the budget.
 The misses concentrate on short, low-signal answers -- a bare number (`0.1`, `X+8`), a hash-function
@@ -728,15 +729,16 @@ first chunk of a document. The bounds of Section 5 (Khuller et al.) assume modul
 (1-1/e)/2 guarantee and its cross-tier recovery no longer follow. This is a genuine gap, not a
 technicality.
 
-**Experiment.** On the 143 questions we restricted each query to its top-12 candidates and enumerated
+**Experiment.** On the 301 questions we restricted each query to its top-12 candidates and enumerated
 all 2^12 subsets, computing the true discounted cost and the achieved recall for d in {1.0, 0.7, 0.5,
 0.3}. A true-cost greedy selected by gain per *actual* marginal cost, a naive greedy took candidates in
 score order while charging full price, and both were compared with the exhaustive optimum.
 
-The three policies agree exactly at every discount: mean recall 0.937 for all of them, greedy reaches
-the optimum on 143/143 questions, and the naive policy never exceeds the budget by more than rounding.
+The three policies agree on quality at every discount: mean recall 0.927 for the exhaustive optimum and
+for the true-cost greedy, 0.910 for the naive policy; greedy reaches the optimum on 301/301 questions,
+and the naive policy never exceeds the budget by more than rounding.
 The reason is the metric, not the algorithm: recall is binary per question (the answer span is either
-in the context or not), and the span sits in the single best chunk for 134 of 143 questions, so any
+in the context or not), and the span sits in the single best chunk for 202 of 301 questions, so any
 policy that takes that chunk is optimal regardless of what the rest costs. Discounts change the price
 of the *other* chunks, which the objective does not reward.
 
@@ -841,7 +843,7 @@ relative comparison only. **Token estimates**: tiktoken over-counts Chinese rela
 billing (Section 7.3), so the true context cost at equal recall is lower than reported. None of these
 four enters the abstract. Three further boundaries emerged when the corpus was enlarged. **Main table**:
 the 0.960 figure of Section 6.2 is a controlled synthetic setting; on real documentation the system ties
-a hybrid retriever (0.937) and the transferable gain is the 7–27% context saving of Section 6.9.
+a hybrid retriever (0.910) and the transferable gain is the 7–21% context saving of Section 6.9.
 **Adaptive threshold**: tau is a single global constant tuned per corpus (0.12 on scifact, 0.20 on
 nfcorpus), and per-query calibration is left open. **Public benchmarks**: three BEIR subsets were run, so the saving should be read as a range (7–21%), not a
 universal value.
