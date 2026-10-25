@@ -362,3 +362,22 @@ Zhangjiakou University；通讯 lqm050509@gmail.com；ORCID 0009-0003-7912-3918�
 - 本机 DNS 把 github.com 解析到 20.205.243.166（不可达）。
   VPN 关闭时用 `scripts/github_proxy.py` 起本地 CONNECT 代理（固定 140.82.112.3），
   `git -c http.proxy=http://127.0.0.1:8899 push`。VPN 开启时可直连。
+
+## 2026-10-25 下午：四个空位收尾 + 三个风险关闭
+
+**空位完成度**
+- 空位 3 多维预算 → 6.11（第二维不咬合）+ 6.12（交换率 4–13 tok/ms，prefill 2.15 ms/token）
+- 空位 4 质量目标接口 → 6.10（split conformal，覆盖误差 ≤0.015，图 5 对角线诊断）
+- 空位 2 顺序成本 → 6.15（理论界失效、二值召回下决策不变）
+- 空位 1 间隔充分性 → 未做（理论，留待作者）
+
+**风险关闭**
+- C2 同源偏差：6.13，4-gram 覆盖中位 0.000、LCS 中位 2 词，对照照抄句 1.000
+- D2 多重比较：6.9，McNemar + Holm（Hybrid 胜 BM25，与 Dense 持平）
+- G5 定性错误分析：6.14（9/143 漏检为排序失败；多跳全为选错实体）
+
+**新增脚本**
+overlap_analysis / significance_holm / order_dependent_cost / conformal_sweep /
+fig5_conformal / exchange_rate / conformal_calibration
+
+**论文规模**：5 图 9 表，6.1–6.15 共 15 个小节
