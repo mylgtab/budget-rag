@@ -381,3 +381,45 @@ overlap_analysis / significance_holm / order_dependent_cost / conformal_sweep /
 fig5_conformal / exchange_rate / conformal_calibration
 
 **论文规模**：5 图 9 表，6.1–6.15 共 15 个小节
+
+## 2026-10-25 晚间：题集扩到 301、官方分类器、四子集 BEIR、三处口径修正
+
+**数据规模**
+- 题集 143 → **301**（新增 158 题，覆盖 Docker/Redis/Grafana/Prometheus/K8s；答案逐字校验全过）
+- 全部依赖题数的实验已重跑（主表、保形、重叠度、错误分析、顺序成本、交换率、Pareto、图 4/5）
+
+**新结果**
+- 主表 301 题：BM25 0.801 / Dense 0.887 / Hybrid 0.910 / k8 0.904@289 / 自适应 0.900@244
+- bootstrap：召回差 −0.003（95% CI [−0.020, +0.010]，p=0.81），节省 **15.5%**（CI [11.2%, 19.8%]）
+- Holm：胜 BM25（p<1e-4）与 Dense-large（Holm 0.0091），与 Dense-m3 持平（p=0.12）
+- 保形（301）：0.80/0.85/0.90 → 120/166/276 token，覆盖偏差 ≤0.015；α 扫描最大偏差 0.046
+- BEIR 四子集：scifact 24%、nfcorpus 6%、fiqa 1%、**arguana −16%（失败，如实报告）**
+- 官方分类器（6.16）：用官方 released 标签训 t5-small，验证 43.3%；路由 0.638@150 / 0.844@160
+- 逐题阈值（6.17）：δ 扫描全面劣于全局 τ，内部与 BEIR 上一致（负结果）
+
+**三处口径修正（重要）**
+- 分类器 token 原来「命中即停」，低估；修正后 56/66 → 150/160，结论从「低预算端点」改为「内部点」
+- eval_real 固定写 `results/eval_real_b300.json`，换索引跑会覆盖主表 → 句级对比改用
+  `scripts/sentence_index_eval.py` 单独落盘
+- 论文里 0.647/0.922 的句级索引数字无结果文件可查 → 重建句级索引（38,542 块）重测：
+  **0.718 vs 0.910**，门控改写 0.874 vs 0.910，全部同步
+
+**新增脚本**
+train_complexity_classifier / official_route_eval / perquery_tau / bootstrap_saving /
+audit_numbers / sentence_index_eval / beir_adaptive（新增 perquery 扫描）
+
+**数字终检**
+`python scripts/audit_numbers.py` → 中英各 56 项应出现数字全中，旧数字残留 0，结果文件齐全。
+
+**环境坑（新增）**
+- transformers 5.x 的 T5Tokenizer 不认 spiece.model（A/B/C 全判成同一个 unk 词元），
+  训练要用 `D:\AAAAAgongju\venvs\t5train`（transformers 4.44.2）
+- HF 的 resolve/CDN 被墙，权重走 `hf-mirror.com`；`special_tokens_map.json` 在 t5-small 上 404，删掉即可
+- DSH 插件装在 `~/.dsh/profiles/desktop`（package.json 的 dsh.profile.bundles + pnpm add）；
+  桌面有 `DSH插件回滚.bat`
+
+**仍未做**
+- 英文润色（作者找人）
+- CRAG evaluator 复现（官方未放 checkpoint；需自训，成本高于收益）
+- 空位 1（间隔充分性的理论刻画）
+- 投稿前：引用转数字格式、图转 300dpi、Data Availability 核对

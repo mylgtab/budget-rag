@@ -294,8 +294,8 @@ Long documents are indexed at two granularities (Figure 1): **sentence level** (
 punctuation, roughly 15–40 tokens) and **fixed blocks** (sliding window, 200 tokens with 40
 overlap by default). Sentence-level indexing never drags unrelated sentences in, which pays off on
 short-sentence corpora such as the Chinese technical notes of Section 6.2; fixed blocks keep a
-coherent window and, as Section 6.9 shows, are decisively better on English documentation (0.922
-against 0.647 at a 300-token budget). The system therefore selects granularity per corpus: sentence
+coherent window and, as Section 6.9 shows, are decisively better on English documentation (0.910
+against 0.718 at a 300-token budget). The system therefore selects granularity per corpus: sentence
 level when `ctx < 500` **and** the corpus is short-sentence, fixed blocks otherwise.
 
 Chunks are accumulated in descending retrieval score until the selected chunks reach the token
@@ -550,6 +550,10 @@ Prometheus 14; 1.9M characters, 16,823 chunks) and adds four BEIR subsets for pu
 | Fixed k=8 | 0.904 | 289 |
 | **Ours (difficulty-adaptive, k=4/10)** | **0.900** | **244** |
 
+Paired bootstrapping over the 301 questions puts the recall difference at -0.003 (95% CI
+[-0.020, +0.010], p = 0.81) and the token saving at **15.5%** (95% CI [11.2%, 19.8%]): the rule is
+statistically indistinguishable from fixed k = 8 on quality while using 11-20% fewer tokens.
+
 **BEIR (public protocol, document level)**
 
 We run four BEIR subsets through the same pipeline (bge-m3 embeddings, hybrid alpha = 0.2, chunk size
@@ -579,13 +583,14 @@ p = 0.12). On this corpus the system therefore matches the strongest dense retri
 surpassing it; the contribution in this setting is the cost side, not the accuracy side.
 
 Three revised conclusions. First, the transferable gain is **difficulty-adaptive depth**: at equal
-recall or hit rate it saves 7%-21% of context under a single calibrated knob, the saving tracking how many queries can be
-answered confidently (21% on scifact, 7% on nfcorpus, 7% on fiqa, where a 57k-document corpus flattens the score margins). Second, **token-based truncation alone carries
+recall or hit rate it saves 1-24% of context, the saving tracking how many queries can be
+answered confidently (24% on scifact, 6% on nfcorpus, 1% on fiqa, where a 57k-document corpus
+flattens the score margins, and none on the adversarial arguana set). Second, **token-based truncation alone carries
 no advantage**: on the internal benchmark fixed k=8 reaches the same recall as budget-300 truncation
 (294 vs 318 tokens), so the difference comes from deciding how many chunks each query needs, not from
 stopping at a token count. Third, **sentence-level indexing and gated rewriting do not transfer**: on
-English documentation the sentence index scores 0.647 against 0.922 for fixed blocks, and gated
-rewriting 0.902 against 0.922, so those claims must be restricted to short-sentence Chinese corpora
+English documentation the sentence index scores 0.718 against 0.910 for fixed blocks, and gated
+rewriting 0.874 against 0.910, so those claims must be restricted to short-sentence Chinese corpora
 where question and document wording diverge.
 
 The claim of this paper is therefore revised: **on heterogeneous loads where a single k is hard to
@@ -828,9 +833,10 @@ We therefore keep the global threshold and report the per-query variant as a neg
 recalibration cost stays a stated limitation rather than being papered over by a rule that does not
 work.
 
-The same rule transfers to BEIR scifact, and fails there too: delta = 0.02 saves 30% of tokens at a
-cost of 2.4 nDCG points, delta = 0.03 saves 13% at a cost of 1.8, whereas the global threshold keeps
-nDCG@10 within 0.001 of fixed k = 8 while saving 24%. The per-query drop is therefore not a substitute
+The same rule transfers to BEIR scifact, and fails there too: delta = 0.02 scores nDCG@10 0.6827 at
+1818 tokens (30% fewer tokens, 2.4 points below fixed k = 8), delta = 0.03 scores 0.6895 at 2271
+(13%), against 0.7071 at 2615 for fixed k = 8; the global threshold keeps nDCG@10 at 0.7062 while
+saving 24%. The per-query drop is therefore not a substitute
 for the global margin threshold on either the internal benchmark or the public one.
 
 
