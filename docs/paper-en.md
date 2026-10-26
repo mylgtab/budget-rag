@@ -1041,6 +1041,61 @@ conclusion unchanged.
 
 ---
 
+## Appendix D. Why the Margin Predicts Diminishing Returns
+
+Section 6.18 shows empirically that the marginal value of another chunk decreases in the margin. This
+appendix states the conditions under which that relation can be proved, and shows with two
+counterexamples that each condition is necessary. We prove the two-chunk (k = 1) case; the general case
+is stated as a conjecture supported by the measurements of Section 6.18.
+
+**D.1 Notation.** As in Section 6.6: `p_i` is the conditional probability that chunk i contains the
+answer given that chunks 1..i-1 do not; `Q(S_k) = P(E_k)`; `Δ_k = Q(S_{k+1}) − Q(S_k)`;
+`γ = (s_1 − s_2)/s_1`.
+
+**Lemma D.1.** Under the independence assumption of Section 6.6,
+`Q(S_k) = 1 − ∏_{i≤k}(1−p_i)` and `Δ_k = (1 − Q(S_k)) · p_{k+1}`.
+
+*Proof.* `1 − Q(S_k) = P(answer outside first k) = ∏_{i≤k}(1−p_i)` by independence; subtracting
+`Q(S_k)` from `Q(S_{k+1})` leaves `∏_{i≤k}(1−p_i) · p_{k+1}`. ∎
+
+The coefficient is `1−Q`, not `Q`: the gain can only come from the part not yet covered.
+
+**Lemma D.2.** If `p_1 ≥ p_2 ≥ … ≥ p_K`, then for any fixed query `Δ_k` decreases in k.
+
+*Proof.* `Δ_{k+1} = ∏_{i≤k+1}(1−p_i)·p_{k+2} ≤ ∏_{i≤k}(1−p_i)·p_{k+1} = Δ_k`, because
+`1−p_{k+1} ≤ 1` and `p_{k+2} ≤ p_{k+1}`. ∎
+
+**D.2 The cross-query theorem (k = 1).** Write
+`Δ_1 = (1−p_1)·p_2 = ρ·p_1(1−p_1)` with `ρ := p_2/p_1`. The conclusion needs more than `p_1` growing.
+
+*Assumptions.* (A1) ranking scores order utilities; (A3) `p_1 = g(γ)` with g increasing;
+(H1) `p_1 ≥ 1/2`; (H2) `ρ` is non-increasing in `p_1`.
+
+*Theorem.* Under A1, A3, H1, H2, `Δ_1` is non-increasing in γ.
+
+*Proof.* Take two queries q, q' with `p_1(q) ≤ p_1(q')`, both ≥ 1/2. By H2, `ρ(q') ≤ ρ(q)`. Let
+`h(p) = p(1−p)`. Then
+`Δ_1(q') − Δ_1(q) = ρ(q')h(p_1(q')) − ρ(q)h(p_1(q)) ≤ ρ(q)[h(p_1(q')) − h(p_1(q))]`,
+using `ρ(q') ≤ ρ(q)` and `ρ ≥ 0`. Since `h'(p) = 1−2p ≤ 0` on `[1/2, 1]`, `h(p_1(q')) ≤ h(p_1(q))`,
+so the difference is at most zero. With A3, larger γ implies larger `p_1`, hence smaller `Δ_1`. ∎
+
+**D.3 Counterexample 1: A1 + A3 do not suffice.** Let `p_i ≡ θ` (constant). Then `ρ = 1` and
+`Δ_1 = θ(1−θ)`, so `dΔ_1/dθ = 1−2θ`. For `θ < 1/2` the marginal gain *increases* with confidence,
+opposite to the theorem. This is why H1 (the high-confidence region) cannot be dropped. Note that this
+example violates A2, so it shows only that A1 + A3 are insufficient.
+
+**D.4 Counterexample 2: H2 is essential.** Let `p_1 = θ`, `p_2 = θ²`, and `p_i = 0` for `i ≥ 3`. Then
+A1, A2 (`θ² ≤ θ`), A3 and H1 (for `θ ∈ [1/2, 2/3)`) all hold, but
+`Δ_1 = (1−θ)θ²` and `dΔ_1/dθ = θ(2−3θ) > 0` for `θ < 2/3`. The conclusion therefore fails **even
+when every assumption except H2 is satisfied**: H2 is not a technical add-on but a necessary condition.
+It is also the condition that the adversarial corpus of Section 6.9 violates.
+
+**D.5 The general case (k ≥ 2).** We state the natural extension as a conjecture: if for every j the
+ratio `ρ_j := p_{j+1}/p_j` is non-increasing in `p_1` and `p_1 ≥ 1/2`, then `Δ_k` is non-increasing in
+γ for all k. Section 6.18 provides numerical support (the marginal gain falls 0.093 → 0.067 → 0.013 →
+0.013 across γ quartiles), but we do not claim a proof; a full treatment must control the joint
+behaviour of the ratios `ρ_j`, which the two-chunk argument does not.
+
 ## References
 
 1. **Lewis, P.; Perez, E.; Piktus, A.; Petroni, F.; Karpukhin, V.; Goyal, N.; Küttler, H.; Lewis, M.; Yih, W.-t.; Rocktäschel, T.; Riedel, S.; Kiela, D.** Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. In *NeurIPS 2020*. arXiv:2005.11401.
