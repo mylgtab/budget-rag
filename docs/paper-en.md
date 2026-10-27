@@ -1042,7 +1042,7 @@ python scripts/tune_params.py
 ```
 
 All code, evaluation sets and scripts are released under the MIT license at
-https://github.com/mylgtab/budget-rag (v1.0.0). A stranger can reproduce the main table in about
+https://github.com/mylgtab/budget-rag (v1.1.0). A stranger can reproduce the main table in about
 thirty minutes: clone, `pip install -e .`, `make check`. The repository ships small data snapshots so
 reproduction does not depend on external mirrors, and CI rebuilds and queries the Docker image on
 every push.
@@ -1172,7 +1172,7 @@ behaviour of the ratios `ρ_j`, which the two-chunk argument does not.
 ## Declarations
 
 **Data Availability Statement.** All code, evaluation sets and experiment scripts are available at
-https://github.com/mylgtab/budget-rag (MIT license, v1.0.0). Small snapshots of the LongBench subsets
+https://github.com/mylgtab/budget-rag (MIT license, v1.1.0). Small snapshots of the LongBench subsets
 ship with the repository; the complete data can be fetched with `scripts/fetch_longbench.py` from the
 original distribution. Every table in this paper is reproducible with `make check`,
 `scripts/baselines.py`, `scripts/seed_stability.py` and `scripts/latency_bench.py`.

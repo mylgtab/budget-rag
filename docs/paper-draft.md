@@ -933,7 +933,7 @@ Linux 脚本，T5-large 的微调需要更大显存；在本工作所处的单�
 ## 声明（Declarations）
 
 **Data Availability Statement.** 全部代码、评测集与实验脚本位于
-https://github.com/mylgtab/budget-rag （MIT 许可，v1.0.0）。
+https://github.com/mylgtab/budget-rag （MIT 许可，v1.1.0）。
 LongBench 各子集的少量快照随仓库提供，完整数据可由 `scripts/fetch_longbench.py` 从原发布源获取。
 所有论文表格可由 `make check`、`scripts/baselines.py`、`scripts/seed_stability.py` 与
 `scripts/latency_bench.py` 复现。
