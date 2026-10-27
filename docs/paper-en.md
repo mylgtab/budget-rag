@@ -5,31 +5,23 @@
 **ORCID:** 0009-0003-7912-3918
 ## Abstract
 
-Retrieval-augmented generation typically treats the amount of retrieved context as a fixed
-hyperparameter, yet inference budgets are finite and query difficulty varies by orders of magnitude.
-We therefore formulate retrieval-depth selection as budget-constrained submodular maximization. Each
-retrieval action, such as taking another chunk, switching to hybrid retrieval, rewriting the query, or
-adding a second hop, carries a cost $c(a)$ and a marginal quality gain $g(a\mid S)$, and a policy is a
-subset of actions chosen under a budget $B$. Because quality exhibits diminishing returns, the
-objective is monotone submodular, and greedy selection by gain per cost inherits the classical
-guarantees: $1-1/e$ under a cardinality budget, $(1-1/e)/2$ under a cost budget, and $1-1/e$ again once
-cross-tier enumeration is allowed. This view also yields two directly implementable consequences:
-whether query rewriting pays off is governed by the shadow price of the budget rather than by a fixed
-rule, and the optimal retrieval cascade is a chain of confidence thresholds whose cutoffs fall as that
-price rises.
+Retrieval-augmented generation usually treats retrieved context as a fixed hyperparameter, yet budgets
+are finite and query difficulty varies by orders of magnitude.
+We formulate retrieval-depth selection as budget-constrained submodular maximization over priced
+actions -- taking another chunk, switching to hybrid retrieval, rewriting the query, adding a second
+hop -- each with a cost and a marginal quality gain. Under diminishing returns the objective is monotone
+submodular, so greedy selection by gain per cost inherits the classical guarantees ($1-1/e$ with a
+cardinality budget, $(1-1/e)/2$ with a cost budget, $1-1/e$ with cross-tier enumeration). Two consequences are directly implementable: whether query rewriting pays off
+follows from the shadow price of the budget rather than from a fixed rule, and the optimal retrieval
+cascade is a chain of confidence thresholds whose cutoffs fall as that price rises.
 
-We build a reproducible system from this framework. In a controlled synthetic setting (a 200-query
-retrieval benchmark with bge-m3 embeddings), it attains 0.960 recall at an average context cost of 126 tokens, compared with 0.925 at
-179 tokens for a corrective-retrieval baseline and 0.910 at 115 tokens for dense retrieval. All
-differences are significant under paired bootstrap and McNemar tests ($p<0.05$), and the advantage
-survives repeated subsampling. On 500 end-to-end queries, the system matches fixed top-3 containment
-(0.912 versus 0.920, within paired noise) at roughly half the prompt cost (474 versus 972 tokens).
-Recall reaches 0.995 and 1.000 on two LongBench retrieval subsets. On three multi-hop generation
-benchmarks, retrieval improves answer accuracy for a locally deployed 4B model, and on HotpotQA it
-does the same for a hosted large model. Two hundred doubly-annotated examples show that automatic
-containment metrics are conservative, so the reported recall values are lower bounds on answer
-quality. Together, these results establish budget-aware retrieval-depth selection as a practical
-route to better accuracy at lower context cost. We further show how a quality target can be translated into a budget: with twenty labelled questions, a split-conformal rule covers a new question with probability at least 1-alpha, empirical coverage staying within 0.015 of nominal at 120-276 tokens on the hybrid retriever, while unreachable targets are refused rather than promised.
+We build a reproducible system. On a 500-question synthetic benchmark it reaches
+0.960 recall at an average context cost of 126 tokens, against 0.925 (179 tokens) for corrective retrieval and 0.910 (115 tokens) for dense retrieval. On 312 official
+documentation pages, hybrid retrieval reaches 0.910 recall at a 300-token budget, and a
+difficulty-adaptive rule matches it with 11-20% fewer tokens (bootstrap CI [11.2, 19.8]); on four
+BEIR subsets the same rule saves 1-24% of context at equal nDCG@10, and fails on one adversarial set, which we report. A split-conformal layer then turns a recall target into a budget
+with a coverage guarantee: with twenty labelled questions, coverage stays within 0.015 of nominal at
+120-276 tokens, and unreachable targets are refused rather than promised.
 
 **Keywords:** retrieval-augmented generation; context budget; submodular maximization; adaptive
 retrieval; cost-aware inference; large language models
@@ -70,7 +62,7 @@ We implement this framework in a running system and evaluate it on retrieval and
 Additional evaluations cover LongBench retrieval subsets, multi-hop generation benchmarks and doubly
 annotated examples.
 
-Our contributions are threefold.
+Our contributions are fourfold.
 
 1. We unify chunk selection, hybrid retrieval, query rewriting and second hop retrieval in one priced
    action set. Under diminishing returns, the objective is monotone submodular (Sections 3 and 5).
@@ -84,7 +76,7 @@ Our contributions are threefold.
    twenty labelled questions predicts the required budget, reports a reach rate, and refuses targets
    above what the retriever can deliver (Section 6.10).
 
-4. On a 200-query retrieval benchmark, the system achieves 0.960 recall at an average context cost of
+4. On a 500-question synthetic benchmark, the system achieves 0.960 recall at an average context cost of
    126 tokens, against five baselines evaluated under a common budget. An approximation of corrective
    retrieval yields 0.925 recall at 179 tokens, and dense retrieval yields 0.910 at 115 tokens. Paired
    bootstrap and McNemar tests show that the reported differences are significant ($p<0.05$). On 500
