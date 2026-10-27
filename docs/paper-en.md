@@ -100,16 +100,16 @@ Our contributions are threefold.
 
 ## 2. Related Work
 
-Retrieval-augmented generation couples parametric memory with updatable external evidence
-[1], and in most systems the retrieval depth is a hyperparameter: a fixed number
-of top-$k$ passages is retrieved and concatenated into the context [2,3]. That default was reasonable when context was cheap—taking a few more
-passages cost nearly nothing. The cost has since moved. Position-sensitivity experiments show
-double-digit accuracy differences depending on where the same evidence lands [4], so
-"retrieve more" is no longer equivalent to "answer better"; both *how much* to take and *where to
-put it* have become resources to allocate rather than tune. A subtler cost is reporting: most work
-reports Recall@$k$ at a fixed $k$, while $k$, chunk length and routing depth differ across methods,
-so quality–cost curves cannot be stitched together—an apparent recall gain may simply be more
-tokens spent. We therefore treat the comparison protocol as part of the method and report
+Retrieval-augmented generation (RAG) combines parametric knowledge with external, updatable evidence [1].
+Many systems fix retrieval depth, concatenating a predetermined number of top-$k$ passages retrieved by
+a sparse or dense retriever into the context [1-3]. This default was reasonable when a few extra passages
+cost little. Position-sensitivity experiments, however, show double-digit accuracy differences when
+identical evidence appears at different locations in the context [4]: more retrieved evidence need not
+improve an answer, and both evidence volume and placement act as resources to allocate rather than
+parameters to tune. A subtler cost is reporting. Studies typically report Recall@$k$ for a single $k$,
+although chunk lengths, retrieval depths and token costs differ across methods, so quality-cost curves
+from different studies cannot be compared directly -- an apparent recall gain may simply be more tokens
+spent. We therefore treat the comparison protocol as part of the method and report
 Recall@budget throughout (Section 6.1).
 
 Existing work answers "how much to retrieve" along four lines: adaptive retrieval decides *whether*
@@ -409,6 +409,14 @@ tokens, billed from the API-reported `usage`; hashing vectors are charged zero.
 
 **Statistics.** Paired bootstrap (1,000–2,000 resamples) for 95% intervals; McNemar exact test for
 system comparisons; five 2/3 subsamples for robustness.
+
+**Metrics.** Throughout, *recall@budget* is measured under a matched token budget rather than at a
+fixed depth: chunks are taken in rank order until their cumulative token count reaches the budget $B$,
+and a query counts as retrieved when the gold answer span appears in the selected chunks (for BEIR we
+use document-level relevance and report nDCG@10). Token counts are produced by the tokenizer of the
+reference model, so a passage of the same text costs the same across methods; monetary cost is read
+from the API-reported usage. Reporting at a matched budget is what makes two methods comparable when
+their chunk sizes, depths and token accounting differ.
 
 **Hardware.** i7-13650HX, 16 GB RAM, RTX 4060 Laptop 8 GB. API models run over the network, the
 local model on the GPU; all retrieval and statistics run on the CPU.
