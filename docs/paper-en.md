@@ -292,8 +292,10 @@ punctuation, roughly 15–40 tokens) and **fixed blocks** (sliding window, 200 t
 overlap by default). Sentence-level indexing never drags unrelated sentences in, which pays off on
 short-sentence corpora such as the Chinese technical notes of Section 6.2; fixed blocks keep a
 coherent window and, as Section 6.9 shows, are decisively better on English documentation (0.910
-against 0.718 at a 300-token budget). The system therefore selects granularity per corpus: sentence
-level when `ctx < 500` **and** the corpus is short-sentence, fixed blocks otherwise.
+against 0.718 at a 300-token budget). Whether both indexes are built is a corpus-level decision: short-sentence corpora are dual-indexed,
+while English documentation is indexed with fixed blocks only (Section 6.9). When both exist, the
+per-query budget $ctx$ (in tokens, equal to $B$) selects sentence level for $ctx \le 500$ and fixed
+blocks otherwise.
 
 Chunks are accumulated in descending retrieval score until the selected chunks reach the token
 budget $B$, and then the loop stops, with no fixed $k$ truncation. Section 6.9 qualifies this design:
@@ -310,7 +312,7 @@ to the knee of the gain-per-cost curve.
 
 ### 4.3 Confidence-Gated Query Rewriting
 
-Rewriting accounts for more than half of the end-to-end latency (Section 6.8), so it is triggered
+Rewriting accounts for about half of the end-to-end latency (Section 6.8), so it is triggered
 only when needed. The system first runs a cheap retrieval and computes the relative margin
 between the top-1 and top-2 scores,
 
@@ -332,8 +334,9 @@ of proper nouns from the context (Section 6.5).
 
 ![Figure 1. System overview](figures/fig1-pipeline.png)
 
-**Figure 1.** System overview. The corpus is indexed twice;
-the budget selects sentence level or fixed blocks; routing assigns a tier; the first retrieval
+**Figure 1.** System overview. Short-sentence corpora are indexed twice (sentence level and fixed
+blocks) and English documentation is indexed with fixed blocks only; when both exist, the per-query
+budget decides which one is used (Section 4.1). Routing assigns a tier; the first retrieval
 yields the confidence $\gamma$; the gate decides whether to rewrite and re-retrieve; chunks are
 accumulated until the budget $B$ is reached; a second hop is enabled when two pieces of evidence
 are needed. Dashed edges are optional paths; $c(a)$ and $g(a\mid S)$ are the cost and gain used
@@ -471,10 +474,11 @@ allocation, with the gate as a refinement (−3.6 pt).
 
 ![Figure 2. Budget versus recall (sentence-level vs fixed blocks)](figures/fig2-budget-recall.png)
 
-**Figure 2.** Recall as the budget grows from 80 to 800 tokens. Below 300 tokens the sentence-level
-index wins because the same budget accommodates more sentences; beyond 500 tokens fixed blocks
-overtake it as a single block is more coherent. This is the basis for switching indexes by budget
-(Section 4.1).
+**Figure 2.** Recall as the budget grows from 80 to 800 tokens, on the short-sentence synthetic
+corpus. Sentence-level chunks lead at budgets up to 300 tokens (0.912 versus 0.894 at 300) and fixed
+blocks lead from 500 (0.928 versus 0.918); on English documentation fixed blocks lead at every budget
+(Section 6.9). The crossover is therefore a property of short-sentence corpora, not a universal rule,
+and the corpus-level decision of Section 4.1 determines whether it applies.
 
 ![Figure 3. Ablation: recall cost of removing each component](figures/fig3-ablation.png)
 
