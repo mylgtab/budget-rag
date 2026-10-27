@@ -483,7 +483,7 @@ and the corpus-level decision of Section 4.1 determines whether it applies.
 ![Figure 3. Ablation: recall cost of removing each component](figures/fig3-ablation.png)
 
 **Figure 3.** Ablation relative to the full system; the horizontal axis is answer-span recall and
-parentheses give the relative change.
+parentheses give the change in percentage points.
 
 ### 6.4 Cross-Corpus Check
 

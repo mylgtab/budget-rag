@@ -40,9 +40,9 @@
 <circle cx="550.0" cy="77.4" r="4" fill="#c53030"/>
 <text x="550.0" y="66.4" font-size="10" fill="#c53030" text-anchor="middle">0.954</text>
 <line x1="568" y1="48" x2="594" y2="48" stroke="#2b6cb0" stroke-width="2.5"/>
-<text x="600" y="52" font-size="11" fill="#37474f">句级索引</text>
+<text x="600" y="52" font-size="11" fill="#37474f">sentence-level</text>
 <line x1="568" y1="70" x2="594" y2="70" stroke="#c53030" stroke-width="2.5"/>
-<text x="600" y="74" font-size="11" fill="#37474f">固定块索引</text>
-<text x="314.0" y="404" font-size="12" fill="#37474f" text-anchor="middle">上下文预算（token）</text>
-<text x="24" y="196.0" font-size="12" fill="#37474f" transform="rotate(-90 24 196.0)" text-anchor="middle">答案片段召回率</text>
+<text x="600" y="74" font-size="11" fill="#37474f">fixed blocks</text>
+<text x="314.0" y="404" font-size="12" fill="#37474f" text-anchor="middle">context budget (tokens)</text>
+<text x="24" y="196.0" font-size="12" fill="#37474f" transform="rotate(-90 24 196.0)" text-anchor="middle">answer-span recall</text>
 </svg>

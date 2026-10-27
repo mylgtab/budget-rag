@@ -18,11 +18,11 @@ BUDGET_CURVE = {
 }
 
 ABLATION = [
-    ("完整系统", 0.960, "#2b6cb0"),
-    ("去掉门控", 0.924, "#e07b39"),
-    ("混合权重 0.5", 0.943, "#e07b39"),
-    ("预算 300→100", 0.899, "#e07b39"),
-    ("去掉混合", 0.892, "#e07b39"),
+    ("Full system", 0.960, "#2b6cb0"),
+    ("w/o gate", 0.924, "#e07b39"),
+    ("alpha 0.5", 0.943, "#e07b39"),
+    ("budget 300->100", 0.899, "#e07b39"),
+    ("w/o hybrid", 0.892, "#e07b39"),
 ]
 
 
@@ -40,7 +40,7 @@ def line_chart(series: dict[str, list[tuple[int, float]]], path: Path) -> None:
         return h - mb - (v - y0) / (y1 - y0) * (h - mt - mb)
 
     colors = {"sentence": "#2b6cb0", "fixed": "#c53030"}
-    labels = {"sentence": "句级索引", "fixed": "固定块索引"}
+    labels = {"sentence": "sentence-level", "fixed": "fixed blocks"}
 
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" '
@@ -78,10 +78,10 @@ def line_chart(series: dict[str, list[tuple[int, float]]], path: Path) -> None:
                      f'{labels[name]}</text>')
 
     parts.append(f'<text x="{(ml + w - mr) / 2}" y="{h - 16}" font-size="12" fill="#37474f" '
-                 f'text-anchor="middle">上下文预算（token）</text>')
+                 f'text-anchor="middle">context budget (tokens)</text>')
     parts.append(f'<text x="24" y="{(mt + h - mb) / 2}" font-size="12" fill="#37474f" '
                  f'transform="rotate(-90 24 {(mt + h - mb) / 2})" text-anchor="middle">'
-                 f'答案片段召回率</text>')
+                 f'answer-span recall</text>')
     parts.append("</svg>")
     path.write_text("\n".join(parts), encoding="utf-8")
 
@@ -117,12 +117,12 @@ def bar_chart(rows: list[tuple[str, float, str]], path: Path) -> None:
         parts.append(f'<text x="{ml - 12}" y="{y + bar_h / 2 + 4}" font-size="12" fill="#37474f" '
                      f'text-anchor="end">{label}</text>')
         delta = (value - 0.960) * 100
-        tag = f"{value:.3f}" if abs(delta) < 0.01 else f"{value:.3f}（{delta:+.1f} pt）"
+        tag = f"{value:.3f}" if abs(delta) < 0.01 else f"{value:.3f} ({delta:+.1f} pt)"
         parts.append(f'<text x="{x_end + 8:.1f}" y="{y + bar_h / 2 + 4}" font-size="11" '
                      f'fill="#37474f">{tag}</text>')
 
     parts.append(f'<text x="{(ml + w - mr) / 2}" y="{h - 12}" font-size="12" fill="#37474f" '
-                 f'text-anchor="middle">答案片段召回率</text>')
+                 f'text-anchor="middle">answer-span recall</text>')
     parts.append("</svg>")
     path.write_text("\n".join(parts), encoding="utf-8")
 
@@ -180,20 +180,23 @@ def png_line_chart(series, path: Path, scale: int = 2) -> None:
     d.line([(ml, mt), (ml, h - mb)], fill=(55, 71, 79), width=scale)
 
     colors = {"sentence": (43, 108, 176), "fixed": (197, 48, 48)}
-    labels = {"sentence": "句级索引", "fixed": "固定块索引"}
+    labels = {"sentence": "sentence-level", "fixed": "fixed blocks"}
     for name, pts in series.items():
         c = colors[name]
         d.line([(sx(x), sy(y)) for x, y in pts], fill=c, width=3 * scale, joint="curve")
         for x, y in pts:
             r = 4 * scale
             d.ellipse([sx(x) - r, sy(y) - r, sx(x) + r, sy(y) + r], fill=c)
-            d.text((sx(x), sy(y) - 11 * scale), f"{y:.3f}", font=_font(10 * scale), fill=c, anchor="mb")
+            if name == "fixed":
+                d.text((sx(x), sy(y) + 11 * scale), f"{y:.3f}", font=_font(10 * scale), fill=c, anchor="mt")
+            else:
+                d.text((sx(x), sy(y) - 11 * scale), f"{y:.3f}", font=_font(10 * scale), fill=c, anchor="mb")
     for i, name in enumerate(series):
         ly = mt + 14 * scale + i * 22 * scale
         d.line([(w - mr + 18 * scale, ly), (w - mr + 44 * scale, ly)], fill=colors[name], width=3 * scale)
         d.text((w - mr + 50 * scale, ly), labels[name], font=fs, fill=(55, 71, 79), anchor="lm")
-    d.text(((ml + w - mr) / 2, h - 16 * scale), "上下文预算（token）", font=fs2, fill=(55, 71, 79), anchor="mm")
-    _draw_vertical(d, "召回率", (10 * scale, (mt + h - mb) / 2 - 40 * scale), fs2, (55, 71, 79), scale)
+    d.text(((ml + w - mr) / 2, h - 16 * scale), "context budget (tokens)", font=fs2, fill=(55, 71, 79), anchor="mm")
+    _draw_vertical(d, "recall", (10 * scale, (mt + h - mb) / 2 - 40 * scale), fs2, (55, 71, 79), scale)
     img.save(path)
 
 
@@ -221,9 +224,9 @@ def png_bar_chart(rows, path: Path, scale: int = 2) -> None:
         d.rounded_rectangle([ml, y, max(ml + 2 * scale, sx(value)), y + bar_h], radius=3 * scale, fill=rgb)
         d.text((ml - 12 * scale, y + bar_h / 2), label, font=fs3, fill=(55, 71, 79), anchor="rm")
         delta = (value - 0.960) * 100
-        tag = f"{value:.3f}" if abs(delta) < 0.01 else f"{value:.3f}（{delta:+.1f} pt）"
+        tag = f"{value:.3f}" if abs(delta) < 0.01 else f"{value:.3f} ({delta:+.1f} pt)"
         d.text((sx(value) + 8 * scale, y + bar_h / 2), tag, font=fs, fill=(55, 71, 79), anchor="lm")
-    d.text(((ml + w - mr) / 2, h - 12 * scale), "召回率", font=fs2, fill=(55, 71, 79), anchor="mm")
+    d.text(((ml + w - mr) / 2, h - 12 * scale), "recall", font=fs2, fill=(55, 71, 79), anchor="mm")
     img.save(path)
 
 

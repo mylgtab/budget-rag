@@ -14,19 +14,19 @@
 <text x="553.3" y="308" font-size="11" fill="#607d8b" text-anchor="middle">0.96</text>
 <line x1="150" y1="290" x2="590" y2="290" stroke="#37474f"/>
 <rect x="150" y="40" width="403.3" height="34" fill="#2b6cb0" opacity="0.88" rx="3"/>
-<text x="138" y="61.0" font-size="12" fill="#37474f" text-anchor="end">完整系统</text>
+<text x="138" y="61.0" font-size="12" fill="#37474f" text-anchor="end">Full system</text>
 <text x="561.3" y="61.0" font-size="11" fill="#37474f">0.960</text>
 <rect x="150" y="88" width="271.3" height="34" fill="#e07b39" opacity="0.88" rx="3"/>
-<text x="138" y="109.0" font-size="12" fill="#37474f" text-anchor="end">去掉门控</text>
-<text x="429.3" y="109.0" font-size="11" fill="#37474f">0.924（-3.6 pt）</text>
+<text x="138" y="109.0" font-size="12" fill="#37474f" text-anchor="end">w/o gate</text>
+<text x="429.3" y="109.0" font-size="11" fill="#37474f">0.924 (-3.6 pt)</text>
 <rect x="150" y="136" width="341.0" height="34" fill="#e07b39" opacity="0.88" rx="3"/>
-<text x="138" y="157.0" font-size="12" fill="#37474f" text-anchor="end">混合权重 0.5</text>
-<text x="499.0" y="157.0" font-size="11" fill="#37474f">0.943（-1.7 pt）</text>
+<text x="138" y="157.0" font-size="12" fill="#37474f" text-anchor="end">alpha 0.5</text>
+<text x="499.0" y="157.0" font-size="11" fill="#37474f">0.943 (-1.7 pt)</text>
 <rect x="150" y="184" width="179.7" height="34" fill="#e07b39" opacity="0.88" rx="3"/>
-<text x="138" y="205.0" font-size="12" fill="#37474f" text-anchor="end">预算 300→100</text>
-<text x="337.7" y="205.0" font-size="11" fill="#37474f">0.899（-6.1 pt）</text>
+<text x="138" y="205.0" font-size="12" fill="#37474f" text-anchor="end">budget 300->100</text>
+<text x="337.7" y="205.0" font-size="11" fill="#37474f">0.899 (-6.1 pt)</text>
 <rect x="150" y="232" width="154.0" height="34" fill="#e07b39" opacity="0.88" rx="3"/>
-<text x="138" y="253.0" font-size="12" fill="#37474f" text-anchor="end">去掉混合</text>
-<text x="312.0" y="253.0" font-size="11" fill="#37474f">0.892（-6.8 pt）</text>
-<text x="370.0" y="328" font-size="12" fill="#37474f" text-anchor="middle">答案片段召回率</text>
+<text x="138" y="253.0" font-size="12" fill="#37474f" text-anchor="end">w/o hybrid</text>
+<text x="312.0" y="253.0" font-size="11" fill="#37474f">0.892 (-6.8 pt)</text>
+<text x="370.0" y="328" font-size="12" fill="#37474f" text-anchor="middle">answer-span recall</text>
 </svg>
