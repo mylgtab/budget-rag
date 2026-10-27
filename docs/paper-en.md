@@ -249,6 +249,8 @@ be searched.
 
 ### 2.6 Our Position
 
+**Table 1.** Comparison of representative adaptive-retrieval lines against this work. Table 1 summarises this positioning.
+
 | Line | Decision object | Role of the budget | Trigger signal | Relation to this work |
 |---|---|---|---|---|
 | Adaptive and multi-hop [5,6,8,9,10] | Whether to retrieve, how many steps | External constant | Generation confidence / complexity classifier / question decomposition | We add "how much to give" and make the second hop a priced action |
@@ -287,6 +289,9 @@ Two assumptions carry the later results: **A1** diminishing marginal returns, an
 additive and order-independent.
 
 ## 4. Method
+
+Our retrieval layer builds on two standard components: sparse BM25 scoring [2] and dense bi-encoder retrieval [3].
+
 
 ### 4.1 Dual Index and Budgeted Chunk Selection
 
@@ -416,6 +421,8 @@ comparison on 312 official documentation pages and on BEIR, and revises two of t
 
 Under this controlled setting the proposed system is stronger at equal or lower budget.
 
+**Table 2.** Main results on the controlled synthetic benchmark (500 queries, 800-token budget). Table 2 reports the main comparison.
+
 | Method | Recall | 95% CI | tokens |
 |---|---|---|---|
 | BM25 | 0.825 | [0.770, 0.875] | 68 |
@@ -433,6 +440,8 @@ while a fixed $k$ cannot cut losses on easy ones.
 
 **Seed stability (five 2/3 subsamples).**
 
+**Table 3.** Seed stability across five 2/3 subsamples. Table 3 reports the stability check.
+
 | Method | Full | Subsample mean ± sd |
 |---|---|---|
 | BM25 | 0.825 | 0.826 ± 0.010 |
@@ -446,6 +455,8 @@ The subsample interval for our system, [0.947, 0.970], does not overlap that of 
 approximation, [0.925, 0.932]: the advantage does not depend on which questions are drawn.
 
 ### 6.3 Ablation
+
+**Table 4.** Ablation: removing each component in turn. Table 4 reports the ablation.
 
 | Removed component | Recall change | Interpretation |
 |---|---|---|
@@ -481,6 +492,8 @@ difficulty and are not used as a comparison basis.
 
 One hundred questions per dataset, the same 800-token budget, local Qwen3-4B generation; brackets are
 bootstrap 95% intervals.
+
+**Table 5.** Benefit of retrieval across datasets and models (Qwen3-4B, 800-token budget). Table 5 reports per-dataset results.
 
 | Dataset | With retrieval | 95% CI | Without | McNemar p |
 |---|---|---|---|---|
@@ -520,6 +533,8 @@ rewrite, the less often it should be triggered.
 
 Twenty queries (single machine, API model, answer cache disabled):
 
+**Table 6.** End-to-end efficiency on twenty queries with the answer cache disabled. Table 6 reports latency and cost.
+
 | Configuration | p50 (ms) | p95 (ms) | cost/query (CNY) | recall |
 |---|---|---|---|---|
 | Cheap tier (BM25) | 923 | 1469 | 0.00088 | 0.850 |
@@ -541,6 +556,8 @@ Prometheus 14; 1.9M characters, 16,823 chunks) and adds four BEIR subsets for pu
 
 **Internal benchmark (301 questions, document-level recall)**
 
+**Table 7.** Internal benchmark: 301 questions, document-level recall. Table 7 reports the internal benchmark.
+
 | Method | Recall | mean tokens |
 |---|---|---|
 | BM25 | 0.801 | 318 |
@@ -559,6 +576,8 @@ statistically indistinguishable from fixed k = 8 on quality while using 11-20% f
 We run four BEIR subsets through the same pipeline (bge-m3 embeddings, hybrid alpha = 0.2, chunk size
 200) and use fixed k = 8 as the reference; the adaptive configuration is the cheapest one whose
 nDCG@10 stays within 0.002 of that baseline. All queries are used, without subsampling.
+
+**Table 8.** BEIR results on four subsets, all queries, fixed k = 8 as reference. Table 8 reports the BEIR results.
 
 | Dataset | Fixed k=8 nDCG@10 | tokens | Adaptive nDCG@10 | tokens | Saving |
 |---|---|---|---|---|---|
@@ -611,6 +630,8 @@ unreachable instead of returning a number. Under exchangeability of calibration 
 the resulting budget covers a new question with probability at least 1 - alpha, so the expected recall
 is at least T. One hundred random splits separate calibration from evaluation.
 
+**Table 9.** Conformal calibration: coverage at three targets and two weaker retrievers. Table 9 reports empirical coverage.
+
 | Retriever | Target | Budget (median) | Empirical coverage | Nominal | Gap |
 |---|---|---|---|---|---|
 | Hybrid (bge-m3) | 0.80 | 120 | 0.810 | 0.800 | +0.010 |
@@ -659,6 +680,8 @@ end-to-end latency, and the three cost dimensions are collinear in this setting:
 multiple of tokens, prefill latency is close to linear in context length, and the spread across
 retrievers (16-70 ms) is too small to move a latency budget.
 The resulting operating points, including the official classifier of Section 6.16, are:
+
+**Table 10.** Operating points of all policies, including the official classifier of Section 6.16. Table 10 lists the operating points.
 
 | Policy | Recall | mean tokens | mean latency (ms) |
 |---|---|---|---|
@@ -790,6 +813,8 @@ so it is a faithful mechanism reproduction at reduced model scale, not the origi
 We then applied the classifier to our 301 questions and routed with the paper's own mapping: A (simple)
 takes no context, B (single-hop) retrieves five passages, C (multi-hop) retrieves ten.
 
+**Table 11.** Routing results of the official complexity classifier on the 301 questions. Table 11 reports the routed results.
+
 | Method | Recall | mean tokens |
 |---|---|---|
 | Official classifier (faithful: A = no retrieval) | 0.638 | 150 |
@@ -813,6 +838,8 @@ gamma = (s1 - s2) / s1, which has to be re-tuned when the corpus changes (0.12 o
 nfcorpus). A per-query rule would remove that constant, so we tested the obvious one: stop where the
 query's own score list drops sharply. Concretely, take the smallest k with
 (s_k - s_{k+1}) / s1 >= delta, capped at k = 10, and sweep delta.
+
+**Table 12.** Per-query threshold sweep: nDCG@10, tokens and saving against fixed k = 8. Table 12 reports the sweep.
 
 | delta | recall | mean tokens | saving vs k=8 | mean k |
 |---|---|---|---|---|
@@ -850,6 +877,8 @@ statement about the score distribution, and it can be tested before it is proved
 
 We split the 301 questions into gamma quartiles and compare recall at k = 4 and k = 10 within each
 quartile.
+
+**Table 13.** Marginal gain by margin quartile: recall at k = 4 and k = 10 within each quartile. Table 13 reports the quartile analysis.
 
 | gamma quartile | n | recall k=4 | recall k=10 | delta (10-4) |
 |---|---|---|---|---|
@@ -971,6 +1000,22 @@ step. **Public benchmarks**: four BEIR subsets were run and one of them (arguana
 all, so the gain is corpus-dependent (1–24%) rather than universal.
 
 <!-- Appendices to be translated. -->
+
+## 9. Conclusion
+
+We formulated retrieval-depth selection as budget-constrained submodular maximization over priced
+actions, and derived two implementable consequences: the rewriting threshold is set by the shadow price
+of the budget, and the optimal cascade is a chain of confidence thresholds. On the controlled benchmark
+the resulting system reaches 0.960 recall at 126 tokens; on 312 official documentation pages it reaches
+0.910 recall at a 300-token budget, statistically indistinguishable from fixed depth at 11-20% fewer
+tokens; on four BEIR subsets the same rule saves 1-24% of context at equal nDCG@10, and fails on an
+adversarially constructed one, which we report. A split-conformal layer turns a recall target into a
+budget with a coverage guarantee, and refuses targets a retriever cannot reach.
+
+We also stated when the margin can be trusted: under a high-confidence regime and a non-thickening tail
+(Appendix D), with two counterexamples marking exactly where each condition is necessary. The broader
+lesson is that the context budget is better treated as an interface than as a hyperparameter: given a
+target and twenty labelled questions, a system can certify what it promises, and say so when it cannot.
 
 ## Appendix A. Negative Results
 
