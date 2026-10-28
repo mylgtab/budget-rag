@@ -611,21 +611,23 @@ result and is not claimed to generalize.
 
 ### 6.10 From a Budget to a Quality Target
 
-Users do not ask for "300 tokens"; they ask for "90% recall". Turning the second into the first is a
-calibration problem, and it admits a distribution-free solution with a finite-sample guarantee.
+Users specify a desired answer-span recall, not a token budget. Split-conformal calibration maps a
+target recall $T$ to a token budget using $N = 20$ labelled questions. For each calibration question we
+record the minimum budget at which its answer span enters the context, and set the budget to the
+$\lceil (N+1)(1-\alpha) \rceil$-th smallest recorded value, with $\alpha = 1 - T$. If the selected
+order statistic is infinite, the protocol reports the target as unreachable rather than returning a
+finite budget.
 
-**Protocol (split conformal).** Sample N labelled questions (N = 20), record for each the smallest
-budget at which the answer span enters the context, and set the budget to the ceil((N+1)(1-alpha))-th
-smallest of those values; alpha = 1 - T for a target T. If the required order statistic is infinite --
-that is, the calibration sample never reaches the target -- the protocol reports the target as
-unreachable instead of returning a number. Under exchangeability of calibration and test questions,
-the resulting budget covers a new question with probability at least 1 - alpha, so the expected recall
-is at least T. One hundred random splits separate calibration from evaluation.
+Under exchangeability of calibration and test questions the procedure gives a finite-sample marginal
+guarantee of at least $T$ for answer-span coverage. The guarantee is marginal over calibration and test
+draws, not conditional on returning a finite budget or avoiding refusal. We evaluate it with 100 random
+splits that separate calibration from evaluation questions.
 
-**Table 9.** Conformal calibration: coverage at three targets and two weaker retrievers. Table 9 reports empirical coverage.
+**Table 9.** Split-conformal calibration across the tested targets: median token budgets, empirical and
+nominal coverage, and the empirical-minus-nominal gap for three retrievers.
 
-| Retriever | Target | Budget (median) | Empirical coverage | Nominal | Gap |
-|---|---|---|---|---|---|
+| Retriever | Target | Median token budget | Empirical coverage | Nominal coverage | Gap |
+|---|---:|---:|---:|---:|---:|
 | Hybrid (bge-m3) | 0.80 | 120 | 0.810 | 0.800 | +0.010 |
 | Hybrid (bge-m3) | 0.85 | 166 | 0.865 | 0.850 | +0.015 |
 | Hybrid (bge-m3) | 0.90 | 276 | 0.891 | 0.900 | -0.009 |
@@ -634,20 +636,29 @@ is at least T. One hundred random splits separate calibration from evaluation.
 | BM25 | 0.80 | 368 | 0.789 | 0.800 | -0.011 |
 | BM25 | 0.90 | 708 | 0.848 | 0.900 | -0.052 |
 
-Three findings follow. First, on the strongest retriever the guarantee holds: empirical coverage tracks
-the nominal level within 0.015 at all three targets, and the budgets (120-276 tokens) stay well below
-what a fixed k = 8 needs for the same recall (289 tokens). Second, calibration is retriever-specific:
-under bge-large-en the gap at 0.90 widens to -0.020 and under BM25 to -0.052 with a 55% refusal rate at
-that target, so a change of retriever requires recalibration and an honest refusal path. Third, a
-saturating-curve variant with a safety margin reaches a similar reach rate but needs a hand-tuned
-margin and gives no guarantee, so the conformal form is preferred.
+On the hybrid retriever, empirical coverage at the three targets is within 0.015 of nominal, and the
+calibrated median budgets range from 120 to 276 tokens. Fixed $k = 8$ averages 289 tokens at a
+document-level recall of 0.904; that is a different metric from answer-span coverage, so the comparison
+is indicative rather than a same-recall budget advantage.
 
-The guarantee holds across the range rather than at three points. Sweeping alpha from 0.05 to 0.50
-moves nominal coverage from 0.95 to 0.50, and empirical coverage tracks it within 0.046: 0.922 at
-0.95, 0.891 at 0.90, 0.865 at 0.85, 0.810 at 0.80, 0.754 at 0.75, 0.699 at 0.70, 0.646 at 0.60 and
-0.524 at 0.50 (Figure 5). The one systematic gap is the far tail: at nominal 0.95, 28% of calibration
-samples never reach the target and the protocol refuses rather than under-covers, and among the samples
-that do return a budget the median is 664 tokens.
+Observed coverage varies by retriever. At target 0.90 the gap is $-0.020$ for dense bge-large-en and
+$-0.052$ for BM25, and BM25 returns refusals in 55% of cases at that target. This supports retriever-specific
+recalibration and explicit reporting of refusals rather than a single calibration for all retrievers.
+
+The saturating-curve variant with a safety margin reaches a similar reach rate but needs a hand-tuned
+margin and gives no finite-sample guarantee, so the split-conformal form is preferred.
+
+![Figure 4. Calibration curves and reach rate](figures/fig4-calibration.png)
+
+**Figure 4.** (A) Recall against context budget for four retrievers on the 301-question benchmark; the
+dashed lines mark the 0.80, 0.85 and 0.90 targets. (B) Reach rate against the safety margin for the
+curve-based variant, shown for comparison with the conformal protocol of this section.
+
+Across the sweep, the maximum absolute difference between nominal and empirical coverage is 0.046
+(Figure 5): 0.95 gives 0.922, 0.90 gives 0.891, 0.85 gives 0.865, 0.80 gives 0.810, 0.75 gives 0.754,
+0.70 gives 0.699, 0.60 gives 0.646, and 0.50 gives 0.524. At nominal 0.95 the target is unreachable in
+28% of calibration samples, which triggers refusal; among the samples that return a finite budget, the
+median is 664 tokens.
 
 ![Figure 5. Coverage diagnostic](figures/fig5-conformal.png)
 
@@ -655,12 +666,6 @@ that do return a budget the median is 664 tokens.
 retriever, sweeping alpha from 0.05 to 0.50. The grey diagonal is nominal = empirical; vertical bars
 mark the 5th percentile of coverage across 100 random splits; labels give the median budget and the
 refusal rate.
-
-![Figure 4. Calibration curves and reach rate](figures/fig4-calibration.png)
-
-**Figure 4.** (A) Recall against context budget for four retrievers on the 301-question benchmark; the
-dashed lines mark the 0.80, 0.85 and 0.90 targets. (B) Reach rate against the safety margin for the
-curve-based variant, shown for comparison with the conformal protocol of this section.
 
 ### 6.11 Why a Second Budget Does Not Bind
 
