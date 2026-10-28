@@ -28,7 +28,6 @@ coverage stays within 0.015 of nominal at 120-276 tokens on the hybrid retriever
 examples suggests automatic containment can miss valid answers, without proving a lower bound.
 
 **Keywords:** retrieval-augmented generation; context budget; submodular maximization; adaptive retrieval; cost-aware inference; large language models
-retrieval; cost-aware inference; large language models
 
 ## 1. Introduction
 
