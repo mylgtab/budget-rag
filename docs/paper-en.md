@@ -687,7 +687,7 @@ The resulting operating points, including the official classifier of Section 6.1
 | BM25 top-8 | 0.801 | 318 | 16 |
 | Dense bge-m3 top-8 | 0.887 | 318 | 45 |
 | **Ours (adaptive k=4/10)** | **0.900** | **244** | 72 |
-| Hybrid top-8 | 0.910 | 318 | 73 |
+| Hybrid (budget 300) | 0.910 | 318 | 73 |
 
 Latency here is retrieval only; the classifier adds 21 ms of CPU inference and nothing else. Every
 policy therefore lands between 16 and 74 ms, an order of magnitude below the 898 ms of generation, so
@@ -716,8 +716,8 @@ the same swap saves 1050 tokens, or **18.3 tokens per millisecond**.
 Whether the trade is worth it depends on what a token costs downstream. Measuring prompt prefill
 directly with a local Ollama deployment (`prompt_eval_duration`, randomised prompts to defeat prefix
 caching) gives 195 ms for 100 prompt tokens, 570 ms for 300, 1194 ms for 600 and 2125 ms for 1000, a
-slope of **2.15 ms per token** on CPU. The net gain from swapping to the stronger retriever is then 467
-ms at a 0.80 target and 2258 ms at 0.90, against 58 ms of extra retrieval.
+slope of **2.15 ms per token** on CPU. The gross prefill saving from swapping to the stronger retriever is 467 ms at a 0.80 target and
+2258 ms at 0.90; after the 58 ms of extra retrieval the net gains are about 409 ms and 2200 ms.
 
 The break-even condition is r * p > 1, where r is the exchange rate in tokens per millisecond and p is
 the prefill cost per token. On this machine 3.7 * 2.15 = 8.0, so the swap always pays. On a GPU where
@@ -726,7 +726,7 @@ paying there but remains profitable at 0.90 (1.83). The trade is therefore compu
 qualitative, and it explains the conclusion of Section 6.11 from the other side: retrieval time is so
 cheap relative to context that spending it is almost always right.
 
-### 6.13 How the Questions Were Written, and How Much They Overlap the Sources
+### 6.13 Question-Source Overlap
 
 The 301 questions come from two sources: six were written by the author in Chinese and translated, the
 remainder were drafted from the documentation and then checked by the author against the source
@@ -741,7 +741,7 @@ a control, using the answer-bearing source sentence itself as the query yields m
 **1.000**. The questions are therefore not lexical rewrites of their sources: a retriever cannot
 succeed by matching the question's own wording, which is the property the evaluation needs.
 
-### 6.14 Where the Errors Come From
+### 6.14 Error Patterns across Retrieval and Generation
 
 At a 300-token budget the hybrid retriever misses 27 of the 301 questions. In every one of those
 cases the answer span **does exist** in the target document, so the failures are ranking failures
@@ -754,8 +754,8 @@ On the multi-hop generation benchmarks the failure mode is different: across 300
 was non-empty, and the errors are **wrong-entity substitutions** rather than refusals. For example the
 comparison question "which case was brought first, Miller v. California or Gates v. Collier" is answered
 with the second case, and "where was the wife of Francis I Rakoczi born" is answered with the place she
-lived. Retrieval hit the answer span 0.51-0.69 of the time while accuracy was 0.14-0.52, so roughly
-half of the remaining gap is lost on the generation side, not in retrieval.
+lived. Retrieval hit the answer span 0.51-0.69 of the time while accuracy was 0.14-0.52. The two rates differ,
+but this aggregate comparison does not identify what fraction of the gap arises during generation.
 
 The practical reading is that neither more context nor a larger budget fixes these two failure modes:
 the first needs better ranking of short answers, the second better entity disambiguation and two-hop
@@ -818,7 +818,7 @@ takes no context, B (single-hop) retrieves five passages, C (multi-hop) retrieve
 | Official classifier (adapted: A = top-1 passage) | 0.844 | 160 |
 | Hybrid top-3 | 0.824 | 108 |
 | **Ours (difficulty-adaptive, k=4/10)** | **0.900** | **244** |
-| Hybrid top-8 | 0.904 | 289 |
+| Fixed k = 8 (hybrid) | 0.904 | 289 |
 
 The classifier assigns 83 questions to A, 189 to B and 29 to C. Its operating points sit between
 fixed-depth retrieval points: 0.844 at 160 tokens falls between top-3 (0.824 at 108) and top-5 (0.890
@@ -828,7 +828,7 @@ target recall. That is precisely the interface Section 6.10 provides and this ba
 why the two are complementary rather than competing -- the classifier picks one operating point from a
 learned prior, the conformal protocol certifies a target quality at whatever budget that costs.
 
-### 6.17 Per-Query Thresholds: Tested, No Gain
+### 6.17 Per-Query Thresholds: No Better Trade-off
 
 The depth rule of Section 6.6 uses one global threshold tau on the normalised margin
 gamma = (s1 - s2) / s1, which has to be re-tuned when the corpus changes (0.12 on scifact, 0.20 on
@@ -836,7 +836,7 @@ nfcorpus). A per-query rule would remove that constant, so we tested the obvious
 query's own score list drops sharply. Concretely, take the smallest k with
 (s_k - s_{k+1}) / s1 >= delta, capped at k = 10, and sweep delta.
 
-**Table 12.** Per-query threshold sweep: nDCG@10, tokens and saving against fixed k = 8. Table 12 reports the sweep.
+**Table 12.** Per-query threshold sweep on the internal benchmark: recall, tokens and saving against fixed k = 8. Table 12 reports the sweep.
 
 | delta | recall | mean tokens | saving vs k=8 | mean k |
 |---|---|---|---|---|
@@ -850,9 +850,9 @@ loses 1.7 recall points (0.887 against 0.904 at fixed k = 8), whereas the global
 at 244 tokens, a loss of only 0.4 points. Above delta = 0.05 the rule simply stops early almost
 never and costs more than fixed depth.
 
-The reason is visible in the definition: hybrid scores are already normalised per query, so the
-absolute gap (s1 - s2)/s1 is a comparable statistic across queries, while the *incremental* drop
-between adjacent chunks adds noise -- one flat pair of scores is enough to trigger or suppress a cut.
+A plausible explanation is that the normalised gap between the top two scores is comparable across
+queries, whereas a single flat pair of adjacent scores can move the per-query stopping point. The sweep
+establishes the trade-off but does not test this explanation directly.
 We therefore keep the global threshold and report the per-query variant as a negative result; the
 recalibration cost stays a stated limitation rather than being papered over by a rule that does not
 work.
