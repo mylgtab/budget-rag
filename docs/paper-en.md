@@ -459,11 +459,12 @@ allocation, with the gate as a refinement (−3.6 pt).
 
 ![Figure 2. Budget versus recall (sentence-level vs fixed blocks)](figures/fig2-budget-recall.png)
 
-**Figure 2.** Recall as the budget grows from 80 to 800 tokens, on the short-sentence synthetic
-corpus. Sentence-level chunks lead at budgets up to 300 tokens (0.912 versus 0.894 at 300) and fixed
-blocks lead from 500 (0.928 versus 0.918); on English documentation fixed blocks lead at every budget
-(Section 6.9). The crossover is therefore a property of short-sentence corpora, not a universal rule,
-and the corpus-level decision of Section 4.1 determines whether it applies.
+**Figure 2.** Recall across token budgets of 80-800 tokens, on the short-sentence synthetic corpus,
+for sentence-level chunks and fixed blocks. Sentence-level chunks lead up to 300 tokens (0.912 versus
+0.894 at 300) and fixed blocks lead from 500 (0.928 versus 0.918); on English documentation fixed
+blocks lead at every budget (Section 6.9). The crossover is therefore a property of short-sentence
+corpora, not a universal rule, and the corpus-level decision of Section 4.1 determines whether it
+applies.
 
 ![Figure 3. Ablation: recall cost of removing each component](figures/fig3-ablation.png)
 
