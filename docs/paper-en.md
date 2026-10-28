@@ -908,101 +908,22 @@ rule's suboptimality -- has an empirically falsifiable target to aim at.
 ## 7. Discussion
 
 ### 7.1 Budget as an Interface, Not a Hyperparameter
-
-Writing the budget as a constraint rather than a tuned $k$ buys three transferable properties.
-
-The strongest transferable finding is narrower than the original framing. On 312 documentation pages
-and BEIR scifact, truncating by tokens buys nothing over a well-chosen fixed $k$ (294 versus 318
-tokens at equal recall). What does transfer is deciding the depth per query from the retrieval-score
-margin: at equal hit rate that saves 1-24% of context on natural corpora, and nothing on an
-adversarial one (Section 6.9). The mechanism is therefore "how many chunks does *this* query need", not "stop
-at a token count".
-First, the shadow price becomes a readable configuration value: $\lambda$ is the quality obtained
-per additional unit of budget, and it translates "how many chunks" into "is this unit still worth
-it". Section 6.7 shows the observable consequence—when the unit-price coefficient rises from 0.25 to
-2, the optimal threshold falls from 0.25 to 0 and the system decides by itself that rewriting is not
-worth it at that price. A budget can therefore be written into configuration as an SLA (tokens and
-money per query) and survives a change of model or price without re-sweeping hyperparameters.
-
-Second, the benefit of the gate must be reported together with the difficulty distribution of the
-load. It saves 62% of rewriting calls at a 38% trigger rate on the full set, but only 24% at 76% on
-the hard subset. Since rewriting dominates latency, what the gate saves is exactly the latency that
-scales inversely with batch difficulty; reporting a gate benefit without the trigger rate can make
-the same method look like opposite conclusions on two batches.
-
-Third, the extension point is the action set alone. Adding an action (reranking, second hop
-retrieval, a compressor) only requires stating its cost $c(a)$ and marginal gain $g(a\mid S)$; the
-ordering rule and the approximation bound are unchanged. The reranking experiment illustrates the
-usage: with a pool of 8 and a 300-token budget the gain is 0.0 pt, whereas with a pool of 30 and a
-150-token budget it is +5.5 pt. The gain comes from truncation, not from the action itself.
-
+Writing the budget as a constraint rather than a tuned $k$ buys three transferable properties. The
+most useful of them is narrower than the original framing. On 312 documentation pages and BEIR scifact, truncating by tokens buys nothing over a well-chosen fixed $k$ (294 versus 318 tokens at equal recall). What does transfer is deciding the depth per query from the retrieval-score margin: at equal hit rate that saves 1-24% of context on natural corpora, and nothing on an adversarial one (Section 6.9). The mechanism is therefore "how many chunks does *this* query need", not "stop at a token count". First, the shadow price becomes a readable configuration value: $\lambda$ is the quality obtained per additional unit of budget, and it translates "how many chunks" into "is this unit still worth it". Section 6.7 shows the observable consequence—when the unit-price coefficient rises from 0.25 to 2, the optimal threshold falls from 0.25 to 0 and the system decides by itself that rewriting is not worth it at that price. A budget can therefore be written into configuration as an SLA (tokens and money per query) and survives a change of model or price without re-sweeping hyperparameters.
+Second, the benefit of the gate must be reported together with the difficulty distribution of the load. It saves 62% of rewriting calls at a 38% trigger rate on the full set, but only 24% at 76% on the hard subset. Since rewriting dominates latency, what the gate saves is exactly the latency that scales inversely with batch difficulty; reporting a gate benefit without the trigger rate can make the same method look like opposite conclusions on two batches.
+Third, the extension point is the action set alone. Adding an action (reranking, second hop retrieval, a compressor) only requires stating its cost $c(a)$ and marginal gain $g(a\mid S)$; the ordering rule and the approximation bound are unchanged. The reranking experiment illustrates the usage: with a pool of 8 and a 300-token budget the gain is 0.0 pt, whereas with a pool of 30 and a 150-token budget it is +5.5 pt. The gain comes from truncation, not from the action itself.
 ### 7.2 When It Applies
-
-The gains come from heterogeneity in difficulty and tightness of budget; they are largest when both
-hold. Granularity experiments bound the budget regime: at or below 500 tokens the sentence-level
-index saves 15%–50% of context at equal recall, while above 800 tokens fixed blocks overtake it
-(Section 6.3). With a loose budget, freedom in *which* chunks to take is diluted—any policy can
-afford large blocks and allocation stops mattering.
-
-Where the bottleneck sits decides where the gain lands. On the three multi-hop benchmarks retrieval
-hits the answer span 0.50–0.65 of the time, yet a 4B model answers correctly only 0.20–0.40
-(Section 6.5): the evidence is already in the context and the generator fails to use it. Additional
-context budget is then absorbed by the generation side, and the money should move there—a stronger
-model, longer reasoning, an explicit extraction prompt. $\lambda$ points wherever marginal gain is
-highest; when that is not retrieval, it points elsewhere.
-
-Finally, on a homogeneous load the benefit of scheduling tends to zero: on the synthetic set all
-policies except fixed shallow retrieval fall within the same confidence interval (Section 6.2), and
-fixed top-$k$ suffices; the gap only opens on heterogeneous loads.
-
+The gains come from heterogeneity in difficulty and tightness of budget; they are largest when both hold. Granularity experiments bound the budget regime: at or below 500 tokens the sentence-level index saves 15%–50% of context at equal recall, while above 800 tokens fixed blocks overtake it (Section 6.3). With a loose budget, freedom in *which* chunks to take is diluted—any policy can afford large blocks and allocation stops mattering.
+Where the bottleneck sits decides where the gain lands. On the three multi-hop benchmarks retrieval hits the answer span 0.51–0.69 of the time, yet a 4B model answers correctly only 0.14–0.40 (Section 6.5): the evidence is already in the context and the generator fails to use it. Additional context budget is then absorbed by the generation side, and the money should move there—a stronger model, longer reasoning, an explicit extraction prompt. $\lambda$ points wherever marginal gain is highest; when that is not retrieval, it points elsewhere.
+Finally, on a homogeneous load the benefit of scheduling tends to zero: on the synthetic set all policies except fixed shallow retrieval fall within the same confidence interval (Section 6.2), and fixed top-$k$ suffices; the gap only opens on heterogeneous loads.
 ### 7.3 Boundaries of the Cost Model
-
-Assumption A2 (fixed, order-independent unit prices) is an approximation of real billing: tiered
-discounts, cache hits and batching all make $\lambda$ drift with the load. This does not require a
-new model—treat $\lambda$ as a runtime observable; the sweep in Section 6.7 is its time-invariant
-approximation, and online it can be updated over shorter windows.
-
-The token estimate used for budget control is conservative. On the same prompt, tiktoken estimates
-131 tokens while the API bills 71, an 84% overestimate (Section 8). Reported token costs are
-therefore upper bounds and the true cost is lower; the 126 tokens that buy 0.960 recall in Section
-6.2 still leave margin.
-
-Cost can also be a vector. Latency and money are different dimensions: rewriting takes more than
-half of the end-to-end latency while its token cost is negligible. Charging both makes $c(a)$ a
-vector and turns the optimal policy from a single threshold chain into a chain on the Pareto
-frontier; the greedy guarantee relaxes to a per-dimension bound while the ordering rule is
-unchanged. Multi-dimensional budgeting is the most natural next step for this framework and needs
-no new theory.
-
+Assumption A2 (fixed, order-independent unit prices) is an approximation of real billing: tiered discounts, cache hits and batching all make $\lambda$ drift with the load. This does not require a new model—treat $\lambda$ as a runtime observable; the sweep in Section 6.7 is its time-invariant approximation, and online it can be updated over shorter windows.
+The token estimate used for budget control is conservative. On the same prompt, tiktoken estimates 131 tokens while the API bills 71, an 84% overestimate (Section 8). Reported token costs are therefore upper bounds and the true cost is lower; the 126 tokens that buy 0.960 recall in Section 6.2 still leave margin.
+Cost can also be a vector. Latency and money are different dimensions: rewriting takes about half of the end-to-end latency while its token cost is negligible. Charging both makes $c(a)$ a vector and turns the optimal policy from a single threshold chain into a chain on the Pareto frontier; the greedy guarantee relaxes to a per-dimension bound while the ordering rule is unchanged. Multi-dimensional budgeting is the most natural next step for this framework and needs no new theory.
 ### 7.4 Distance to the Lower Bound
-
-An oracle that knows which chunk to take reaches 0.958 recall with 58 tokens (Appendix A); without
-that oracle we need 126 tokens for 0.960 (Section 6.2). The remaining cost gap comes from selection
-error—not knowing which chunk is better—rather than from insufficient context. The direction is
-therefore clear: improve the estimate of $g(a\mid S)$ and refine the selection granularity. The
-counter-intuitive result in Appendix A has the same origin: more labels did not improve routing,
-because the label depends on what was retrieved, not only on how the question is worded.
-
+An oracle that knows which chunk to take reaches 0.958 recall with 58 tokens (Appendix A); without that oracle we need 126 tokens for 0.960 (Section 6.2). The remaining cost gap comes from selection error—not knowing which chunk is better—rather than from insufficient context. The direction is therefore clear: improve the estimate of $g(a\mid S)$ and refine the selection granularity. The counter-intuitive result in Appendix A has the same origin: more labels did not improve routing, because the label depends on what was retrieved, not only on how the question is worded.
 ## 8. Limitations
-
-The conclusions have seven boundaries. **Corpus**: the main evidence is 500 synthetic technical
-questions; cross-corpus validation covers retrieval only (Section 6.4) and the multi-hop generation
-results are small (Section 6.5), so transfer to production corpora needs an additional validation
-set. **Baselines**: the Adaptive-RAG and CRAG entries are behavioural approximations—a heuristic
-router and an off-the-shelf relevance evaluator (Section 6.1)—not reproductions of the fine-tuned
-models of the original papers, so the comparison is evidence at the same order of magnitude rather
-than an exact replication (Appendix C documents what was and was not reproduced). **Cost**: figures are converted from public unit prices and exclude
-batch discounts, cache hits and operations overhead (Section 7.3), which makes them suitable for
-relative comparison only. **Token estimates**: tiktoken over-counts Chinese relative to actual
-billing (Section 7.3), so the true context cost at equal recall is lower than reported. None of these
-four enters the abstract. Three further boundaries emerged when the corpus was enlarged. **Main table**:
-the 0.960 figure of Section 6.2 is a controlled synthetic setting; on real documentation the system ties
-a hybrid retriever (0.910) and the transferable gain is the 1–24% context saving of Section 6.9.
-**Adaptive threshold**: tau is a single global constant tuned per corpus (0.12 on scifact, 0.20 on
-nfcorpus). A per-query rule was tested and fails (Section 6.17), so recalibration remains a manual
-step. **Public benchmarks**: four BEIR subsets were run and one of them (arguana) shows no saving at
-all, so the gain is corpus-dependent (1–24%) rather than universal.
-
+The conclusions have seven boundaries. Corpus: the main evidence is 500 synthetic technical questions; cross-corpus validation covers retrieval only (Section 6.4) and the multi-hop generation results are small (Section 6.5), so transfer to production corpora needs an additional validation set. Baselines: the Adaptive-RAG and CRAG entries are behavioural approximations—a heuristic router and an off-the-shelf relevance evaluator (Section 6.1)—not reproductions of the fine-tuned models of the original papers, so the comparison is evidence at the same order of magnitude rather than an exact replication (Appendix C documents what was and was not reproduced). Cost: figures are converted from public unit prices and exclude batch discounts, cache hits and operations overhead (Section 7.3), which makes them suitable for relative comparison only. Token estimates: tiktoken over-counts Chinese relative to actual billing (Section 7.3), so the true context cost at equal recall is lower than reported. None of these four enters the abstract. Three further boundaries emerged when the corpus was enlarged. Main table: the 0.960 figure of Section 6.2 is a controlled synthetic setting; on real documentation the system ties a hybrid retriever (0.910) and the transferable gain is the 1–24% context saving of Section 6.9. Adaptive threshold: tau is a single global constant tuned per corpus (0.12 on scifact, 0.20 on nfcorpus). A per-query rule was tested and fails (Section 6.17), so recalibration remains a manual step. Public benchmarks: four BEIR subsets were run and one of them (arguana) shows no saving at all, so the gain is corpus-dependent (1–24%) rather than universal.
 <!-- Appendices to be translated. -->
 
 ## 9. Conclusion
