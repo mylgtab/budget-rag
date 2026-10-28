@@ -501,17 +501,18 @@ raises accuracy from 0–0.23 to 0.14–0.52, and the improvement is significant
 is the same for the large and the small model, so the conclusion does not depend on the generator.
 
 **The fourth row is a significant negative effect, reported as measured.** TriviaQA questions are
-largely commonsense, so the model answers from its parameters; the corpus consists of twenty-odd
-distractor passages and an 800-token budget covers about 11% of it, so the retrieved fragments pull the
-model off course—an effect that is significant at n = 100 (0.090 vs 0.190, p = 0.002). This says that
+largely commonsense and the corpus consists of twenty-odd distractor passages, with an 800-token
+budget covering about 11% of it. Whether retrieval caused the decline, or which property of the corpus
+did, is not identified here; the effect itself is significant at n = 100 (0.090 vs 0.190, p = 0.002). This says that
 **whether to retrieve is itself a decision**, complementary to our gate, which only decides whether to
 rewrite. Upgrading the gate into a "retrieve or not" decision is the natural next step (Section 8).
 
 ### 6.6 Human Annotation
 
 On 200 doubly-annotated items, automatic containment agrees with human judgement 90%–97% of the
-time, and inter-annotator agreement is 0.548 (unweighted) and 0.673 (quadratic weighted). The
-automatic metric is **conservative**, so the recall in the main table is a lower bound.
+time, and inter-annotator agreement is 0.548 (unweighted) and 0.673 (quadratic weighted). Agreement alone does not establish the direction of the errors: in our sample the automatic metric
+misses some valid answers, which suggests the reported recall is conservative, but we do not claim a
+proven lower bound.
 
 ### 6.7 Threshold Sensitivity (Proposition 2)
 
@@ -559,13 +560,15 @@ Prometheus 14; 1.9M characters, 16,823 chunks) and adds four BEIR subsets for pu
 
 Paired bootstrapping over the 301 questions puts the recall difference at -0.003 (95% CI
 [-0.020, +0.010], p = 0.81) and the token saving at **15.5%** (95% CI [11.2%, 19.8%]): the rule is
-statistically indistinguishable from fixed k = 8 on quality while using 11-20% fewer tokens.
+statistically indistinguishable from fixed k = 8 on quality while using 11-20% fewer tokens. The
+budget-300 row averages 318 tokens because the final chunk can overshoot the cap; budgets are upper
+bounds, not exact counts.
 
 **BEIR (public protocol, document level)**
 
 We run four BEIR subsets through the same pipeline (bge-m3 embeddings, hybrid alpha = 0.2, chunk size
 200) and use fixed k = 8 as the reference; the adaptive configuration is the cheapest one whose
-nDCG@10 stays within 0.002 of that baseline. All queries are used, without subsampling.
+nDCG@10 does not fall more than 0.002 below that baseline (it may exceed it). All queries are used, without subsampling.
 
 **Table 8.** BEIR results on four subsets, all queries, fixed k = 8 as reference. Table 8 reports the BEIR results.
 
@@ -584,8 +587,7 @@ corpora but not on adversarially built ones. We report that failure instead of t
 to hide it. scidocs was also run but is excluded: its documents are long enough that the embedding
 endpoint truncates them, which depresses absolute nDCG for every method equally.
 
-**Significance on real documentation.** At a 300-token budget the paired comparison on the 301 At a 300-token budget the paired comparison on the 301
-questions is mixed, and we report it as such. Hybrid beats BM25 decisively (36 wins, 3 losses,
+**Significance on real documentation.** At a 300-token budget the paired comparison on the 301 questions is mixed, and we report it as such. Hybrid beats BM25 decisively (36 wins, 3 losses,
 McNemar p < 0.0001, surviving Holm correction for three comparisons) and also beats dense bge-large
 (25 wins, 8 losses, p = 0.0046, Holm-adjusted 0.0091), but ties dense bge-m3 (11 wins, 4 losses,
 p = 0.12). On this corpus the system therefore matches the strongest dense retriever rather than
@@ -595,11 +597,11 @@ Three revised conclusions. First, the transferable gain is **difficulty-adaptive
 recall or hit rate it saves 1-24% of context, the saving tracking how many queries can be
 answered confidently (24% on scifact, 6% on nfcorpus, 1% on fiqa, where a 57k-document corpus
 flattens the score margins, and none on the adversarial arguana set). Second, **token-based truncation alone carries
-no advantage**: on the internal benchmark fixed k=8 reaches the same recall as budget-300 truncation
-(294 vs 318 tokens), so the difference comes from deciding how many chunks each query needs, not from
+no advantage**: on the internal benchmark fixed k=8 reaches the same recall within noise as budget-300 truncation
+(0.904 versus 0.910 at 289 versus 318 tokens), so the difference comes from deciding how many chunks each query needs, not from
 stopping at a token count. Third, **sentence-level indexing and gated rewriting do not transfer**: on
-English documentation the sentence index scores 0.718 against 0.910 for fixed blocks, and gated
-rewriting 0.874 against 0.910, so those claims must be restricted to short-sentence Chinese corpora
+English documentation, at the same 300-token budget, document-level recall of the sentence index is
+0.718 against 0.910 for fixed blocks, and that of gated rewriting is 0.874, so those claims must be restricted to short-sentence Chinese corpora
 where question and document wording diverge.
 
 The claim of this paper is therefore revised: **on heterogeneous loads where a single k is hard to
@@ -897,7 +899,7 @@ rule's suboptimality -- has an empirically falsifiable target to aim at.
 
 Writing the budget as a constraint rather than a tuned $k$ buys three transferable properties.
 
-The strongest transferable finding is narrower than the original framing. On 312 documentation pages and BEIR scifact, truncating by tokens buys nothing over a well-chosen fixed $k$ (294 versus 318 tokens at equal recall). What does transfer is deciding the depth per query from the retrieval-score margin: at equal hit rate that saves 1-24% of context on natural corpora, and nothing on an adversarial one (Section 6.9). The mechanism is therefore "how many chunks does *this* query need", not "stop at a token count".
+The strongest transferable finding is narrower than the original framing. On 312 documentation pages and BEIR scifact, truncating by tokens buys nothing over a well-chosen fixed $k$ (289 versus 318 tokens at equal recall). What does transfer is deciding the depth per query from the retrieval-score margin: at equal hit rate that saves 1-24% of context on natural corpora, and nothing on an adversarial one (Section 6.9). The mechanism is therefore "how many chunks does *this* query need", not "stop at a token count".
 
 First, the shadow price becomes a readable configuration value: $\lambda$ is the quality obtained per additional unit of budget, and it translates "how many chunks" into "is this unit still worth it". Section 6.7 shows the observable consequence—when the unit-price coefficient rises from 0.25 to 2, the optimal threshold falls from 0.25 to 0 and the system decides by itself that rewriting is not worth it at that price. A budget can therefore be written into configuration as an SLA (tokens and money per query) and survives a change of model or price without re-sweeping hyperparameters.
 
