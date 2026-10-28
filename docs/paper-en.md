@@ -255,14 +255,16 @@ budget.
 
 ## 3. Problem Formulation
 
-A query admits a set of retrieval actions $\mathcal{A}$. Action $a$ has cost $c(a)$ and marginal
-gain $g(a\mid S)$ given the already selected set $S$, and the quality $Q(S)$ is monotone
-non-decreasing. A policy is the solution of
+For each query, let $\mathcal{A}$ denote the available retrieval actions and $S \subseteq \mathcal{A}$
+the actions selected. Each action $a$ has cost $c(a)$ and marginal gain $g(a \mid S)$ given $S$. We
+assume that the quality $Q(S)$ is monotone non-decreasing. Under budget $B$, the policy selects an
+action set by solving
 
-$$\max_{S\subseteq\mathcal{A}} Q(S) \quad \text{s.t.} \quad \sum_{a\in S} c(a) \le B .$$
+$$\max_{S \subseteq \mathcal{A}} Q(S) \quad \text{subject to} \quad \sum_{a \in S} c(a) \le B .$$
 
-Two assumptions carry the later results: **A1** diminishing marginal returns, and **A2** costs are
-additive and order-independent.
+The subsequent results rely on two assumptions. Under **(A1)**, marginal gains diminish:
+$g(a \mid S) \ge g(a \mid T)$ whenever $S \subseteq T \subseteq \mathcal{A}$ and $a \notin T$.
+Under **(A2)**, action costs are additive and independent of execution order.
 
 ## 4. Method
 
@@ -1039,24 +1041,25 @@ The coefficient is `1−Q`, not `Q`: the gain can only come from the part not ye
 **D.2 The cross-query theorem (k = 1).** Write
 `Δ_1 = (1−p_1)·p_2 = ρ·p_1(1−p_1)` with `ρ := p_2/p_1`. The conclusion needs more than `p_1` growing.
 
-*Assumptions.* (A1) ranking scores order utilities; (A3) `p_1 = g(γ)` with g increasing;
-(H1) `p_1 ≥ 1/2`; (H2) `ρ` is non-increasing in `p_1`.
+*Assumptions.* **(M1)** the ranking scores order utilities; **(M2)** the conditional hit
+probabilities decrease with rank, `p_1 ≥ p_2 ≥ … ≥ p_K`; **(M3)** `p_1 = g(γ)` with g increasing;
+**(H1)** `p_1 ≥ 1/2`; **(H2)** `ρ` is non-increasing in `p_1`.
 
-*Theorem.* Under A1, A3, H1, H2, `Δ_1` is non-increasing in γ.
+*Theorem.* Under M1, M3, H1, H2, `Δ_1` is non-increasing in γ. (M2 is not needed for k = 1; it is used in Lemma D.2.)
 
 *Proof.* Take two queries q, q' with `p_1(q) ≤ p_1(q')`, both ≥ 1/2. By H2, `ρ(q') ≤ ρ(q)`. Let
 `h(p) = p(1−p)`. Then
 `Δ_1(q') − Δ_1(q) = ρ(q')h(p_1(q')) − ρ(q)h(p_1(q)) ≤ ρ(q)[h(p_1(q')) − h(p_1(q))]`,
 using `ρ(q') ≤ ρ(q)` and `ρ ≥ 0`. Since `h'(p) = 1−2p ≤ 0` on `[1/2, 1]`, `h(p_1(q')) ≤ h(p_1(q))`,
-so the difference is at most zero. With A3, larger γ implies larger `p_1`, hence smaller `Δ_1`. ∎
+so the difference is at most zero. With M3, larger γ implies larger `p_1`, hence smaller `Δ_1`. ∎
 
-**D.3 Counterexample 1: A1 + A3 do not suffice.** Let `p_i ≡ θ` (constant). Then `ρ = 1` and
+**D.3 Counterexample 1: M1 + M3 do not suffice.** Let `p_i ≡ θ` (constant). Then `ρ = 1` and
 `Δ_1 = θ(1−θ)`, so `dΔ_1/dθ = 1−2θ`. For `θ < 1/2` the marginal gain *increases* with confidence,
 opposite to the theorem. This is why H1 (the high-confidence region) cannot be dropped. Note that this
-example violates A2, so it shows only that A1 + A3 are insufficient.
+example violates M2, so it shows only that M1 + M3 are insufficient.
 
 **D.4 Counterexample 2: H2 is essential.** Let `p_1 = θ`, `p_2 = θ²`, and `p_i = 0` for `i ≥ 3`. Then
-A1, A2 (`θ² ≤ θ`), A3 and H1 (for `θ ∈ [1/2, 2/3)`) all hold, but
+M1, M2 (`θ² ≤ θ`), M3 and H1 (for `θ ∈ [1/2, 2/3)`) all hold, but
 `Δ_1 = (1−θ)θ²` and `dΔ_1/dθ = θ(2−3θ) > 0` for `θ < 2/3`. The conclusion therefore fails **even
 when every assumption except H2 is satisfied**: H2 is not a technical add-on but a necessary condition.
 It is also the condition that the adversarial corpus of Section 6.9 violates.
