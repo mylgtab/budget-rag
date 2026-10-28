@@ -134,8 +134,23 @@ def audit(path: Path, label: str, lang: str) -> int:
     return len(miss) + len(stale_hits)
 
 
+def check_figures(path: Path, label: str) -> int:
+    import re
+    text = path.read_text(encoding="utf-8")
+    refs = sorted(set(re.findall(r"!\[[^\]]*\]\((figures/[^)]+)\)", text)))
+    caps = len(re.findall(r"^\*\*(?:Figure|图) ?\d+", text, re.M))
+    miss = [r for r in refs if not (path.parent / r).exists()]
+    print(f"\n=== {label} 图 ===")
+    print(f"  引用 {len(refs)} 张 / 标题 {caps} 个 / 缺失文件 {miss or '无'}")
+    if len(refs) != 5 or caps != 5 or miss:
+        print("  ✗ 图数量或文件不一致")
+        return 1
+    return 0
+
+
 def main() -> int:
     bad = audit(EN, "paper-en.md", "en") + audit(ZH, "paper-draft.md", "zh")
+    bad += check_figures(EN, "paper-en.md") + check_figures(ZH, "paper-draft.md")
 
     # 结果文件自检：关键 JSON 是否齐全
     need = ["eval_real_b300", "adaptive_sweep", "conformal_sweep_hybrid", "significance_holm",

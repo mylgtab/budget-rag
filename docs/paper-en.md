@@ -314,6 +314,16 @@ missing; the second hop then searches for "original question + supplementary que
 result sets are merged with chunk-level deduplication. The supplementary query is model-generated
 rather than extracted by a fixed rule, so it can name the missing entity directly.
 
+
+![Figure 1. System overview](figures/fig1-pipeline.png)
+
+**Figure 1.** System overview. Short-sentence corpora are indexed twice (sentence level and fixed
+blocks) and English documentation is indexed with fixed blocks only; when both exist, the per-query
+budget decides which one is used (Section 4.1). Routing assigns a tier; the first retrieval yields
+the confidence $\gamma$; the gate decides whether to rewrite and re-retrieve; chunks are accumulated
+until the budget $B$ is reached; a second hop is enabled when two pieces of evidence are needed.
+Dashed edges are optional paths; $c(a)$ and $g(a\mid S)$ are the cost and gain used for ordering.
+
 ## 5. Theory
 
 **Proposition 1 (approximation bound).** Under A1 (diminishing returns) and A2 (additive costs),
