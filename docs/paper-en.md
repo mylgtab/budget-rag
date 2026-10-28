@@ -675,7 +675,7 @@ BM25 takes 16 ms, dense retrieval 45 ms (including query encoding) and hybrid re
 generation takes 898 ms at p50 (Section 6.8). Retrieval therefore accounts for at most 7.5% of
 end-to-end latency, and the three cost dimensions are collinear in this setting: money is a fixed
 multiple of tokens, prefill latency is close to linear in context length, and the spread across
-retrievers (16-70 ms) is too small to move a latency budget.
+retrievers (16-74 ms) is too small to move a latency budget.
 The resulting operating points, including the official classifier of Section 6.16, are:
 
 **Table 10.** Operating points of all policies, including the official classifier of Section 6.16. Table 10 lists the operating points.
