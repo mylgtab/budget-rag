@@ -326,36 +326,39 @@ Dashed edges are optional paths; $c(a)$ and $g(a\mid S)$ are the cost and gain u
 
 ## 5. Theory
 
+This section states four consequences of the formulation in Section 3. Propositions 1 and 4 are proved
+below; Propositions 2 and 3 follow from the shadow-price view and are used operationally in
+Sections 4.2-4.3.
+
 **Proposition 1 (approximation bound).** Under A1 (diminishing returns) and A2 (additive costs),
-$Q(S)$ is monotone submodular. Greedy selection by marginal gain attains $1-1/e$ under a
-cardinality constraint [22]; under a budget constraint the bound of
-unit-cost greedy drops to $(1-1/e)/2$ and is recovered to $1-1/e$ with cross-tier enumeration
-[23]. We instantiate this ordering on the retrieval action set; the gap to the
-brute-force optimum is measured in Appendix A.
+$Q(S)$ is monotone submodular. Greedy selection by marginal gain attains $1-1/e$ under a cardinality
+constraint [22]; under a budget constraint the bound of unit-cost greedy drops to $(1-1/e)/2$ and is
+recovered to $1-1/e$ with cross-tier enumeration [23]. We instantiate this ordering on the retrieval
+action set, and measure the gap to the brute-force optimum in Appendix A.
 
-**Proposition 2 (rewriting gate).** Let $q_0$ and $q_1$ be the quality without and with
-rewriting, $p$ the probability that rewriting helps, and $c_r$ its cost. Rewriting pays off if and
-only if $p(q_1-q_0) > \lambda c_r$, where $\lambda$ is the shadow price of the budget.
-Equivalently, rewriting should be triggered below a confidence threshold, and that threshold is
-solved from $\lambda$ rather than fixed at 0.25 (Section 4.3).
+**Proposition 2 (rewriting gate).** Let $q_0$ and $q_1$ be the quality without and with rewriting, $p$
+the probability that rewriting helps, and $c_r$ its cost. Rewriting pays off exactly when
+$p(q_1 - q_0) > \lambda c_r$, where $\lambda$ is the shadow price of the budget. Equivalently,
+rewriting is triggered below a confidence threshold that is solved from $\lambda$ rather than fixed at
+0.25 (Section 4.3).
 
-**Proposition 3 (cascade threshold chain).** If action costs increase and gains decrease
-monotonically with confidence, the optimal policy assigns each confidence interval to a tier—a
-threshold chain—and the thresholds move monotonically with the budget $B$. This explains why
-cascades work and implies that tier boundaries should follow the budget (Section 4.2).
+**Proposition 3 (cascade threshold chain).** Suppose the actions can be ordered by increasing cost,
+and that the gain of each action decreases monotonically with confidence. Then the optimal policy
+assigns each confidence interval to one tier -- a threshold chain -- and the thresholds move
+monotonically with the budget $B$. This explains why cascades work and implies that tier boundaries
+should follow the budget (Section 4.2).
 
 **Proposition 4 (monotonicity of the threshold).** Assume **A3**: the rewriting gain
-$B(\gamma)=p(\gamma)\Delta q(\gamma)$ is non-increasing in the retrieval confidence $\gamma$.
-Then the optimal threshold satisfies $B(\tau^*)=\lambda c_r$, and $\tau^*(\lambda)$ is
+$B(\gamma) = p(\gamma)\Delta q(\gamma)$ is non-increasing in the retrieval confidence $\gamma$.
+Then the optimal threshold satisfies $B(\tau^*) = \lambda c_r$, and $\tau^*(\lambda)$ is
 non-increasing in $\lambda$.
 
-*Proof.* By Proposition 2 the criterion for rewriting is $B(\gamma)>\lambda c_r$. A3 makes $B$
-non-increasing, so the confidences that satisfy the criterion form an interval $[0,\tau^*)$. As
-$\lambda$ grows the right-hand side $\lambda c_r$ grows, the feasible set shrinks, and
-$\tau^*$ therefore does not increase. In the boundary cases $\lambda c_r \ge B(0)$ gives
-$\tau^*=0$ (never rewrite) and $\lambda c_r \le B(1)$ gives $\tau^*=1$ (always rewrite).
-Section 6.7 verifies the former boundary: when the unit-price coefficient rises to 2, the optimal
-threshold falls from 0.25 to 0.
+*Proof.* By Proposition 2 the criterion for rewriting is $B(\gamma) > \lambda c_r$. A3 makes $B$
+non-increasing, so the confidences that satisfy the criterion form an interval $[0, \tau^*)$. As
+$\lambda$ grows, the right-hand side $\lambda c_r$ grows, the feasible set shrinks, and $\tau^*$
+therefore does not increase. At the boundaries, $\lambda c_r \ge B(0)$ gives $\tau^* = 0$ (never
+rewrite) and $\lambda c_r \le B(1)$ gives $\tau^* = 1$ (always rewrite). Section 6.7 verifies the
+former boundary: when the unit-price coefficient rises to 2, the optimal threshold falls from 0.25 to 0.
 
 ## 6. Experiments
 
