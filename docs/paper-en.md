@@ -954,12 +954,23 @@ target and twenty labelled questions, a system can certify what it promises, and
 
 ## Appendix A. Negative Results
 
-Negative results are collected here. Pseudo-relevance feedback (PRF) causes query drift, losing
-1.6 pt on the sentence index and 19.6 pt on fixed blocks; the zeroth rung—answering without
-retrieval—is not viable on a technical corpus, with containment of 0.11; at a 200-token budget greedy
-allocation falls 6 pt below the brute-force optimum, in the direction predicted by the approximation
-in Proposition 1; and learned routers (TF-IDF 0.747, BERT 0.702) do not reach the score-based gate
-(0.960). Their role is to rule out alternative explanations, which is why they sit in the appendix.
+Negative results are collected here so that the main claims are bounded from below rather than only
+from above.
+
+Pseudo-relevance feedback (PRF) lost 1.6 pt on the sentence index and 19.6 pt on fixed blocks in the
+tested setting; query drift is a plausible explanation, but the experiment does not isolate it.
+Answering without retrieval was not viable on the technical corpus, with containment of 0.11. At a
+200-token budget, greedy allocation fell 6 pt below the brute-force optimum: the direction is
+consistent with diminishing returns, although the bound of Proposition 1 does not predict the
+magnitude of an individual gap.
+
+The learned routers are the most informative negative result because they are usually assumed to be
+the principled alternative. On the 500-question benchmark, TF-IDF and BERT classifiers reach
+classification accuracies of 0.730 and 0.702. Accuracy is not comparable with the gate's retrieval
+recall, so we also ran each router as a routing policy on the same questions: they reach 0.744 and
+0.712 recall at about 25-30 tokens, against 0.948 recall at 175 tokens for the score gate. The routers
+are far cheaper, so the two operating points differ in both signal source and budget; this comparison
+does not separate those factors.
 
 ## Appendix B. Reproducibility
 
@@ -967,10 +978,10 @@ in Proposition 1; and learned routers (TF-IDF 0.747, BERT 0.702) do not reach th
 nominal 800-token budget consumed only about 500 tokens. After changing the cap to scale with the
 budget we re-ran the generation experiments of Section 6.5; a regression test
 (`tests/test_longbench.py`) now guards against the cap binding before the budget does. Budgeted
-interfaces need assertions of this kind—that is the lesson from building the system.
+interfaces need assertions of this kind -- that is the lesson from building the system.
 
 ```
-make test          # 65 tests
+make test          # 75 tests
 python scripts/baselines.py --limit 200
 python scripts/multihop.py --modes single bridge entity
 python scripts/tune_params.py
@@ -980,7 +991,7 @@ All code, evaluation sets and scripts are released under the MIT license at
 https://github.com/mylgtab/budget-rag (v1.1.0). A stranger can reproduce the main table in about
 thirty minutes: clone, `pip install -e .`, `make check`. The repository ships small data snapshots so
 reproduction does not depend on external mirrors, and CI rebuilds and queries the Docker image on
-every push.
+every push. `docs/REPRODUCE.md` maps each table and figure to the script that produces it.
 
 ## Appendix C. Reproduction Notes for the Baselines
 
@@ -996,16 +1007,19 @@ strategies (zero, single, multi), and a T5 classifier over three complexity labe
 training the T5-large classifier does not fit on the 8 GB GPU used here.
 
 **What we reproduced.** The core of the official classifier is that complexity labels are generated
-automatically from the outcomes of running the three strategies. We follow the same construction on
-our own benchmark—recording the smallest action that retrieves the answer as the complexity class
-(one chunk / five hybrid chunks / requires rewriting)—which yields a 222/52/17/9 split, and train two
-classifiers on it (TF-IDF and BERT, accuracy 0.747 and 0.702). The label construction and the
-discrimination task therefore match the original; the model scale and environment do not.
+automatically from the outcomes of running the strategies. We follow the same construction on our own
+benchmark, assigning each query to the smallest action that retrieves its answer: one BM25 chunk,
+five hybrid chunks, or rewriting only. Questions that no action answered form a fourth class. On the
+500-question benchmark the split is 353 / 101 / 25 / 21, and classifiers trained on these labels reach
+0.730 (TF-IDF) and 0.702 (BERT) four-way accuracy. The construction follows the same principle; the
+label definitions and the classification task are not identical to the official ones, and we do not
+claim they are.
 
 **On the CRAG side** we likewise reproduce the behaviour: an off-the-shelf model judges whether the
 retrieved context suffices (good / partial / bad), and a `bad` verdict triggers a rewritten query and
 a second retrieval, mirroring the original correct / incorrect / ambiguous branches. The original uses
-a fine-tuned lightweight evaluator; we use a general-purpose model.
+a fine-tuned lightweight evaluator; we use a general-purpose model, so the branch definitions are
+analogous rather than equivalent.
 
 **What was not reproduced, and why.** The Elasticsearch retrieval service and the LLM serving process
 require separate service deployments and Linux scripts, and fine-tuning T5-large requires more memory
@@ -1013,13 +1027,13 @@ than is available. On the single Windows machine used for this work neither coul
 comparison in Section 6.2 should therefore be read as evidence at the same order of magnitude, not as
 a digit-for-digit match to the original paper.
 
-**The conclusion from this level of reproduction is still informative.** With the label construction
-matching the original, text-based classifiers (0.747 / 0.702) remain below the score-based gate
-(0.960): the gap comes from the *source of the signal*, not from model scale or implementation detail.
-Swapping in the original T5-large would be expected to raise classifier accuracy while leaving that
-conclusion unchanged.
-
----
+**What this level of reproduction does and does not establish.** The routers reach 0.730 and 0.702
+classification accuracy, and as routing policies 0.744 and 0.712 recall at about 25-30 tokens; the
+score gate reaches 0.948 recall at 175 tokens on the same questions. The routers are an order of
+magnitude cheaper and clearly lower-recall, so the comparison varies both the signal source and the
+operating point. It does not show that the signal source alone decides, and it does not isolate the
+effect of model scale: swapping in the original T5-large classifier would change accuracy, and the
+effect of that change on the conclusions is untested.
 
 ## Appendix D. Why the Margin Predicts Diminishing Returns
 
