@@ -268,65 +268,51 @@ Under **(A2)**, action costs are additive and independent of execution order.
 
 ## 4. Method
 
-Our retrieval layer builds on two standard components: sparse BM25 scoring [2] and dense bi-encoder retrieval [3].
-
+Our retrieval layer combines sparse BM25 scoring [2] with dense bi-encoder retrieval [3].
 
 ### 4.1 Dual Index and Budgeted Chunk Selection
 
-Long documents are indexed at two granularities (Figure 1): **sentence level** (split on
-punctuation, roughly 15–40 tokens) and **fixed blocks** (sliding window, 200 tokens with 40
-overlap by default). Sentence-level indexing never drags unrelated sentences in, which pays off on
-short-sentence corpora such as the Chinese technical notes of Section 6.2; fixed blocks keep a
-coherent window and, as Section 6.9 shows, are decisively better on English documentation (0.910
-against 0.718 at a 300-token budget). Whether both indexes are built is a corpus-level decision: short-sentence corpora are dual-indexed,
-while English documentation is indexed with fixed blocks only (Section 6.9). When both exist, the
-per-query budget $ctx$ (in tokens, equal to $B$) selects sentence level for $ctx \le 500$ and fixed
-blocks otherwise.
+Long documents are indexed at two granularities (Figure 1). Sentence-level chunks are split on
+punctuation and contain roughly 15-40 tokens. Fixed blocks use a sliding 200-token window with a
+40-token overlap by default. Sentence-level indexing keeps unrelated sentences out of a retrieved
+chunk, which benefits short-sentence corpora such as the Chinese technical notes in Section 6.2;
+fixed blocks preserve a coherent window and perform better on English documentation, reaching 0.910
+versus 0.718 at a 300-token budget (Section 6.9). Whether both indexes are built is therefore a
+corpus-level decision: short-sentence corpora are dual-indexed, while English documentation is
+indexed with fixed blocks only. When both exist, the per-query budget $ctx$ (in tokens, equal to
+$B$) selects sentence level for $ctx \le 500$ and fixed blocks otherwise.
 
-Chunks are accumulated in descending retrieval score until the selected chunks reach the token
-budget $B$, and then the loop stops, with no fixed $k$ truncation. Section 6.9 qualifies this design:
-on real corpora the truncation behaves like a well-chosen fixed $k$, and the operational difference
-appears only when the depth is chosen per query from the score margin.
+Chunks are added in descending retrieval-score order until the selected chunks reach the token budget
+$B$, without imposing a fixed top-$k$ cutoff. Section 6.9 qualifies this design: on real corpora the
+truncation behaves like a well-chosen fixed $k$, and an operational difference appears only when
+retrieval depth is chosen per query from the score margin.
 
 ### 4.2 Cascade Routing
 
-Routing is tiered by the admissible cost per thousand tokens: very tight budgets
-(< 0.002 CNY) take one chunk from BM25; medium budgets take two chunks from BM25; generous
-budgets (≥ 0.01 CNY) take five chunks from hybrid retrieval. The tier boundaries are not
-arbitrary: they are the discretization of the greedy allocation (Proposition 1) and correspond
-to the knee of the gain-per-cost curve.
+Routing has three tiers, defined by the admissible cost per thousand tokens. Very tight budgets
+(< 0.002 CNY) select one BM25 chunk, medium budgets (0.002-0.01 CNY) select two, and generous budgets
+($\ge$ 0.01 CNY) select five chunks from hybrid retrieval. These tiers discretize the greedy
+allocation of Proposition 1 and correspond to the knee of the gain-per-cost curve.
 
 ### 4.3 Confidence-Gated Query Rewriting
 
-Rewriting accounts for about half of the end-to-end latency (Section 6.8), so it is triggered
-only when needed. The system first runs a cheap retrieval and computes the relative margin
-between the top-1 and top-2 scores,
+Because rewriting accounts for about half of end-to-end latency (Section 6.8), we invoke it only when
+needed. An initial low-cost retrieval provides the relative margin between the top two scores,
 
 $$\gamma = \frac{s_1 - s_2}{s_1}.$$
 
-When $\gamma < \tau$ the retrieval is deemed uncertain, the query is rewritten, and retrieval is
-repeated with "original question + rewrite terms". The optimal threshold is set by the shadow
-price of the budget (Proposition 2); the default 0.25 corresponds to pricing a rewrite at about
-one strong retrieval. The sensitivity experiment in Section 6.7 confirms that $\tau$ moves down as
-the unit price rises.
+When $\gamma < \tau$ the retrieval is treated as uncertain: the query is rewritten and retrieval is
+repeated with "original question + rewrite terms". The shadow price of the budget determines the
+optimal threshold (Proposition 2); the default $\tau = 0.25$ corresponds to pricing a rewrite at about
+one strong retrieval. Section 6.7 confirms that $\tau$ falls as the unit price rises.
 
 ### 4.4 Multi-Hop Extension
 
-For questions that need two pieces of evidence, after the first hop the model is given the
-question plus a summary of what was retrieved and asked what is still missing; a second hop then
-runs with "original question + supplementary query", and the two result sets are merged with
-chunk-level deduplication. Model-generated supplementary queries outperform rule-based extraction
-of proper nouns from the context (Section 6.5).
-
-![Figure 1. System overview](figures/fig1-pipeline.png)
-
-**Figure 1.** System overview. Short-sentence corpora are indexed twice (sentence level and fixed
-blocks) and English documentation is indexed with fixed blocks only; when both exist, the per-query
-budget decides which one is used (Section 4.1). Routing assigns a tier; the first retrieval
-yields the confidence $\gamma$; the gate decides whether to rewrite and re-retrieve; chunks are
-accumulated until the budget $B$ is reached; a second hop is enabled when two pieces of evidence
-are needed. Dashed edges are optional paths; $c(a)$ and $g(a\mid S)$ are the cost and gain used
-for ordering.
+For questions that need two pieces of evidence, a second retrieval hop is added. After the first hop,
+the model receives the question plus a summary of the retrieved material and identifies what is still
+missing; the second hop then searches for "original question + supplementary query", and the two
+result sets are merged with chunk-level deduplication. The supplementary query is model-generated
+rather than extracted by a fixed rule, so it can name the missing entity directly.
 
 ## 5. Theory
 
